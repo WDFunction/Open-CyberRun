@@ -3,3 +3,4 @@ dist
 *.tsbuildinfo
 .env.local
 .vercel
+yarn-error.log

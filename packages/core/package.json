@@ -1,6 +1,8 @@
 {
     "name": "@cyberrun/core",
     "version": "0.0.1-alpha.1",
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts",
     "files": [
         "dist"
     ],

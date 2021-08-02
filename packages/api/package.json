@@ -4,15 +4,18 @@
     "scripts": {
         "watch": "tsc --watch",
         "build": "tsc",
-        "dev":"nodemon --watch ./dist/**/* --watch ../core/dist/**/* dist/main.js"
+        "dev": "nodemon --watch ./dist/**/* --watch ../core/dist/**/* dist/main.js"
     },
     "dependencies": {
         "@koa/router": "^10.1.0",
         "koa": "^2.13.1",
-        "koa-body": "^4.2.0",
+        "koa-bodyparser": "^4.3.0",
         "typescript": "^4.3.5"
     },
     "devDependencies": {
+        "@types/koa": "^2.13.4",
+        "@types/koa__router": "^8.0.7",
+        "@types/koa-bodyparser": "^4.3.2",
         "nodemon": "^2.0.12"
     }
 }
