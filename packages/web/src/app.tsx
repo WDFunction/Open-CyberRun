@@ -7,6 +7,36 @@ const routes: RouteConfig[] = [
     path: '/',
     exact: true,
     component: loadable(() => import('./pages/index'))
+  },
+  {
+    path: '/about',
+    exact: true,
+    component: loadable(() => import('./pages/about'))
+  },
+  {
+    path: '/profile',
+    exact: true,
+    component: loadable(() => import('./pages/profile'))
+  },
+  {
+    path: '/level',
+    exact: true,
+    component: loadable(() => import('./pages/level'))
+  },
+  {
+    path: '/rank',
+    exact: true,
+    component: loadable(() => import('./pages/rank'))
+  },
+  {
+    path: '/record',
+    exact: true,
+    component: loadable(() => import('./pages/record'))
+  },
+  {
+    path: '/admin/levels',
+    exact: true,
+    component: loadable(() => import('./pages/admin/levels'))
   }
 ]
 
