@@ -12,7 +12,8 @@
     "watch:core": "yarn workspace @wdfunction/cbr-core watch",
     "dev:api": "yarn workspace @wdfunction/cbr-api dev",
     "watch:api": "yarn workspace @wdfunction/cbr-api watch",
-    "dev:server":"concurrently \"yarn watch:core\" \"yarn watch:api\"  \"yarn dev:api\""
+    "dev:server": "concurrently \"yarn watch:core\" \"yarn watch:api\"  \"yarn dev:api\"",
+    "build:web": "yarn workspace @wdfunction/cbr-web build"
   },
   "dependencies": {
     "concurrently": "^6.2.0"
