@@ -2,10 +2,19 @@
   "name": "open-cyberrun",
   "version": "1.0.0",
   "private": "true",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "repository": "https://github.com/WDFunction/Open-CyberRun",
   "author": "LittleC <i@ltlec.cn>",
   "scripts": {
-    "dev:web":"yarn workspace @wdfunction/cbr-web dev"
+    "dev:web": "yarn workspace @wdfunction/cbr-web dev",
+    "watch:core": "yarn workspace @wdfunction/cbr-core watch",
+    "dev:api": "yarn workspace @wdfunction/cbr-api dev",
+    "watch:api": "yarn workspace @wdfunction/cbr-api watch",
+    "dev:server":"concurrently \"yarn watch:core\" \"yarn watch:api\"  \"yarn dev:api\""
+  },
+  "dependencies": {
+    "concurrently": "^6.2.0"
   }
 }

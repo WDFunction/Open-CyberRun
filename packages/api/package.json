@@ -1,4 +1,18 @@
 {
-    "name":"@wdfunction/cbr-api",
-    "version": "0.0.0"
+    "name": "@wdfunction/cbr-api",
+    "version": "0.0.0",
+    "scripts": {
+        "watch": "tsc --watch",
+        "build": "tsc",
+        "dev":"nodemon --watch ./dist/**/* --watch ../core/dist/**/* dist/main.js"
+    },
+    "dependencies": {
+        "@koa/router": "^10.1.0",
+        "koa": "^2.13.1",
+        "koa-body": "^4.2.0",
+        "typescript": "^4.3.5"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.12"
+    }
 }

@@ -1,4 +1,12 @@
 {
-    "name":"@wdfunction/cbr-core",
-    "version": "0.0.0"
+    "name": "@wdfunction/cbr-core",
+    "version": "0.0.0",
+    "scripts": {
+        "watch": "tsc --watch",
+        "build": "tsc"
+    },
+    "dependencies": {
+        "mongodb": "^4.0.1",
+        "typescript": "^4.3.5"
+    }
 }
