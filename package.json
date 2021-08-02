@@ -1,0 +1,11 @@
+{
+  "name": "open-cyberrun",
+  "version": "1.0.0",
+  "private": "true",
+  "workspaces": ["packages/*"],
+  "repository": "https://github.com/WDFunction/Open-CyberRun",
+  "author": "LittleC <i@ltlec.cn>",
+  "scripts": {
+    "dev:web":"yarn workspace @wdfunction/cbr-web dev"
+  }
+}
