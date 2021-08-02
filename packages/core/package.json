@@ -1,6 +1,9 @@
 {
-    "name": "@wdfunction/cbr-core",
-    "version": "0.0.0",
+    "name": "@cyberrun/core",
+    "version": "0.0.1-alpha.1",
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "watch": "tsc --watch",
         "build": "tsc"

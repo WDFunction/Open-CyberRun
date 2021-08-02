@@ -1,5 +1,5 @@
 {
-    "name": "@wdfunction/cbr-web",
+    "name": "@cyberrun/web",
     "version": "0.0.0",
     "scripts": {
         "dev": "vite",

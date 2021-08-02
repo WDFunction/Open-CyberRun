@@ -1,6 +1,6 @@
 {
-    "name": "@wdfunction/cbr-api",
-    "version": "0.0.0",
+    "name": "@cyberrun/api",
+    "version": "0.0.1-alpha.1",
     "scripts": {
         "watch": "tsc --watch",
         "build": "tsc",
