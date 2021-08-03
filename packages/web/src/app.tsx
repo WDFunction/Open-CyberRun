@@ -22,6 +22,11 @@ const routes: RouteConfig[] = [
     component: loadable(() => import('./pages/profile'))
   },
   {
+    path: '/user/email_verify/:token',
+    exact: true,
+    component: loadable(() => import('./pages/emailVerify'))
+  },
+  {
     path: '/login',
     exact: true,
     component: loadable(() => import('./pages/login'))

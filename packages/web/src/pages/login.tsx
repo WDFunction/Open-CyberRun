@@ -10,25 +10,28 @@ const LoginPage = () => {
   const history = useHistory()
 
   const submit = async () => {
-    let r = await instance({
-      url: '/user/init',
-      method: 'post',
-      data: {
-        email, password: pwd
+    try {
+      let r = await instance({
+        url: '/user/init',
+        method: 'post',
+        data: {
+          email, password: pwd
+        }
+      })
+      if (r.status === 201) {
+        toast.success("注册成功")
+      } else if (r.status === 200) {
+        toast.success("登录成功")
       }
-    })
-    if (r.data.status === 403) {
-      toast.error(r.data.message)
-    } else if (r.data.status === 201) {
-      toast.success("注册成功")
-    } else if (r.data.status === 200) {
-      toast.success("登录成功")
+      if (r.data?.data) {
+        localStorage.setItem("token", r.data.data)
+        history.push('/')
+      }
+    } catch (e) {
+      if (e.response.status === 403) {
+        toast.error(e.response.data.message)
+      }
     }
-    if (r.data?.data) {
-      localStorage.setItem("token", r.data.data)
-      history.push('/')
-    }
-
   }
 
   return <Container>
