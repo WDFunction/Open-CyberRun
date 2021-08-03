@@ -1,7 +1,12 @@
 import React from 'react'
+import useSWR from 'swr';
 
 const IndexPage = () => {
-  return <div>Index</div>
+  const {data} = useSWR('/games/')
+  console.log(data)
+  return <div>Index
+    
+  </div>
 }
 
 export default IndexPage;

@@ -2,6 +2,8 @@ import React from 'react'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import { RouteConfig, renderRoutes } from 'react-router-config'
 import loadable from '@loadable/component'
+import { SWRConfig } from 'swr'
+import instance from './components/instance'
 const routes: RouteConfig[] = [
   {
     path: '/',
@@ -42,9 +44,13 @@ const routes: RouteConfig[] = [
 
 const App = () => {
   return <BrowserRouter>
-    <Switch>
-      {renderRoutes(routes)}
-    </Switch>
+    <SWRConfig value={{
+      fetcher: url => instance.get(url).then(res => res.data)
+    }}>
+      <Switch>
+        {renderRoutes(routes)}
+      </Switch>
+    </SWRConfig>
   </BrowserRouter>
 }
 

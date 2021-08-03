@@ -1,5 +1,8 @@
 import { Db, MongoClient } from "mongodb";
+import GameModule from "./modules/game";
 import JWTModule from "./modules/jwt";
+import LevelModule from "./modules/level";
+import LogModule from "./modules/log";
 import UserModule from "./modules/user";
 
 export class CyberRun {
@@ -8,6 +11,9 @@ export class CyberRun {
 
   user: UserModule
   jwt: JWTModule
+  game: GameModule
+  level: LevelModule
+  log: LogModule
 
   constructor() {
     
@@ -22,5 +28,8 @@ export class CyberRun {
 
     this.user = new UserModule(this)
     this.jwt = new JWTModule(this)
+    this.game = new GameModule(this)
+    this.level = new LevelModule(this)
+    this.log = new LogModule(this)
   }
 }

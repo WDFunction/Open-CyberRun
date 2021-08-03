@@ -8,6 +8,7 @@ export interface User {
   username: string;
   password: string;
   createdAt: Date;
+  admin?: boolean;
 }
 
 export default class UserModule {

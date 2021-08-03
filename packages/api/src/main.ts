@@ -1,13 +1,17 @@
 import Koa from 'koa'
 import userRoute from './routes/user'
+import gameRoute from './routes/game'
 import bodyParser from 'koa-bodyparser'
 import { CyberRun } from '@cyberrun/core'
+import cors from '@koa/cors'
 export const cbr = new CyberRun()
 const app = new Koa()
 app.use(bodyParser())
+app.use(cors())
 
 async function start() {
   await cbr.start()
+  app.use(gameRoute.routes()).use(gameRoute.allowedMethods())
   app.use(userRoute.routes()).use(userRoute.allowedMethods())
 
   app.listen(54000)
