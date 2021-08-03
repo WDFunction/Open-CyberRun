@@ -9,9 +9,7 @@ const IndexPage = () => {
   const { data } = useSWR<Game[]>('/games/')
   const history = useHistory()
   const join = async (gameId: string) => {
-    let r = await instance<{
-      data: string
-    }>({
+    let r = await instance({
       url: `/games/${gameId}/join`,
       method: 'post'
     })
