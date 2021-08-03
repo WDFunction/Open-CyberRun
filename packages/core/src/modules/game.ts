@@ -1,4 +1,4 @@
-import { Collection, ObjectId } from "mongodb";
+import { Collection, ObjectId, Document } from "mongodb";
 import { CyberRun } from "../app";
 
 export interface Game {
@@ -23,5 +23,17 @@ export default class GameModule {
   async list(){
     let list = await this.col.find().toArray()
     return list
+  }
+
+  async get(id: ObjectId){
+    let item = await this.col.findOne({_id: id})
+    return item
+  }
+
+  async getStartLevel(gameId: ObjectId){
+    let level = await this.core.level.levelCol.findOne({
+      gameId, type: "start"
+    })
+    return level
   }
 }

@@ -5,12 +5,12 @@ export interface Log {
   _id: ObjectId;
   userId: ObjectId;
   gameId: ObjectId;
-  levelId: ObjectId;
-  ip: string;
-  type: "passed" | "failed" | "start"
+  levelId?: ObjectId;
+  ip?: string;
+  type: "passed" | "failed" | "join"
   createdAt: Date;
-  newLevelId: ObjectId;
-  answers: string[]
+  newLevelId?: ObjectId;
+  answers?: string[]
 }
 
 export default class LogModule {
@@ -20,5 +20,11 @@ export default class LogModule {
     this.core = core
 
     this.col = this.core.db.collection<Log>('log')
+  }
+
+  async joinGame(userId: ObjectId, gameId: ObjectId){
+    this.col.insertOne({
+      userId, gameId, type: "join", createdAt: new Date()
+    })
   }
 }

@@ -21,7 +21,7 @@ const routes: RouteConfig[] = [
     component: loadable(() => import('./pages/profile'))
   },
   {
-    path: '/level',
+    path: '/level/:id',
     exact: true,
     component: loadable(() => import('./pages/level'))
   },
