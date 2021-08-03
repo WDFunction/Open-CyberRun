@@ -1,10 +1,13 @@
 import { Collection, Db, ObjectId } from "mongodb";
 import { CyberRun } from "../app";
 import bcrypt from 'bcryptjs'
-
+import { nanoid } from 'nanoid'
 export interface User {
   _id: ObjectId;
   email: string;
+  email_verified: boolean;
+  email_verify_token: string;
+  // @TODO verify expires
   username: string;
   password: string;
   createdAt: Date;
@@ -19,22 +22,28 @@ export default class UserModule {
     this.col = core.db.collection<User>('user')
   }
 
-  async register(data: Pick<User, 'email' | 'username' | 'password'>) {
+  // [is new user, token]
+  async init(data: Pick<User, 'email' | 'password'>): Promise<[boolean, string]> {
+    // @TODO check email
+    let u = await this.col.findOne({ email: data.email })
+    if (u) {
+      if (!bcrypt.compareSync(data.password, u.password)) {
+        return [false, null]
+      }
+      let t = await this.core.jwt.create(u._id)
+      return [false, t]
+    }
+
     data.password = bcrypt.hashSync(data.password)
-    this.col.insertOne({
+    let inserted = await this.col.insertOne({
       email: data.email,
-      username: data.username,
+      username: nanoid(),
       password: data.password,
+      email_verified: false,
+      email_verify_token: nanoid(),
       createdAt: new Date()
     })
-  }
-
-  async login(data: Pick<User, 'email' | 'password'>): Promise<null | string> {
-    let u = await this.col.findOne({ email: data.email })
-    if (!bcrypt.compareSync(data.password, u.password)) {
-      return null
-    }
-    let t = await this.core.jwt.create(u._id)
-    return t
+    let t = await this.core.jwt.create(inserted.insertedId)
+    return [true, t]
   }
 }

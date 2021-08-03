@@ -10,23 +10,18 @@ router.get('/', getUser(), (ctx) => {
   ctx.body = ctx.state.user
 })
 
-router.post('/register', async (ctx) => {
+router.post('/init', async (ctx) => {
   // @ts-ignore
-  await cbr.user.register(ctx.request.body)
-  ctx.status = 204
-})
-
-router.post('/login', async (ctx) => {
-  // @ts-ignore
-  let result = await cbr.user.login(ctx.request.body)
+  const [whetherNewUser, result] = await cbr.user.init(ctx.request.body)
   if (result) {
+    ctx.status = whetherNewUser ? 201 : 200
     ctx.body = {
       data: result
     }
   } else {
     ctx.status = 403
     ctx.body = {
-      message: '登录失败'
+      message: '失败'
     }
   }
 })

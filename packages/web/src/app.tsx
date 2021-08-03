@@ -4,6 +4,7 @@ import { RouteConfig, renderRoutes } from 'react-router-config'
 import loadable from '@loadable/component'
 import { SWRConfig } from 'swr'
 import instance from './components/instance'
+import {ToastContainer} from 'react-toastify'
 const routes: RouteConfig[] = [
   {
     path: '/',
@@ -19,6 +20,11 @@ const routes: RouteConfig[] = [
     path: '/profile',
     exact: true,
     component: loadable(() => import('./pages/profile'))
+  },
+  {
+    path: '/login',
+    exact: true,
+    component: loadable(() => import('./pages/login'))
   },
   {
     path: '/level/:id',
@@ -59,6 +65,7 @@ const routes: RouteConfig[] = [
 
 const App = () => {
   return <BrowserRouter>
+  <ToastContainer />
     <SWRConfig value={{
       fetcher: url => instance.get(url).then(res => res.data)
     }}>
