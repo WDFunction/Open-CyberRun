@@ -43,7 +43,7 @@ export default class LevelModule {
     return mostRecord[0]?.size ?? 0
   }
 
-  async verifyAnswer(fromLevelId: ObjectId, answers: string[]) {
+  async verifyAnswer(fromLevelId: ObjectId, answers: string[], userId: ObjectId) {
     // @TODO not safe
     const addedFields = answers.map((v, i) => {
       return [`resultObject${i}`, {
@@ -63,10 +63,17 @@ export default class LevelModule {
     ]).toArray()
 
     if (matchedMap.length === 0) {
+      this.core.log.col.insertOne({
+        userId, levelId: fromLevelId, type: "failed", createdAt: new Date()
+      })
       throw new Error("回答错误")
     }
 
     let nextLevel = await this.get(matchedMap[0].toLevelId)
+    this.core.log.col.insertOne({
+      userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),
+      newLevelId: nextLevel._id
+    })
     return nextLevel
 
   }

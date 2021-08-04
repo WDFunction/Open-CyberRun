@@ -5,6 +5,9 @@ import type { Level } from '@cyberrun/core'
 import { Typography, TextField, Button } from '@material-ui/core';
 import instance from '../components/instance';
 import { toast } from 'react-toastify';
+import markdownIt from 'markdown-it'
+
+const md = new markdownIt()
 
 const Page = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,9 +20,10 @@ const Page = () => {
     }
   }>(`/levels/${id}`)
   const [input, setInput] = useState<string[]>([])
+  const [rendered, setRendered] = useState('')
   useEffect(() => {
     if (data) {
-
+      setRendered(md.render(data.level.content))
       setInput([...Array(data.data.inputCount).keys()].map(v => ''))
     }
   }, [data])
@@ -48,7 +52,7 @@ const Page = () => {
   }
   return <div>
     <Typography variant="h5">{data.level.title}</Typography>
-    <Typography>{data.level.content}</Typography>
+    <div dangerouslySetInnerHTML={{ __html: rendered }} />
     <div>
       {[...Array(data.data.inputCount).keys()].map(i => (
         <TextField fullWidth label="输入回答" value={input[i]} onChange={(e) => {
@@ -58,7 +62,7 @@ const Page = () => {
         }} />
       ))}
     </div>
-    <Button onClick={submit}>提交</Button>
+    {data.data.inputCount >= 1 && <Button onClick={submit}>提交</Button>}
   </div>
 }
 

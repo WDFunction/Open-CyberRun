@@ -4,7 +4,7 @@ import { CyberRun } from "../app";
 export interface Log {
   _id: ObjectId;
   userId: ObjectId;
-  gameId: ObjectId;
+  gameId?: ObjectId;
   levelId?: ObjectId;
   ip?: string;
   type: "passed" | "failed" | "join"

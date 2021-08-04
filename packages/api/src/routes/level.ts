@@ -20,9 +20,13 @@ router.get('/:id', getUser({ ignoreGuest: true }), async (ctx) => {
 })
 
 router.post('/:id/submit', getUser(), async (ctx) => {
-  const answers = (ctx.request.body as Record<string, unknown>).answers as string[]
+  if (!ctx.state.user) {
+    ctx.status = 401
+    return;
+  }
+  const answers = ((ctx.request.body as Record<string, unknown>).answers as any[]).map(v => v.toString())
   try {
-    let r = await cbr.level.verifyAnswer(new ObjectId(ctx.params.id as string), answers)
+    let r = await cbr.level.verifyAnswer(new ObjectId(ctx.params.id as string), answers, ctx.state.user._id)
     console.log(r)
     ctx.body = {
       data: r._id
