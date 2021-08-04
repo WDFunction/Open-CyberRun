@@ -1,6 +1,7 @@
 import Koa from 'koa'
 import userRoute from './routes/user'
 import gameRoute from './routes/game'
+import levelRoute from './routes/level'
 import bodyParser from 'koa-bodyparser'
 import { CyberRun } from '@cyberrun/core'
 import cors from '@koa/cors'
@@ -13,7 +14,7 @@ async function start() {
   await cbr.start()
   app.use(gameRoute.routes()).use(gameRoute.allowedMethods())
   app.use(userRoute.routes()).use(userRoute.allowedMethods())
-
+  app.use(levelRoute.routes())
   app.listen(54000)
   console.log('started')
 }
