@@ -7,18 +7,23 @@ import { Button, Grid, List, ListItem, ListItemSecondaryAction, ListItemText } f
 const LevelsPage = () => {
   const history = useHistory()
   const { gameId } = useParams<{ gameId: string }>()
-  const { data } = useSWR<Level[]>(`/levels/meta/${gameId}`)
+  const { data } = useSWR<{
+    levels: Level[]
+    passed: Record<string, boolean>
+  }>(`/levels/meta/${gameId}`)
   return <div>
     <List>
-      {data?.map(v => (
+      {data?.levels.map(v => (
         <ListItem>
-          <ListItemText primary={v.title} />
+          <ListItemText primary={v.title} secondary={
+            (data?.passed[v._id.toString()] || false) ? '已通过' : '未通过'
+          } />
           <ListItemSecondaryAction>
             <Button color="primary" variant="contained"
-            disableElevation
-            onClick={() => {
-              history.push(`/level/${v._id.toString()}`)
-            }}>参与</Button>
+              disableElevation
+              onClick={() => {
+                history.push(`/level/${v._id.toString()}`)
+              }}>参与</Button>
           </ListItemSecondaryAction>
         </ListItem>
       ))}

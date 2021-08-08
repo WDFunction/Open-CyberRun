@@ -97,4 +97,56 @@ export default class LevelModule {
       return [game, null]
     }
   }
+
+  async checkUserPassed(userId: ObjectId, levelIds: ObjectId[]): Promise<Record<string, boolean>> {
+    let data = await this.levelCol.aggregate<{
+      _id: ObjectId;
+      result: boolean
+    }>(
+      [
+        {
+          $match: {
+            _id: {
+              $in: levelIds
+            }
+          }
+        },
+        { $project: { _id: 1 } },
+        {
+          $lookup: {
+            from: "log",
+            let: { userId, levelId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$userId", "$$userId"] },
+                      { $eq: ["$$levelId", "$levelId"] }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: "list"
+          }
+        },
+        {
+          $addFields: {
+            result: {
+              $cond: {
+                if: { $size: '$list' },
+                then: true,
+                else: false
+              }
+            }
+          }
+        },
+        {
+          $unset: 'list'
+        }
+      ]
+    ).toArray()
+    return Object.fromEntries(data.map(v => [v._id.toString(), v.result]))
+  }
 }
