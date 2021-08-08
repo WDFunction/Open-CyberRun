@@ -1,9 +1,10 @@
-import { Button, Card, CardContent, Grid, Typography } from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, CardMedia, Grid, Typography } from '@material-ui/core';
 import React from 'react'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
 import instance from '../components/instance';
 import { useHistory } from 'react-router-dom'
+import Layout from '../components/layout';
 
 const IndexPage = () => {
   const { data } = useSWR<Game[]>('/games/')
@@ -20,24 +21,23 @@ const IndexPage = () => {
       history.push(`/levels/${game._id.toString()}`)
     }
   }
-  return <div>
-    <Grid container>
+  return <Layout>
+    <Grid container spacing={2}>
       {data?.map(v => (
-        <Grid item>
-          <Card>
+        <Grid item xs={4}>
+          <Card variant="outlined">
+            <CardMedia image={v.cover} style={{height: 140}}></CardMedia>
             <CardContent>
-              <Typography>{v.name}</Typography>
-              <Typography>{v._id}</Typography>
+              <Typography variant="h5">{v.name}</Typography>
             </CardContent>
-            <CardContent>
-              <Button color="primary" variant="contained" disableElevation onClick={() => join(v)}>参加</Button>
-            </CardContent>
+            <CardActions>
+              <Button style={{marginLeft: 'auto'}} color="primary" variant="contained" disableElevation onClick={() => join(v)}>参加</Button>
+            </CardActions>
           </Card>
         </Grid>
       ))}
     </Grid>
-
-  </div>
+  </Layout>
 }
 
 export default IndexPage;

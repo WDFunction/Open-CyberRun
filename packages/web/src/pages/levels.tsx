@@ -3,6 +3,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import useSWR from 'swr'
 import type { Level } from '@cyberrun/core'
 import { Button, Grid, List, ListItem, ListItemSecondaryAction, ListItemText } from '@material-ui/core'
+import Layout from '../components/layout'
 
 const LevelsPage = () => {
   const history = useHistory()
@@ -14,7 +15,7 @@ const LevelsPage = () => {
   useEffect(() => {
     mutate()
   }, [history.location])
-  return <div>
+  return <Layout>
     <List>
       {data?.levels.map(v => {
         const available = v.type !== "meta" ? true :
@@ -37,7 +38,7 @@ const LevelsPage = () => {
         )
       })}
     </List>
-  </div>
+  </Layout>
 }
 
 export default LevelsPage

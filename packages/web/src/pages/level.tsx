@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import useSWR from 'swr';
 import type { Level } from '@cyberrun/core'
-import { Typography, TextField, Button } from '@material-ui/core';
+import { Typography, TextField, Button, Paper, Box, Grid, Container, Toolbar } from '@material-ui/core';
 import instance from '../components/instance';
 import { toast } from 'react-toastify';
 import markdownIt from 'markdown-it'
-
+import Layout from '../components/layout';
 const md = new markdownIt()
 
 const Page = () => {
@@ -39,9 +39,9 @@ const Page = () => {
       })
       if (r.status === 200) {
         toast.success("恭喜您通过本关")
-        if(r.data.type === "speedrun"){
+        if (r.data.type === "speedrun") {
           history.push(`/level/${r.data.data}`)
-        }else if(r.data.type === "meta"){
+        } else if (r.data.type === "meta") {
           history.push(`/levels/${r.data.data}`)
         }
       }
@@ -55,20 +55,44 @@ const Page = () => {
   if (!data || isValidating) {
     return <div>loading</div>
   }
-  return <div>
-    <Typography variant="h5">{data.level.title}</Typography>
-    <div dangerouslySetInnerHTML={{ __html: rendered }} />
-    <div>
-      {[...Array(data.data.inputCount).keys()].map(i => (
-        <TextField fullWidth label="输入回答" value={input[i]} onChange={(e) => {
-          const newInput = [...input]
-          newInput[i] = e.target.value
-          setInput(newInput)
-        }} />
-      ))}
-    </div>
-    {data.data.inputCount >= 1 && <Button onClick={submit}>提交</Button>}
-  </div>
+  return <Layout>
+    <Container>
+      <Grid container spacing={2}>
+        <Grid item xs={8}>
+          <Paper variant="outlined">
+            <Box m={2}>
+              <Typography variant="h5">{data.level.title}</Typography>
+              <div dangerouslySetInnerHTML={{ __html: rendered }} />
+            </Box>
+          </Paper>
+        </Grid>
+        <Grid item xs={4}>
+          {(data.data.inputCount >= 1) && <Box mb={2}>
+            <Paper variant="outlined">
+              <Box m={2}>
+                {[...Array(data.data.inputCount).keys()].map(i => (
+                  <Box mb={2}>
+                    <TextField variant="outlined" fullWidth label={`回答${i}`} value={input[i]} onChange={(e) => {
+                      const newInput = [...input]
+                      newInput[i] = e.target.value
+                      setInput(newInput)
+                    }} />
+                  </Box>
+                ))}
+                <Button variant="contained" color="primary" disableElevation onClick={submit}>提交</Button>
+              </Box>
+            </Paper>
+          </Box>
+          }
+          <Paper variant="outlined">
+            <Box m={2}>
+              Info
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
+  </Layout >
 }
 
 export default Page
