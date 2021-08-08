@@ -1,4 +1,4 @@
-import { Button, Card, CardActions, CardContent, CardMedia, Grid, Typography } from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, CardMedia, Grid, Typography, Container } from '@material-ui/core';
 import React from 'react'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
@@ -22,21 +22,23 @@ const IndexPage = () => {
     }
   }
   return <Layout>
-    <Grid container spacing={2}>
-      {data?.map(v => (
-        <Grid item xs={4}>
-          <Card variant="outlined">
-            <CardMedia image={v.cover} style={{height: 140}}></CardMedia>
-            <CardContent>
-              <Typography variant="h5">{v.name}</Typography>
-            </CardContent>
-            <CardActions>
-              <Button style={{marginLeft: 'auto'}} color="primary" variant="contained" disableElevation onClick={() => join(v)}>参加</Button>
-            </CardActions>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
+    <Container>
+      <Grid container spacing={2}>
+        {data?.map(v => (
+          <Grid item xs={6} sm={4}>
+            <Card variant="outlined">
+              <CardMedia image={v.cover} style={{ height: 140 }}></CardMedia>
+              <CardContent>
+                <Typography variant="h5">{v.name}</Typography>
+              </CardContent>
+              <CardActions>
+                <Button style={{ marginLeft: 'auto' }} color="primary" variant="contained" disableElevation onClick={() => join(v)}>参加</Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   </Layout>
 }
 

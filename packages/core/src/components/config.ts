@@ -5,6 +5,9 @@ import os from 'os'
 export const DefaultConfig = {
   sendgrid: {
     apikey: ""
+  },
+  mongodb: {
+    connection: ""
   }
 }
 

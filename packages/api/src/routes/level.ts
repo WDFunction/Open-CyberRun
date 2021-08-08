@@ -50,6 +50,15 @@ router.get('/:id', getUser({ ignoreGuest: true }), async (ctx) => {
   }
 })
 
+router.get('/:id/info', getUser({ignoreGuest: true}), async (ctx) => {
+  let id = new ObjectId(ctx.params.id)
+  let level = await cbr.level.get(id)
+  let info = await cbr.game.info(level, ctx.state.user?._id)
+  ctx.body = {
+    data: info
+  }
+})
+
 router.post('/:id/submit', getUser(), async (ctx) => {
   if (!ctx.state.user) {
     ctx.status = 401

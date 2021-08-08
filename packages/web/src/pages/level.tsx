@@ -19,6 +19,11 @@ const Page = () => {
       isGuest: boolean
     }
   }>(`/levels/${id}`)
+  const { data: infoData, mutate: infoMutate } = useSWR<{
+    data: string[]
+  }>(`/levels/${id}/info`, {
+    refreshInterval: 5000
+  })
   const [input, setInput] = useState<string[]>([])
   const [rendered, setRendered] = useState('')
   useEffect(() => {
@@ -48,6 +53,7 @@ const Page = () => {
     } catch (e) {
       if (e.response.status === 403) {
         toast.error(e.response.data?.message)
+        infoMutate()
       }
     }
   }
@@ -72,7 +78,7 @@ const Page = () => {
               <Box m={2}>
                 {[...Array(data.data.inputCount).keys()].map(i => (
                   <Box mb={2}>
-                    <TextField variant="outlined" fullWidth label={`回答${i+1}`} value={input[i]} onChange={(e) => {
+                    <TextField variant="outlined" fullWidth label={`回答${i + 1}`} value={input[i]} onChange={(e) => {
                       const newInput = [...input]
                       newInput[i] = e.target.value
                       setInput(newInput)
@@ -86,7 +92,10 @@ const Page = () => {
           }
           <Paper variant="outlined">
             <Box m={2}>
-              Info
+              <Typography variant="h5">Info</Typography>
+              {infoData?.data.map(v => (
+                <Typography>{v}</Typography>
+              ))}
             </Box>
           </Paper>
         </Grid>

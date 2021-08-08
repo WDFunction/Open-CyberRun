@@ -1,4 +1,5 @@
 import { Db, MongoClient } from "mongodb";
+import Config from "./components/config";
 import GameModule from "./modules/game";
 import JWTModule from "./modules/jwt";
 import LevelModule from "./modules/level";
@@ -20,7 +21,7 @@ export class CyberRun {
   }
 
   async start() {
-    const uri = "mongodb://localhost"
+    const uri = (await Config.get()).mongodb.connection
 
     this.client = new MongoClient(uri)
     await this.client.connect()
