@@ -21,6 +21,15 @@ export default class GameModule {
     this.col = this.core.db.collection<Game>('game')
   }
 
+  async canAccessMeta(userId: ObjectId, gameId: ObjectId){
+    let normalLevels = await this.core.level.levelCol.find({
+      gameId,
+      type: {$ne: "meta"}
+    }).toArray()
+    let passed = await this.core.level.checkUserPassed(userId, normalLevels.map(v => v._id))
+    return Object.values(passed).filter(v => !v).length === 0
+  }
+
   async getByLevel(levelId: ObjectId){
     let level = await this.core.level.get(levelId)
     let game = await this.get(level.gameId)

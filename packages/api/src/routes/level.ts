@@ -22,6 +22,19 @@ router.get('/meta/:gameId', getUser({ ignoreGuest: true }), async (ctx) => {
 router.get('/:id', getUser({ ignoreGuest: true }), async (ctx) => {
   let id = new ObjectId(ctx.params.id)
   let level = await cbr.level.get(id)
+
+  if(level.type === "meta"){
+    let userId = ctx.state.user ? ctx.state.user._id : new ObjectId()
+    let can = await cbr.game.canAccessMeta(userId, level.gameId)
+    if(!can){
+      ctx.status = 403
+      ctx.body = {
+        message: "你不配"
+      }
+      return;
+    }
+  }
+
   let data = {
     isGuest: ctx.state.user === null,
     inputCount: await cbr.level.getLevelMaxAnswersCount(id)

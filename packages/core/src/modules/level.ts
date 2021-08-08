@@ -36,8 +36,7 @@ export default class LevelModule {
   async getMetaGameLevels(gameId: ObjectId) {
     // @TODO not meta game check
     let levels = await this.levelCol.find({
-      gameId,
-      type: { $ne: 'meta' }
+      gameId
     }).map(v => {
       delete v.content
       return v
