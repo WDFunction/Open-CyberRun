@@ -57,8 +57,8 @@ const Page = () => {
   }
   return <Layout>
     <Container>
-      <Grid container spacing={2}>
-        <Grid item xs={8}>
+      <Grid container spacing={2} wrap="wrap-reverse">
+        <Grid item xs={12} sm={8}>
           <Paper variant="outlined">
             <Box m={2}>
               <Typography variant="h5">{data.level.title}</Typography>
@@ -66,13 +66,13 @@ const Page = () => {
             </Box>
           </Paper>
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={12} sm={4}>
           {(data.data.inputCount >= 1) && <Box mb={2}>
             <Paper variant="outlined">
               <Box m={2}>
                 {[...Array(data.data.inputCount).keys()].map(i => (
                   <Box mb={2}>
-                    <TextField variant="outlined" fullWidth label={`回答${i}`} value={input[i]} onChange={(e) => {
+                    <TextField variant="outlined" fullWidth label={`回答${i+1}`} value={input[i]} onChange={(e) => {
                       const newInput = [...input]
                       newInput[i] = e.target.value
                       setInput(newInput)
