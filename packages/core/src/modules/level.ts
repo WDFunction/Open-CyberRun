@@ -1,12 +1,13 @@
 import { Collection, ObjectId } from "mongodb";
 import { CyberRun } from "../app";
+import { Game } from "./game";
 
 export interface Level {
   _id: ObjectId
   gameId: ObjectId;
   title: string;
   content: string;
-  type: "start" | "end" | "normal"
+  type: "start" | "end" | "normal" | "meta"
 }
 
 export interface LevelMap {
@@ -32,6 +33,18 @@ export default class LevelModule {
     return level
   }
 
+  async getMetaGameLevels(gameId: ObjectId) {
+    // @TODO not meta game check
+    let levels = await this.levelCol.find({
+      gameId,
+      type: { $ne: 'meta' }
+    }).map(v => {
+      delete v.content
+      return v
+    }).toArray()
+    return levels
+  }
+
   async getLevelMaxAnswersCount(id: ObjectId) {
     let mostRecord = await this.mapCol.aggregate<{ size: number }>([
       { $match: { fromLevelId: id } },
@@ -43,7 +56,8 @@ export default class LevelModule {
     return mostRecord[0]?.size ?? 0
   }
 
-  async verifyAnswer(fromLevelId: ObjectId, answers: string[], userId: ObjectId) {
+  async verifyAnswer(fromLevelId: ObjectId, answers: string[], userId: ObjectId): Promise<[Game, Level]> {
+    let game = await this.core.game.getByLevel(fromLevelId)
     // @TODO not safe
     const addedFields = answers.map((v, i) => {
       return [`resultObject${i}`, {
@@ -64,17 +78,23 @@ export default class LevelModule {
 
     if (matchedMap.length === 0) {
       this.core.log.col.insertOne({
-        userId, levelId: fromLevelId, type: "failed", createdAt: new Date()
+        userId, levelId: fromLevelId, type: "failed", createdAt: new Date(), gameId: game._id
       })
       throw new Error("回答错误")
     }
 
-    let nextLevel = await this.get(matchedMap[0].toLevelId)
-    this.core.log.col.insertOne({
-      userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),
-      newLevelId: nextLevel._id
-    })
-    return nextLevel
-
+    if (game.type === 'speedrun') {
+      let nextLevel = await this.get(matchedMap[0].toLevelId)
+      this.core.log.col.insertOne({
+        userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),
+        newLevelId: nextLevel._id, gameId: game._id
+      })
+      return [game, nextLevel]
+    } else {
+      this.core.log.col.insertOne({
+        userId, levelId: fromLevelId, type: "passed", createdAt: new Date(), gameId: game._id
+      })
+      return [game, null]
+    }
   }
 }

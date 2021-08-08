@@ -8,12 +8,17 @@ import { useHistory } from 'react-router-dom'
 const IndexPage = () => {
   const { data } = useSWR<Game[]>('/games/')
   const history = useHistory()
-  const join = async (gameId: string) => {
-    let r = await instance({
-      url: `/games/${gameId}/join`,
-      method: 'post'
-    })
-    history.push(`/level/${r.data.data}`)
+  const join = async (game: Game) => {
+    if (game.type === "speedrun") {
+      let r = await instance({
+        url: `/games/${game._id.toString()}/join`,
+        method: 'post'
+      })
+      history.push(`/level/${r.data.data}`)
+    } else {
+      // meta
+      history.push(`/levels/${game._id.toString()}`)
+    }
   }
   return <div>
     <Grid container>
@@ -25,7 +30,7 @@ const IndexPage = () => {
               <Typography>{v._id}</Typography>
             </CardContent>
             <CardContent>
-              <Button color="primary" variant="contained" disableElevation onClick={() => join(v._id)}>参加</Button>
+              <Button color="primary" variant="contained" disableElevation onClick={() => join(v)}>参加</Button>
             </CardContent>
           </Card>
         </Grid>

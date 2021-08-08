@@ -6,6 +6,12 @@ const router = new Router<ICustomAppState>({
   prefix: '/levels'
 })
 
+router.get('/meta/:gameId', async (ctx) => {
+  let gameId = new ObjectId(ctx.params.gameId)
+  let levels = await cbr.level.getMetaGameLevels(gameId)
+  ctx.body = levels
+})
+
 router.get('/:id', getUser({ ignoreGuest: true }), async (ctx) => {
   let id = new ObjectId(ctx.params.id)
   let level = await cbr.level.get(id)
@@ -26,10 +32,17 @@ router.post('/:id/submit', getUser(), async (ctx) => {
   }
   const answers = ((ctx.request.body as Record<string, unknown>).answers as any[]).map(v => v.toString())
   try {
-    let r = await cbr.level.verifyAnswer(new ObjectId(ctx.params.id as string), answers, ctx.state.user._id)
-    console.log(r)
-    ctx.body = {
-      data: r._id
+    let [game, level] = await cbr.level.verifyAnswer(new ObjectId(ctx.params.id as string), answers, ctx.state.user._id)
+    if (game.type === "speedrun") {
+      ctx.body = {
+        type: game.type,
+        data: level._id
+      }
+    } else {
+      ctx.body = {
+        type: game.type,
+        data: game._id
+      }
     }
   } catch (e) {
     ctx.status = 403

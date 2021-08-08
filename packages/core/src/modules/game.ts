@@ -8,6 +8,7 @@ export interface Game {
   startAt: Date;
   endedAt: Date;
   ended: boolean;
+  type: "meta" | "speedrun"
 }
 
 
@@ -18,6 +19,12 @@ export default class GameModule {
     this.core = core
 
     this.col = this.core.db.collection<Game>('game')
+  }
+
+  async getByLevel(levelId: ObjectId){
+    let level = await this.core.level.get(levelId)
+    let game = await this.get(level.gameId)
+    return game
   }
 
   async list(){
