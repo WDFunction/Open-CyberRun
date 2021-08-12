@@ -23,8 +23,14 @@ export default class LogModule {
   }
 
   async joinGame(userId: ObjectId, gameId: ObjectId) {
-    this.col.insertOne({
-      userId, gameId, type: "join", createdAt: new Date()
+    this.col.updateOne({
+      userId, gameId
+    }, {
+      $setOnInsert: {
+        type: "join", createdAt: new Date()
+      }
+    }, {
+      upsert: true
     })
   }
 

@@ -51,11 +51,6 @@ const routes: RouteConfig[] = [
     component: loadable(() => import('./pages/record'))
   },
   {
-    path: '/admin/:id/levels',
-    exact: true,
-    component: loadable(() => import('./pages/admin/levels'))
-  },
-  {
     path: '/admin/:id/analyze',
     exact: true,
     component: loadable(() => import('./pages/admin/analyze'))
@@ -63,7 +58,7 @@ const routes: RouteConfig[] = [
   {
     path: '/admin/',
     exact: true,
-    component: loadable(() => import('./pages/admin/games'))
+    component: loadable(() => import('./pages/admin/index'))
   },
   {
     path: '/admin/:id/log',

@@ -109,8 +109,22 @@ export default class GameModule {
     return true
   }
 
+  async countPlayers(game: Game) {
+    return this.core.log.col.count({
+      gameId: game._id,
+      type: "join"
+    })
+  }
+
+  async getPlayerNowLevel(game: Game, userId: ObjectId){
+    
+  }
+
   async info(level: Level, userId?: ObjectId): Promise<string[]> {
     let game = await this.get(level.gameId)
+    let levels = await this.core.level.levelCol.find({
+      gameId: game._id
+    }).toArray()
     let finished = await this.isUserFinished(game, userId)
     if (finished) {
       return ['您已完赛']
@@ -118,7 +132,15 @@ export default class GameModule {
     if (game.type === 'speedrun') {
       const count = await this.countTries(game._id)
       const userCount = userId ? (await this.countUserTries(game._id, userId)) : 0
-      return [`当前关卡用时`, '当前排名', '全局用时', '剩余比赛时长', '当前关卡人数', `当前尝试次数: ${userCount}`, `全局尝试次数: ${count}`]
+      return [
+        `当前关卡用时`,
+        `当前排名 1/${await this.countPlayers(game)}`,
+        '全局用时',
+        '剩余比赛时长',
+        '当前关卡人数',
+        `当前尝试次数: ${userCount}`,
+        `全局尝试次数: ${count}`
+      ]
     } else {
       return ['当前积分', '完成题目数', '剩余比赛时间', '当前题目难度系数', '本题预估分数', '当前尝试次数', '全局尝试次数']
     }

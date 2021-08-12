@@ -70,20 +70,16 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
           </FormControl>
         </Box>
       </div>
-      <Divider />
+      {/* <Divider />
       <List>
         <ListItem button>
           <ListItemIcon><ListIcon /></ListItemIcon>
           <ListItemText primary="比赛列表" />
         </ListItem>
-      </List>
+      </List> */}
       <Divider />
       {selected && (
         <List>
-          <ListItem button onClick={() => history.push(`/admin/${selected}/levels`)}>
-            <ListItemIcon><Forum /></ListItemIcon>
-            <ListItemText primary="关卡设置" />
-          </ListItem>
           <ListItem button onClick={() => history.push(`/admin/${selected}/log`)}>
             <ListItemIcon><ListStatus /></ListItemIcon>
             <ListItemText primary="回答记录" />

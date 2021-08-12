@@ -8,6 +8,7 @@ export interface Level {
   title: string;
   content: string;
   type: "start" | "end" | "normal" | "meta"
+  distance: number
 }
 
 export interface LevelMap {
