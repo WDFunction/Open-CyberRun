@@ -1,4 +1,4 @@
-import { Collection, ObjectId, Document } from "mongodb";
+import { Collection, ObjectId, Document, Timestamp } from "mongodb";
 import { CyberRun } from "../app";
 import { Level, LevelMap } from "./level";
 import { User } from "./user";
@@ -84,6 +84,9 @@ export default class GameModule {
     }).count()
   }
 
+  /**
+   * 获取用户提交次数
+   */
   async countUserTries(gameId: ObjectId, userId: ObjectId): Promise<number> {
     return this.core.log.col.find({
       type: {
@@ -94,6 +97,9 @@ export default class GameModule {
     }).count()
   }
 
+  /**
+   * 用户是否完赛
+   */
   async isUserFinished(game: Game, userId: ObjectId): Promise<boolean> {
     if (game.type === 'speedrun') {
       let endLevel = await this.core.level.levelCol.findOne({
@@ -116,8 +122,60 @@ export default class GameModule {
     })
   }
 
-  async getPlayerNowLevel(game: Game, userId: ObjectId){
-    
+  /**
+   * 各用户到终点的距离统计
+   */
+  async getUserDistances(gameId: ObjectId): Promise<{
+    _id: number,
+    count: number
+  }[]> {
+    let data = await this.core.user.col.aggregate<{
+      _id: number,
+      count: number
+    }>([
+      {
+        $match: { [`gameData.${gameId}.minDistance`]: { $ne: null } }
+      },
+      { $group: { _id: `$gameData.${gameId}.minDistance`, count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]).toArray()
+    return data
+  }
+
+  /**
+   * 获取某一关的用户数
+   */
+  async getLevelUsers(level: Level): Promise<number> {
+    // 进入下一关的人数 - 进入这一关的人数
+    let toNextLevelCount = (await this.core.log.col.aggregate<{ result: number }>([
+      {
+        $match: {
+          levelId: level._id,
+          type: "passed"
+        }
+      },
+      {
+        $group: { _id: "$userId" }
+      },
+      {
+        $count: "result"
+      }
+    ]).next())?.result ?? 0
+    let toThisLevelCount = (await this.core.log.col.aggregate<{ result: number }>([
+      {
+        $match: {
+          newLevelId: level._id,
+          type: { $in: ["join", "passed"] }
+        }
+      },
+      {
+        $group: { _id: "$userId" }
+      },
+      {
+        $count: "result"
+      }
+    ]).next())?.result ?? 0
+    return toThisLevelCount - toNextLevelCount
   }
 
   async info(level: Level, userId?: ObjectId): Promise<string[]> {
@@ -131,13 +189,25 @@ export default class GameModule {
     }
     if (game.type === 'speedrun') {
       const count = await this.countTries(game._id)
+      const countPlayers = await this.countPlayers(game)
       const userCount = userId ? (await this.countUserTries(game._id, userId)) : 0
+      const distance = userId ? (await this.core.user.getMinDistance(userId, game._id)) : 0
+      let globalDistances = await this.getUserDistances(game._id)
+
+      // 从排名最后开始减
+      let rank = globalDistances.map(v => v.count).reduce((a, b) => a + b, 0)
+      for (const gd of globalDistances) {
+        if (distance < gd._id) {
+          rank -= gd.count
+        }
+      }
+      console.log(distance, rank, globalDistances)
       return [
-        `当前关卡用时`,
-        `当前排名 1/${await this.countPlayers(game)}`,
-        '全局用时',
-        '剩余比赛时长',
-        '当前关卡人数',
+        //`当前关卡用时`,
+        `当前排名 ${rank}/${countPlayers}`,
+        //'全局用时',
+        //'剩余比赛时长',
+        `当前关卡人数 ${await this.getLevelUsers(level)}`,
         `当前尝试次数: ${userCount}`,
         `全局尝试次数: ${count}`
       ]

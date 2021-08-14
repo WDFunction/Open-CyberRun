@@ -14,6 +14,10 @@ export interface User {
   password: string;
   createdAt: Date;
   admin?: boolean;
+
+  gameData?: Record<string, {
+    minDistance: number
+  }>
 }
 
 export default class UserModule {
@@ -70,11 +74,38 @@ export default class UserModule {
     return [true, t]
   }
 
-  async emailVerify(token: string){
-    let u = await this.col.findOne({email_verify_token: token})
-    if(!u) return false;
+  async emailVerify(token: string) {
+    let u = await this.col.findOne({ email_verify_token: token })
+    if (!u) return false;
 
-    await this.col.updateOne(u, {$set: {email_verified: true, email_verify_token: ''}})
+    await this.col.updateOne(u, { $set: { email_verified: true, email_verify_token: '' } })
     return true
+  }
+
+  /**
+   * 获取离终点的距离(数据库里设置的)
+   */
+  async getMinDistance(userId: ObjectId, gameId: ObjectId) {
+    let u = await this.col.findOne({ _id: userId })
+    let data = u.gameData?.[gameId.toString()]?.minDistance
+    if (!data) {
+      let record = await this.core.level.levelCol.find({
+        gameId
+      }).sort({ distance: -1 }).limit(1).next()
+      data = record.distance
+    }
+    return data
+  }
+
+  async setMinDistance(userId: ObjectId, gameId: ObjectId, distance: number) {
+    return this.col.updateOne({ _id: userId }, {
+      $set: {
+        gameData: {
+          [gameId.toString()]: {
+            minDistance: distance
+          }
+        }
+      }
+    })
   }
 }

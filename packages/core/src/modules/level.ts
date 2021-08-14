@@ -89,6 +89,7 @@ export default class LevelModule {
         userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),
         newLevelId: nextLevel._id, gameId: game._id
       })
+      this.core.user.setMinDistance(userId, game._id, nextLevel.distance)
       return [game, nextLevel]
     } else {
       this.core.log.col.insertOne({
