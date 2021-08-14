@@ -50,8 +50,7 @@ const LevelsPage = () => {
   const [open, setOpen] = useState(false)
   const [level, setLevel] = useState<Level | null>(null)
   const { data, mutate } = useSWR<{
-    levels: Level[]
-    passed: Record<string, boolean>
+    data: Level[]
   }>(`/levels/meta/${gameId}`)
 
   if (!data || !gameData) {
@@ -61,14 +60,14 @@ const LevelsPage = () => {
   return <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'scroll' }}>
     <Dialog open={open} onClose={() => {
       setOpen(false)
-    }}>
+    }} style={{minWidth: 300}}>
       <DialogTitle>
-        关卡详情
+        关卡 {level?.title}
       </DialogTitle>
       <DialogContent>
         {/* <Typography>难度 </Typography> */}
-        <Typography>标题 {level?.title}</Typography>
         {/* <Typography>通关人数 </Typography> */}
+        <Typography>Placeholder</Typography>
       </DialogContent>
       <DialogActions>
         <Button variant="contained" color="primary" disableElevation onClick={() => {
@@ -77,7 +76,7 @@ const LevelsPage = () => {
       </DialogActions>
     </Dialog>
     <img src={gameData.map} style={{ position: 'absolute' }} />
-    {data.levels.map(v => (
+    {data.data.map(v => (
       <IconButton style={{ position: 'absolute', top: v.mapPoint.y, left: v.mapPoint.x }} onClick={() => {
         setOpen(true)
         setLevel(v)

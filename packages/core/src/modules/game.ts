@@ -34,22 +34,31 @@ export default class GameModule {
   }
 
   async canAccessLevel(userId: ObjectId, gameId: ObjectId, levelId: ObjectId) {
-    let levels = await this.core.level.levelCol.find({ gameId }).toArray()
-    let maps = await this.core.level.mapCol.find({
-      fromLevelId: {
-        $in: levels.map(v => v._id)
+    let game = await this.core.game.get(gameId)
+    if (game.type === "meta") {
+      let levels = await this.core.level.levelCol.find({
+        gameId,
+        type: "normal"
+      }).toArray()
+      let passed = await this.core.level.checkUserPassed(userId, levels.map(v => v._id))
+      if (levels.find(v => v._id.equals(levelId))) {
+        // 是普通关卡
+        return true;
       }
-    }).toArray()
-    let passed = await this.core.level.checkUserPassed(userId, levels.map(v => v._id))
-    let startLevel = levels.find(v => v.type === "start")
-    let level = levels.find(v => v._id.equals(levelId))
-    if (level.type === "start") return true;
 
-    let toThisLevelMaps = maps.filter(v => v.toLevelId.equals(levelId)).map(v => v.fromLevelId).filter(v => passed[v.toString()]).length
-    // @TODO 应该还有问题 懒得写了
-    if (toThisLevelMaps) {
-      return true
+      // 是meta
+      if (Object.values(passed).filter(v => v).length === Object.values(passed).length) {
+        return true;
+      }
+    } else {
+      let levels = await this.core.level.levelCol.find({ gameId }).toArray()
+      let level = levels.find(v => v._id.equals(levelId))
+      if (level.type === "start") return true;
+
+      let ca = await this.core.level.canAccessLevels(gameId, userId)
+      if (ca.find(v => v.equals(level._id))) return true;
     }
+
     return false
   }
 
@@ -110,6 +119,16 @@ export default class GameModule {
       let passed = await this.core.log.col.count({
         userId,
         newLevelId: endLevel._id
+      })
+      return passed >= 1
+    } else {
+      let endLevel = await this.core.level.levelCol.findOne({
+        type: "meta",
+        gameId: game._id
+      })
+      let passed = await this.core.log.col.count({
+        userId,
+        levelId: endLevel._id
       })
       return passed >= 1
     }

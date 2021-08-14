@@ -8,14 +8,9 @@ const router = new Router<ICustomAppState>({
 
 router.get('/meta/:gameId', getUser({ ignoreGuest: true }), async (ctx) => {
   let gameId = new ObjectId(ctx.params.gameId)
-  let levels = await cbr.level.getMetaGameLevels(gameId)
-  let passed = {}
-  if (ctx.state.user) {
-    passed = await cbr.level.checkUserPassed(ctx.state.user._id, levels.map(v => v._id))
-  }
+  let levels = await cbr.level.getGameLevels(gameId, ctx.state.user?._id)
   ctx.body = {
-    levels,
-    passed
+    data: levels
   }
 })
 

@@ -35,19 +35,47 @@ export default class LevelModule {
     return level
   }
 
-  async getMetaGameLevels(gameId: ObjectId) {
-    // @TODO 不显示未通过的关卡
-    let levels = await this.levelCol.find({
-      gameId
-    }).map(v => {
-      return {
+  // 获取用户可访问的关卡
+  async canAccessLevels(gameId: ObjectId, userId: ObjectId) {
+    let ids = await this.core.log.col.aggregate([
+      {
+        $match: { userId, gameId, type: "passed" }
+      },
+      { $group: { _id: "$newLevelId" } }
+    ]).toArray()
+    return ids.map(v => v._id)
+  }
+
+  async getGameLevels(gameId: ObjectId, userId?: ObjectId) {
+    let game = await this.core.game.get(gameId)
+    if (game.type === "speedrun") {
+      let levels = await this.levelCol.find({
+        gameId
+      }).toArray()
+      let ca = userId ? await this.canAccessLevels(gameId, userId) : []
+      levels = levels.filter(v => {
+        if (v.type === "start") return true
+        if (ca.find(c => c.equals(v._id))) return true
+        return false
+      })
+      let rtnLevels: Partial<Level>[] = levels.map(v => ({
         mapPoint: v.mapPoint,
-        type: v.type,
         title: v.title,
         _id: v._id
-      }
-    }).toArray()
-    return levels
+      }))
+
+      return rtnLevels
+    } else {
+      let levels = await this.levelCol.find({
+        gameId
+      }).toArray()
+      let rtnLevels: Partial<Level>[] = levels.map(v => ({
+        mapPoint: v.mapPoint,
+        title: v.title,
+        _id: v._id
+      }))
+      return rtnLevels
+    }
   }
 
   async getLevelMaxAnswersCount(id: ObjectId) {
