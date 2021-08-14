@@ -11,6 +11,10 @@ router.get('/', async (ctx) => {
   ctx.body = r
 })
 
+router.get('/:id', async (ctx) => {
+  ctx.body = await cbr.game.get(new ObjectId(ctx.params.id))
+})
+
 router.post('/:id/join', getUser(), async (ctx) => {
   let item = await cbr.game.get(new ObjectId(ctx.params.id))
   if (!item) {

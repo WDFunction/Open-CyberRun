@@ -11,6 +11,7 @@ export interface Game {
   endedAt: Date;
   ended: boolean;
   type: "meta" | "speedrun"
+  map: string;
 }
 
 

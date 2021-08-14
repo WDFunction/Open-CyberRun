@@ -10,16 +10,8 @@ const IndexPage = () => {
   const { data } = useSWR<Game[]>('/games/')
   const history = useHistory()
   const join = async (game: Game) => {
-    if (game.type === "speedrun") {
-      let r = await instance({
-        url: `/games/${game._id.toString()}/join`,
-        method: 'post'
-      })
-      history.push(`/level/${r.data.data}`)
-    } else {
-      // meta
-      history.push(`/levels/${game._id.toString()}`)
-    }
+    // meta
+    history.push(`/levels/${game._id.toString()}`)
   }
   return <Layout>
     <Container>

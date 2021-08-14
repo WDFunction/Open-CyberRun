@@ -9,6 +9,7 @@ export interface Level {
   content: string;
   type: "start" | "end" | "normal" | "meta"
   distance: number
+  mapPoint: { x: number; y: number }
 }
 
 export interface LevelMap {
@@ -35,12 +36,16 @@ export default class LevelModule {
   }
 
   async getMetaGameLevels(gameId: ObjectId) {
-    // @TODO not meta game check
+    // @TODO 不显示未通过的关卡
     let levels = await this.levelCol.find({
       gameId
     }).map(v => {
-      delete v.content
-      return v
+      return {
+        mapPoint: v.mapPoint,
+        type: v.type,
+        title: v.title,
+        _id: v._id
+      }
     }).toArray()
     return levels
   }
