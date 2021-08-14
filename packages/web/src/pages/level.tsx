@@ -44,11 +44,7 @@ const Page = () => {
       })
       if (r.status === 200) {
         toast.success("恭喜您通过本关")
-        if (r.data.type === "speedrun") {
-          history.push(`/level/${r.data.data}`)
-        } else if (r.data.type === "meta") {
-          history.push(`/levels/${r.data.data}`)
-        }
+        history.push(`/levels/${r.data.data}`)
       }
     } catch (e) {
       if (e.response.status === 403) {

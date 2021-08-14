@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Forum, ListStatus, Menu, Seal, FormatListBulleted as ListIcon } from 'mdi-material-ui'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import useLocalStorage from 'react-use-localstorage'
 
 const drawerWidth = 240;
@@ -39,6 +39,14 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
   const history = useHistory()
   const [selected, setSelected] = useLocalStorage('admin_editing_id', '')
   const { data } = useSWR<Game[]>('/games')
+  const params = useParams()
+
+  const onChange = (e: any) => {
+    setSelected(e.target.value as string)
+    // @ts-ignore
+    history.push(history.location.pathname.split(params.id).join(e.target.value as string))
+  }
+
   return <div className={classes.root}>
     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar>
@@ -62,7 +70,7 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
         <Box mx={2}>
           <FormControl fullWidth>
             <InputLabel>选择比赛</InputLabel>
-            <Select fullWidth value={selected} onChange={(e) => setSelected(e.target.value as string)}>
+            <Select fullWidth value={selected} onChange={onChange}>
               {data?.map(v => (
                 <MenuItem key={v._id.toString()} value={v._id.toString()}>{v.name}</MenuItem>
               ))}
