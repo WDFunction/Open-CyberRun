@@ -11,21 +11,15 @@ router.get('/', async (ctx) => {
   ctx.body = r
 })
 
-router.get('/:id', async (ctx) => {
+router.get('/:id', getUser({ignoreGuest: true}), async (ctx) => {
+  if(ctx.state.user){
+    await cbr.log.joinGame(ctx.state.user._id, new ObjectId(ctx.params.id))
+  }
   ctx.body = await cbr.game.get(new ObjectId(ctx.params.id))
 })
 
-router.post('/:id/join', getUser(), async (ctx) => {
-  let item = await cbr.game.get(new ObjectId(ctx.params.id))
-  if (!item) {
-    ctx.status = 404;
-    return;
-  }
-  let level = await cbr.game.getStartLevel(item._id)
-  await cbr.log.joinGame(ctx.state.user._id, item._id)
-  ctx.body = {
-    data: level._id
-  }
+router.get('/:id/admin/stats', getUser(), async (ctx) => {
+  ctx.body = await cbr.game.adminStats(new ObjectId(ctx.params.id))
 })
 
 export default router

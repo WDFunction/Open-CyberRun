@@ -235,4 +235,48 @@ export default class GameModule {
       return ['当前积分', '完成题目数', '剩余比赛时间', '当前题目难度系数', '本题预估分数', '当前尝试次数', '全局尝试次数']
     }
   }
+
+  async adminStats(gameId: ObjectId) {
+    let game = await this.get(gameId)
+    let levels: NewLevel[] = await this.core.level.levelCol.find({
+      gameId: game._id
+    }).toArray()
+    type NewLevel = Level & {
+      avgSubmit: number;
+      onlineCount: number;
+    }
+    let totalTries = await this.core.log.col.count({
+      gameId,
+      type: { $ne: "join" }
+    })
+
+    if (game.type === "speedrun") {
+      for (let level of levels) {
+        level.onlineCount = await this.getLevelUsers(level)
+
+        // TODO 优化
+        let users = await this.core.log.col.aggregate<{
+          _id: ObjectId
+          count: number
+        }>([
+          { $match: { levelId: level._id } },
+          { $group: { _id: "$userId", count: { $sum: 1 } } }
+        ]).toArray()
+
+        level.avgSubmit = (users.map(v => v.count).reduce((a, b) => a + b, 0) / users.length) || 0
+      }
+    } else {
+      for (let level of levels) {
+        level.onlineCount = 0
+        level.avgSubmit = 0
+      }
+    }
+
+    return {
+      stats: {
+        totalTries
+      },
+      levels
+    }
+  }
 }
