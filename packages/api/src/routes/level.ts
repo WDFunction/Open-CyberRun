@@ -74,4 +74,8 @@ router.post('/:id/submit', getUser(), async (ctx) => {
   }
 })
 
+router.get('/:id/admin/wordcloud', getUser({admin: true}), async (ctx) => {
+    ctx.body = await cbr.level.adminWordcloud(new ObjectId(ctx.params.id))
+})
+
 export default router

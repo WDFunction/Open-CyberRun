@@ -12,6 +12,7 @@ export interface ICustomAppState {
 
 interface IOption {
   ignoreGuest?: boolean
+  admin?: boolean
 }
 
 export const getUser: (options?: IOption) => Koa.Middleware<ICustomAppState> = (options) => {
@@ -20,6 +21,10 @@ export const getUser: (options?: IOption) => Koa.Middleware<ICustomAppState> = (
     let user = await cbr.jwt.verify(token)
     if (!user && !options?.ignoreGuest) {
       ctx.status = 401;
+      return;
+    }
+    if (options?.admin && !user.admin) {
+      ctx.status = 403
       return;
     }
     ctx.state.user = user

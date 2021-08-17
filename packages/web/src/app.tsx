@@ -56,6 +56,11 @@ const routes: RouteConfig[] = [
     component: loadable(() => import('./pages/admin/analyze'))
   },
   {
+    path: '/admin/:id/wordcloud/:levelId',
+    exact: true,
+    component: loadable(() => import('./pages/admin/wordcloud'))
+  },
+  {
     path: '/admin/',
     exact: true,
     component: loadable(() => import('./pages/admin/index'))

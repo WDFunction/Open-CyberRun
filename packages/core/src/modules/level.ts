@@ -190,4 +190,20 @@ export default class LevelModule {
     ).toArray()
     return Object.fromEntries(data.map(v => [v._id.toString(), v.result]))
   }
+
+  async adminWordcloud(id: ObjectId) {
+    let logs = await this.core.log.col.aggregate<{
+      _id: string
+      value: number
+    }>([
+      { $match: { answers: { $ne: null }, levelId: id } },
+      { $unwind: "$answers" },
+      { $group: { _id: '$answers', value: { $count: {} } } },
+      { $sort: { value: -1 } }
+    ]).toArray()
+    return logs.map(v => ({
+      text: v._id,
+      value: v.value
+    }))
+  }
 }
