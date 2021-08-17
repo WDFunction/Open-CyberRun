@@ -1,6 +1,6 @@
 import { AppBar, Box, createStyles, Divider, Drawer, FormControl, Icon, IconButton, InputLabel, List, ListItem, ListItemIcon, ListItemText, makeStyles, MenuItem, Select, SvgIcon, Theme, Toolbar, Typography } from '@material-ui/core'
 import React, { useState } from 'react'
-import { Forum, ListStatus, Menu, Seal, FormatListBulleted as ListIcon } from 'mdi-material-ui'
+import { Forum, ListStatus, Menu, Seal, FormatListBulleted as ListIcon, MapOutline } from 'mdi-material-ui'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
 import { useHistory, useParams } from 'react-router-dom'
@@ -88,6 +88,10 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
       <Divider />
       {selected && (
         <List>
+          <ListItem button onClick={() => history.push(`/admin/${selected}/map`)}>
+            <ListItemIcon><MapOutline /></ListItemIcon>
+            <ListItemText primary="关卡编排" />
+          </ListItem>
           <ListItem button onClick={() => history.push(`/admin/${selected}/log`)}>
             <ListItemIcon><ListStatus /></ListItemIcon>
             <ListItemText primary="回答记录" />

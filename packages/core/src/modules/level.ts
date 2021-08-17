@@ -206,4 +206,24 @@ export default class LevelModule {
       value: v.value
     }))
   }
+
+  async adminGetMaps(gameId: ObjectId) {
+    let levels = await this.levelCol.find({
+      gameId
+    }).toArray()
+    let maps = await this.mapCol.find({
+      fromLevelId: { $in: levels.map(v => v._id) }
+    }).toArray()
+    return [levels, maps]
+  }
+
+  async adminUpdateLevelPoint(levelId: ObjectId, data: Level['mapPoint']){
+    await this.levelCol.updateOne({
+      _id: levelId
+    },{
+      $set: {
+        mapPoint: data
+      }
+    })
+  }
 }
