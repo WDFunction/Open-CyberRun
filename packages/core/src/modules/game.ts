@@ -236,6 +236,18 @@ export default class GameModule {
     }
   }
 
+  async getPassedLogs(gameId: ObjectId){
+    let end = await this.core.level.levelCol.findOne({
+      gameId,
+      type: {$in: ["meta", "end"]}
+    })
+    let passedLogs = await this.core.log.col.find({
+      newLevelId: end._id,
+      type: "passed"
+    }).toArray()
+    return passedLogs
+  }
+
   async adminStats(gameId: ObjectId) {
     let game = await this.get(gameId)
     let levels: NewLevel[] = await this.core.level.levelCol.find({
@@ -272,9 +284,31 @@ export default class GameModule {
       }
     }
 
+    const userTriesCount = await this.core.log.col.aggregate<{
+      _id: ObjectId
+      count: number
+    }>([
+      {$match: {gameId: game._id, type: {$ne: "join"}}},
+      {$group: {_id: '$userId', count: {$count: {}}}}
+    ]).toArray()
+    const userAvgTries = userTriesCount.map(v => v.count).reduce((a,b) => a+b, 0) / userTriesCount.length
+  
+
+    const passedLogs = await this.getPassedLogs(game._id)
+    const startLogs = await this.core.log.col.find({
+      userId: {$in: passedLogs.map(v => v.userId)},
+      type: "join"
+    }).toArray()
+    // in ms
+    // end time - start time, get average
+    const passedTime = passedLogs.map(v => v.createdAt.valueOf() - startLogs.find(s => s.userId.equals(v.userId)).createdAt.valueOf()).reduce((a,b) => a+b,0) / passedLogs.length
+
     return {
       stats: {
-        totalTries
+        totalTries,
+        userAvgTries,
+        passedCount: passedLogs.length,
+        avgPassedTime: passedTime
       },
       levels
     }

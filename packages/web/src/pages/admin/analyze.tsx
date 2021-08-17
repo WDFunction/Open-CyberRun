@@ -16,6 +16,9 @@ const Page = () => {
   const { data } = useSWR<{
     stats: {
       totalTries: number
+      userAvgTries: number
+      passedCount: number
+      avgPassedTime: number
     }
     levels: NewLevel[]
   }>(`/games/${id}/admin/stats`, {
@@ -36,11 +39,15 @@ const Page = () => {
         </TableRow>
         <TableRow>
           <TableCell>人均提交次数</TableCell>
-          <TableCell></TableCell>
+          <TableCell>{data.stats.userAvgTries}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>通关人数</TableCell>
+          <TableCell>{data.stats.passedCount}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>平均通关用时</TableCell>
-          <TableCell></TableCell>
+          <TableCell>{data.stats.avgPassedTime / 1000}秒</TableCell>
         </TableRow>
       </TableBody>
     </Table>
