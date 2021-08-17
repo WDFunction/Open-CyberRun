@@ -7,9 +7,12 @@ import useSWR from 'swr';
 
 const WordcloudPage = () => {
   const { levelId } = useParams<{ levelId: string }>();
-  const { data } = useSWR(() => `/levels/${levelId}/admin/wordcloud`, {
+  const { data, mutate } = useSWR(() => `/levels/${levelId}/admin/wordcloud`, {
     initialData: []
   })
+  useEffect(() => {
+    mutate()
+  }, [levelId])
   return <AdminLayout>
     <ReactWordcloud words={data} size={[1280, 720]} />
   </AdminLayout>

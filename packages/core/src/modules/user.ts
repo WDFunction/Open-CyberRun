@@ -14,6 +14,7 @@ export interface User {
   password: string;
   createdAt: Date;
   admin?: boolean;
+  gravatar?: string;
 
   gameData?: Record<string, {
     minDistance: number

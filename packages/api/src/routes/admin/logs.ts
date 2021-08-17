@@ -8,7 +8,15 @@ const router = new Router<ICustomAppState>({
 
 router.get('/:id', async (ctx) => {
   let id = new ObjectId(ctx.params.id)
-  ctx.body = await cbr.log.adminGetWithUsers(id)
+  let page = ~~ctx.query.page ?? 0
+  let levels = await cbr.level.levelCol.find({ gameId: id }).toArray();
+  ctx.body = {
+    count: await cbr.log.col.count({
+      gameId: id
+    }),
+    data: await cbr.log.adminGetWithUsers(id, page * 20),
+    levels
+  }
 })
 
 export default router

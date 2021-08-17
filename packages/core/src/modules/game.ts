@@ -221,7 +221,7 @@ export default class GameModule {
           rank -= gd.count
         }
       }
-      console.log(distance, rank, globalDistances)
+      // console.log(distance, rank, globalDistances)
       return [
         //`当前关卡用时`,
         `当前排名 ${rank}/${countPlayers}`,

@@ -38,13 +38,19 @@ export default class LogModule {
     this.core.user.setMinDistance(userId, gameId, start.distance)
   }
 
-  async adminGetWithUsers(gameId: ObjectId) {
+  async adminGetWithUsers(gameId: ObjectId, skip = 0) {
     let list = await this.col.aggregate([
       {
         $match: { gameId }
       },
       {
         $sort: { _id: -1 }
+      },
+      {
+        $skip: skip
+      },
+      {
+        $limit: 20
       },
       {
         $lookup: {
