@@ -2,6 +2,7 @@ import { Collection, ObjectId, Document, Timestamp } from "mongodb";
 import { CyberRun } from "../app";
 import { Level, LevelMap } from "./level";
 import { User } from "./user";
+import { Logger } from '../logger'
 
 export interface Game {
   _id: ObjectId
@@ -18,6 +19,7 @@ export interface Game {
 export default class GameModule {
   core: CyberRun
   col: Collection<Game>
+  logger = new Logger('game')
   constructor(core: CyberRun) {
     this.core = core
 
@@ -94,10 +96,19 @@ export default class GameModule {
     }).count()
   }
 
+  async countLevelTries(levelId: ObjectId): Promise<number> {
+    return this.core.log.col.find({
+      type: {
+        $ne: "join"
+      },
+      levelId
+    }).count()
+  }
+
   /**
    * 获取用户提交次数
    */
-  async countUserTries(gameId: ObjectId, userId: ObjectId): Promise<number> {
+  async countUserGameTries(gameId: ObjectId, userId: ObjectId): Promise<number> {
     return this.core.log.col.find({
       type: {
         $ne: "join"
@@ -106,6 +117,17 @@ export default class GameModule {
       gameId
     }).count()
   }
+
+  async countUserLevelTries(levelId: ObjectId, userId: ObjectId): Promise<number> {
+    return this.core.log.col.find({
+      type: {
+        $ne: "join"
+      },
+      userId,
+      levelId
+    }).count()
+  }
+
 
   /**
    * 用户是否完赛
@@ -198,6 +220,34 @@ export default class GameModule {
     return toThisLevelCount - toNextLevelCount
   }
 
+  async playerJoinTime(userId: ObjectId, gameId: ObjectId) {
+    let log = await this.core.log.col.findOne({
+      gameId, userId, type: "join"
+    })
+    return log.createdAt
+  }
+
+  async playerLevelTimeUsage(userId: ObjectId, level: Level) {
+    let enterLevel = await this.core.log.col.findOne({
+      newLevelId: level._id,
+      type: "passed",
+      userId
+    })
+    let leaveLevel = await this.core.log.col.findOne({
+      levelId: level._id,
+      type: "passed",
+      userId
+    })
+    if (leaveLevel) {
+      return leaveLevel.createdAt.valueOf() - enterLevel.createdAt.valueOf()
+    }
+    if (level.type === "start") {
+      let join = await this.playerJoinTime(userId, level.gameId)
+      return new Date().valueOf() - join.valueOf()
+    }
+    return new Date().valueOf() - enterLevel.createdAt.valueOf()
+  }
+
   async info(level: Level, userId?: ObjectId): Promise<string[]> {
     let game = await this.get(level.gameId)
     let levels = await this.core.level.levelCol.find({
@@ -208,38 +258,43 @@ export default class GameModule {
       return ['您已完赛']
     }
     if (game.type === 'speedrun') {
-      const count = await this.countTries(game._id)
       const countPlayers = await this.countPlayers(game)
-      const userCount = userId ? (await this.countUserTries(game._id, userId)) : 0
+      const userGameCount = userId ? (await this.countUserGameTries(game._id, userId)) : 0
+      const userLevelCount = userId ? (await this.countUserLevelTries(level._id, userId)) : 0
       const distance = userId ? (await this.core.user.getMinDistance(userId, game._id)) : 0
       let globalDistances = await this.getUserDistances(game._id)
 
       // 从排名最后开始减
       let rank = globalDistances.map(v => v.count).reduce((a, b) => a + b, 0)
+      // this.logger.info('rank %d', rank)
       for (const gd of globalDistances) {
         if (distance < gd._id) {
           rank -= gd.count
         }
       }
-      // console.log(distance, rank, globalDistances)
+      const levelUsage = await this.playerLevelTimeUsage(userId, level)
+      const joinTime = await this.playerJoinTime(userId, level.gameId)
+      const timeUsage = new Date().valueOf() - joinTime.valueOf()
       return [
-        //`当前关卡用时`,
+        `当前关卡用时 ${levelUsage / 1000}秒`,
         `当前排名 ${rank}/${countPlayers}`,
-        //'全局用时',
+        `全局用时 ${timeUsage / 1000}秒`,
         //'剩余比赛时长',
         `当前关卡人数 ${await this.getLevelUsers(level)}`,
-        `当前尝试次数: ${userCount}`,
-        `全局尝试次数: ${count}`
+        `关卡提交次数: ${userLevelCount}`,
+        `比赛提交次数: ${userGameCount}`,
+        `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
+        `比赛全局提交次数: ${await this.countTries(game._id)}`
       ]
     } else {
       return ['当前积分', '完成题目数', '剩余比赛时间', '当前题目难度系数', '本题预估分数', '当前尝试次数', '全局尝试次数']
     }
   }
 
-  async getPassedLogs(gameId: ObjectId){
+  async getPassedLogs(gameId: ObjectId) {
     let end = await this.core.level.levelCol.findOne({
       gameId,
-      type: {$in: ["meta", "end"]}
+      type: { $in: ["meta", "end"] }
     })
     let passedLogs = await this.core.log.col.find({
       newLevelId: end._id,
@@ -288,20 +343,20 @@ export default class GameModule {
       _id: ObjectId
       count: number
     }>([
-      {$match: {gameId: game._id, type: {$ne: "join"}}},
-      {$group: {_id: '$userId', count: {$count: {}}}}
+      { $match: { gameId: game._id, type: { $ne: "join" } } },
+      { $group: { _id: '$userId', count: { $count: {} } } }
     ]).toArray()
-    const userAvgTries = userTriesCount.map(v => v.count).reduce((a,b) => a+b, 0) / userTriesCount.length
-  
+    const userAvgTries = userTriesCount.map(v => v.count).reduce((a, b) => a + b, 0) / userTriesCount.length
+
 
     const passedLogs = await this.getPassedLogs(game._id)
     const startLogs = await this.core.log.col.find({
-      userId: {$in: passedLogs.map(v => v.userId)},
+      userId: { $in: passedLogs.map(v => v.userId) },
       type: "join"
     }).toArray()
     // in ms
     // end time - start time, get average
-    const passedTime = passedLogs.map(v => v.createdAt.valueOf() - startLogs.find(s => s.userId.equals(v.userId)).createdAt.valueOf()).reduce((a,b) => a+b,0) / passedLogs.length
+    const passedTime = passedLogs.map(v => v.createdAt.valueOf() - startLogs.find(s => s.userId.equals(v.userId)).createdAt.valueOf()).reduce((a, b) => a + b, 0) / passedLogs.length
 
     return {
       stats: {
