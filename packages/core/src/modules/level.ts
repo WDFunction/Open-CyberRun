@@ -226,4 +226,21 @@ export default class LevelModule {
       }
     })
   }
+
+  async adminAdd(data: {
+    x: number, y: number,
+    gameId: ObjectId
+  }) {
+    let r = await this.levelCol.insertOne({
+      title: new Date().valueOf().toString(),
+      content: '',
+      type: 'normal',
+      distance: -1,
+      gameId: data.gameId,
+      mapPoint: {
+        x: data.x, y: data.y
+      }
+    })
+    return r.insertedId
+  }
 }

@@ -13,6 +13,10 @@ router.get('/:id/maps', async (ctx) => {
   }
 })
 
+router.get('/:id', async (ctx) => {
+  ctx.body = await cbr.game.get(new ObjectId(ctx.params.id))
+})
+
 router.post('/:id/maps/:levelId/mapPoint', async (ctx) => {
   // @ts-ignore
   await cbr.level.adminUpdateLevelPoint(new ObjectId(ctx.params.levelId), ctx.request.body)
