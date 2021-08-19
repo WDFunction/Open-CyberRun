@@ -15,7 +15,8 @@ router.post('/', async (ctx) => {
 })
 
 router.delete('/:id', async (ctx) => {
-  await cbr.level.levelCol.deleteOne({_id: new ObjectId(ctx.params.id)})
+  await cbr.level.adminDelete(new ObjectId(ctx.params.id))
+ 
   ctx.status = 204
 })
 

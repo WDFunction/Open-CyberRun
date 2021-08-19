@@ -23,4 +23,23 @@ router.post('/:id/maps/:levelId/mapPoint', async (ctx) => {
   ctx.status = 204
 })
 
+router.post('/:id/maps', async (ctx) => {
+  // @ts-ignore
+  const body: Record<string, string> = ctx.request.body
+  let id = await cbr.level.adminAddMap({
+    fromLevelId: new ObjectId(body.fromLevelId),
+    toLevelId: new ObjectId(body.toLevelId)
+  })
+  ctx.body = id
+})
+
+router.get('/any/maps/:id', async (ctx) => {
+  ctx.body = await cbr.level.stringifyMap(new ObjectId(ctx.params.id))
+})
+
+router.post('/any/maps/:id', async (ctx) => {
+  await cbr.level.adminUpdateMap(new ObjectId(ctx.params.id), ctx.request.body as unknown as string[])
+  ctx.status = 204
+})
+
 export default router

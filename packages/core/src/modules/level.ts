@@ -243,4 +243,41 @@ export default class LevelModule {
     })
     return r.insertedId
   }
+
+  async adminAddMap(data: {
+    fromLevelId: ObjectId
+    toLevelId: ObjectId
+  }) {
+    let r = await this.mapCol.insertOne({
+      toLevelId: data.toLevelId,
+      fromLevelId: data.fromLevelId,
+      answers: []
+    })
+    return r.insertedId
+  }
+
+  async adminDelete(levelId: ObjectId){
+    await this.levelCol.deleteOne({_id: levelId})
+    await this.mapCol.deleteMany({
+      fromLevelId: levelId
+    })
+    await this.mapCol.deleteMany({
+      toLevelId: levelId
+    })
+  }
+
+  async stringifyMap(mapId: ObjectId){
+    let item = await this.mapCol.findOne({
+      _id: mapId
+    })
+    return item.answers.map(v => v.source)
+  }
+
+  async adminUpdateMap(mapId: ObjectId, list: string[]){
+    await this.mapCol.updateOne({_id: mapId}, {
+      $set: {
+        answers: list.map(v => new RegExp(v))
+      }
+    })
+  }
 }
