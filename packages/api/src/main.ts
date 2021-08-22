@@ -8,6 +8,8 @@ import adminLevelRoute from './routes/admin/level'
 import bodyParser from 'koa-bodyparser'
 import { CyberRun } from '@cyberrun/core'
 import cors from '@koa/cors'
+require('source-map-support').install()
+
 export const cbr = new CyberRun()
 const app = new Koa()
 app.use(bodyParser())

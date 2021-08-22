@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import useSWR from 'swr';
 import type { Level } from '@cyberrun/core'
-import { Typography, TextField, Button, Paper, Box, Grid, Container, Toolbar } from '@material-ui/core';
+import { Typography, TextField, Button, Paper, Box, Grid, Container, Toolbar, Link } from '@material-ui/core';
 import instance from '../components/instance';
 import { toast } from 'react-toastify';
 import markdownIt from 'markdown-it'
@@ -19,9 +19,9 @@ const Page = () => {
       isGuest: boolean
     }
   }>(`/levels/${id}`)
-  const { data: infoData, mutate: infoMutate } = useSWR<{
+  const { data: infoData, error, mutate: infoMutate } = useSWR<{
     data: string[]
-  }>(`/levels/${id}/info`, {
+  }>(() => (!data?.data.isGuest ? `/levels/${id}/info` : null), {
     refreshInterval: 5000
   })
   const [input, setInput] = useState<string[]>([])
@@ -69,7 +69,7 @@ const Page = () => {
           </Paper>
         </Grid>
         <Grid item xs={12} sm={4}>
-          {(data.data.inputCount >= 1) && <Box mb={2}>
+          {!data?.data.isGuest && (data.data.inputCount >= 1) && <Box mb={2}>
             <Paper variant="outlined">
               <Box m={2}>
                 {[...Array(data.data.inputCount).keys()].map(i => (
@@ -89,6 +89,11 @@ const Page = () => {
           <Paper variant="outlined">
             <Box m={2}>
               <Typography variant="h5">Info</Typography>
+              {data?.data.isGuest && (
+                <Typography>您未<Link onClick={() => {
+                  history.push('/login')
+                }}>登录</Link>, 无法提交</Typography>
+              )}
               {infoData?.data.map(v => (
                 <Typography>{v}</Typography>
               ))}

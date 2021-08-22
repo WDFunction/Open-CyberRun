@@ -27,7 +27,7 @@ export default class LogModule {
       gameId, type: "start"
     })
     this.col.updateOne({
-      userId, gameId, newLevelId: start._id
+      userId, gameId, newLevelId: start?._id
     }, {
       $setOnInsert: {
         type: "join", createdAt: new Date()
@@ -35,7 +35,7 @@ export default class LogModule {
     }, {
       upsert: true
     })
-    this.core.user.setMinDistance(userId, gameId, start.distance)
+    this.core.user.setMinDistance(userId, gameId, start?.distance ?? -1)
   }
 
   async adminGetWithUsers(gameId: ObjectId, skip = 0) {

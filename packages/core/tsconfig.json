@@ -13,6 +13,7 @@
       "allowJs": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
-      "incremental": true
+      "incremental": true,
+      "inlineSourceMap": true
     }
   }

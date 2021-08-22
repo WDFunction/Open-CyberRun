@@ -11,6 +11,7 @@ export interface Level {
   type: "start" | "end" | "normal" | "meta"
   distance: number
   mapPoint: { x: number; y: number }
+  difficulty?: number
 }
 
 export interface LevelMap {

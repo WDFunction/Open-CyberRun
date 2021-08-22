@@ -14,6 +14,7 @@
         "koa": "^2.13.1",
         "koa-bodyparser": "^4.3.0",
         "mongodb": "^4.0.1",
+        "source-map-support": "^0.5.19",
         "typescript": "^4.3.5"
     },
     "devDependencies": {

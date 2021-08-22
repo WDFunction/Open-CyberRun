@@ -13,6 +13,7 @@ export interface Game {
   ended: boolean;
   type: "meta" | "speedrun"
   map: string;
+  difficulty?: number
 }
 
 
@@ -248,19 +249,20 @@ export default class GameModule {
     return new Date().valueOf() - enterLevel.createdAt.valueOf()
   }
 
-  async info(level: Level, userId?: ObjectId): Promise<string[]> {
+  async info(level: Level, userId: ObjectId): Promise<string[]> {
     let game = await this.get(level.gameId)
-    let levels = await this.core.level.levelCol.find({
+    /*let levels = await this.core.level.levelCol.find({
       gameId: game._id
-    }).toArray()
+    }).toArray()*/
     let finished = await this.isUserFinished(game, userId)
     if (finished) {
       return ['您已完赛']
     }
+
+    const userGameCount = userId ? (await this.countUserGameTries(game._id, userId)) : 0
+    const userLevelCount = userId ? (await this.countUserLevelTries(level._id, userId)) : 0
     if (game.type === 'speedrun') {
       const countPlayers = await this.countPlayers(game)
-      const userGameCount = userId ? (await this.countUserGameTries(game._id, userId)) : 0
-      const userLevelCount = userId ? (await this.countUserLevelTries(level._id, userId)) : 0
       const distance = userId ? (await this.core.user.getMinDistance(userId, game._id)) : 0
       let globalDistances = await this.getUserDistances(game._id)
 
@@ -287,7 +289,25 @@ export default class GameModule {
         `比赛全局提交次数: ${await this.countTries(game._id)}`
       ]
     } else {
-      return ['当前积分', '完成题目数', '剩余比赛时间', '当前题目难度系数', '本题预估分数', '当前尝试次数', '全局尝试次数']
+      // 这里应该要考虑meta 但是完成meta后就不显示了 先不考虑
+      let finishedCount = await this.core.log.col.aggregate<{ count: string }>([
+        {
+          $match: {
+            gameId: game._id, userId, type: {
+              $ne: "join"
+            }
+          }
+        },
+        { $group: { _id: '$levelId' } },
+        { $count: 'count' }
+      ]).next()
+      return ['当前积分',
+        `完成题目数 ${finishedCount?.count || 0}`, '剩余比赛时间',
+        `当前题目难度系数 ${level.difficulty || '未设置'}`, '本题预估分数',
+        `关卡提交次数: ${userLevelCount}`,
+        `比赛提交次数: ${userGameCount}`,
+        `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
+        `比赛全局提交次数: ${await this.countTries(game._id)}`]
     }
   }
 
