@@ -301,9 +301,15 @@ export default class GameModule {
         { $group: { _id: '$levelId' } },
         { $count: 'count' }
       ]).next()
+
+      const L = game.difficulty || 1 // 难度系数
+
+
       return ['当前积分',
-        `完成题目数 ${finishedCount?.count || 0}`, '剩余比赛时间',
-        `当前题目难度系数 ${level.difficulty || '未设置'}`, '本题预估分数',
+        `完成题目数 ${finishedCount?.count || 0}`, 
+        '剩余比赛时间',
+        `当前题目难度系数 ${level.difficulty || '未设置'}`, 
+        '本题预估分数',
         `关卡提交次数: ${userLevelCount}`,
         `比赛提交次数: ${userGameCount}`,
         `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
