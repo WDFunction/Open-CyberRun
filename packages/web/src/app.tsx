@@ -65,6 +65,11 @@ const routes: RouteConfig[] = [
     component: loadable(() => import('./pages/admin/map'))
   },
   {
+    path: '/admin/:id/levels/:levelId',
+    exact: true,
+    component: loadable(() => import('./pages/admin/level'))
+  },
+  {
     path: '/admin/',
     exact: true,
     component: loadable(() => import('./pages/admin/index'))

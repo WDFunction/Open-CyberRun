@@ -217,10 +217,10 @@ export default class LevelModule {
     return [levels, maps]
   }
 
-  async adminUpdateLevelPoint(levelId: ObjectId, data: Level['mapPoint']){
+  async adminUpdateLevelPoint(levelId: ObjectId, data: Level['mapPoint']) {
     await this.levelCol.updateOne({
       _id: levelId
-    },{
+    }, {
       $set: {
         mapPoint: data
       }
@@ -251,13 +251,13 @@ export default class LevelModule {
     let r = await this.mapCol.insertOne({
       toLevelId: data.toLevelId,
       fromLevelId: data.fromLevelId,
-      answers: []
+      answers: [/^Example$/]
     })
     return r.insertedId
   }
 
-  async adminDelete(levelId: ObjectId){
-    await this.levelCol.deleteOne({_id: levelId})
+  async adminDelete(levelId: ObjectId) {
+    await this.levelCol.deleteOne({ _id: levelId })
     await this.mapCol.deleteMany({
       fromLevelId: levelId
     })
@@ -266,18 +266,35 @@ export default class LevelModule {
     })
   }
 
-  async stringifyMap(mapId: ObjectId){
+  async stringifyMap(mapId: ObjectId) {
     let item = await this.mapCol.findOne({
       _id: mapId
     })
     return item.answers.map(v => v.source)
   }
 
-  async adminUpdateMap(mapId: ObjectId, list: string[]){
-    await this.mapCol.updateOne({_id: mapId}, {
-      $set: {
-        answers: list.map(v => new RegExp(v))
-      }
+  async adminUpdateMap(mapId: ObjectId, list: string[]) {
+    if (list.length === 0 || (list.length === 1 && list?.[0]?.trim() === "")) {
+      await this.mapCol.deleteOne({ _id: mapId })
+    } else {
+
+      await this.mapCol.updateOne({ _id: mapId }, {
+        $set: {
+          answers: list.map(v => new RegExp(v))
+        }
+      })
+    }
+  }
+
+  async adminGet(id: ObjectId) {
+    return this.levelCol.findOne({ _id: id })
+  }
+
+  async adminUpdate(levelId: ObjectId, data: Pick<Level, 'content' | 'title'>) {
+    await this.levelCol.updateOne({
+      _id: levelId
+    }, {
+      $set: data
     })
   }
 }

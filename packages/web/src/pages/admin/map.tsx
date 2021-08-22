@@ -32,7 +32,7 @@ const LevelMapEditDialog: React.FunctionComponent<IProps> = ({ id, onSave }) => 
   }
   
   useEffect(() => {
-    if(data){
+    if(data ){
       setInput(data.join('\n'))
     }
   }, [data])
