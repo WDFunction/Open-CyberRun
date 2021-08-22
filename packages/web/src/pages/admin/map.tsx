@@ -16,7 +16,7 @@ interface IProps {
 }
 
 const LevelMapEditDialog: React.FunctionComponent<IProps> = ({ id, onSave }) => {
-  const {data} = useSWR<string[]>(`/admin/games/any/maps/${id}`, {
+  const { data } = useSWR<string[]>(`/admin/games/any/maps/${id}`, {
     revalidateOnFocus: false,
     revalidateOnMount: true
   })
@@ -30,9 +30,9 @@ const LevelMapEditDialog: React.FunctionComponent<IProps> = ({ id, onSave }) => 
     toast.success("保存成功")
     onSave()
   }
-  
+
   useEffect(() => {
-    if(data ){
+    if (data) {
       setInput(data.join('\n'))
     }
   }, [data])
@@ -44,7 +44,7 @@ const LevelMapEditDialog: React.FunctionComponent<IProps> = ({ id, onSave }) => 
         <Typography>文本框内可输入正则匹配, 两侧不用加<code>/</code>, <b>必须使用<code>^</code>开头及<code>$</code>结尾</b></Typography>
         <Typography>换行分割多个输入</Typography>
         <TextField multiline fullWidth variant="outlined" value={input}
-        onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => setInput(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
@@ -68,6 +68,7 @@ const MapPage = () => {
   const dataRef = useRef<Resp>()
   const history = useHistory()
   const { data: gameData } = useSWR<Game>(`/admin/games/${id}`)
+  const gameDataRef = useRef<Game>(null)
   const graph = useRef<Graph | null>(null)
 
   const [editingMap, setEditingMap] = useState('')
@@ -111,6 +112,11 @@ const MapPage = () => {
     }
 
   }, [data, ref])
+  useEffect(() => {
+    if (gameData) {
+      gameDataRef.current = gameData
+    }
+  }, [gameData])
 
   const submitPosChange = (levelId: string, x: number, y: number) => {
     console.log(levelId, x, y)
@@ -217,9 +223,19 @@ const MapPage = () => {
             toast.error("目标关卡不能是起始关")
             return
           }
-          if (level.type === "end") {
+          if (level.type === "end" || level.type === "meta") {
             toast.error("不能由结束关创建路径")
             return
+          }
+          if (gameDataRef.current?.type === "meta" && newLevel.type !== "meta") {
+            toast.error("meta赛仅允许终点为meta关")
+            return;
+          }
+          if (newLevel._id === level._id) {
+            return toast.error("?")
+          }
+          if(dataRef.current!.maps.find(v => v.fromLevelId === level._id && v.toLevelId === newLevel._id)){
+            return toast.error("路径已存在!")
           }
           await instance({
             url: `/admin/games/${id}/maps`,
