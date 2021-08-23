@@ -11,7 +11,8 @@ export interface Level {
   type: "start" | "end" | "normal" | "meta"
   distance: number
   mapPoint: { x: number; y: number }
-  difficulty?: number
+  difficulty?: number // meta mode only
+  submitCount?: number // meta mode only
 }
 
 export interface LevelMap {
@@ -31,6 +32,7 @@ export default class LevelModule {
 
     this.levelCol = core.db.collection<Level>('level')
     this.mapCol = core.db.collection<LevelMap>('levelMap')
+    this.logger.info('init')
   }
 
   async get(id: ObjectId) {
@@ -164,7 +166,10 @@ export default class LevelModule {
                   $expr: {
                     $and: [
                       { $eq: ["$userId", "$$userId"] },
-                      { $eq: ["$$levelId", "$levelId"] }
+                      { $eq: ["$$levelId", "$levelId"] },
+                      {
+                        $eq: ["$type", "passed"]
+                      }
                     ]
                   }
                 }
@@ -189,6 +194,7 @@ export default class LevelModule {
         }
       ]
     ).toArray()
+    // this.logger.info('check user passed, %o', data)
     return Object.fromEntries(data.map(v => [v._id.toString(), v.result]))
   }
 

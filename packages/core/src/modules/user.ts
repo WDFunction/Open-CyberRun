@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import { nanoid } from 'nanoid'
 import nodemailer, { Transporter } from 'nodemailer'
 import Config from "../components/config";
+import { Logger } from '../logger'
 export interface User {
   _id: ObjectId;
   email: string;
@@ -25,6 +26,7 @@ export default class UserModule {
   core: CyberRun
   public col: Collection<User>
   transport: Transporter
+  logger = new Logger('user')
   constructor(core: CyberRun) {
     this.core = core
     this.col = core.db.collection<User>('user')
@@ -39,6 +41,7 @@ export default class UserModule {
         }
       })
     })
+    this.logger.info('init')
   }
 
   // [is new user, token]

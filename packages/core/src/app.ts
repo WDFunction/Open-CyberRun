@@ -4,6 +4,7 @@ import GameModule from "./modules/game";
 import JWTModule from "./modules/jwt";
 import LevelModule from "./modules/level";
 import LogModule from "./modules/log";
+import PointModule from "./modules/point";
 import UserModule from "./modules/user";
 
 export class CyberRun {
@@ -15,6 +16,7 @@ export class CyberRun {
   game: GameModule
   level: LevelModule
   log: LogModule
+  point: PointModule
 
   constructor() {
     
@@ -32,5 +34,6 @@ export class CyberRun {
     this.game = new GameModule(this)
     this.level = new LevelModule(this)
     this.log = new LogModule(this)
+    this.point = new PointModule(this)
   }
 }

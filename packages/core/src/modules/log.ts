@@ -1,4 +1,5 @@
 import { Collection, ObjectId } from "mongodb";
+import { Logger } from "../logger";
 import { CyberRun } from "../app";
 
 export interface Log {
@@ -16,10 +17,12 @@ export interface Log {
 export default class LogModule {
   core: CyberRun
   col: Collection<Log>
+  logger = new Logger('log')
   constructor(core: CyberRun) {
     this.core = core
 
     this.col = this.core.db.collection<Log>('log')
+    this.logger.info('init')
   }
 
   async joinGame(userId: ObjectId, gameId: ObjectId) {

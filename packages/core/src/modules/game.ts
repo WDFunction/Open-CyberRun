@@ -13,7 +13,9 @@ export interface Game {
   ended: boolean;
   type: "meta" | "speedrun"
   map: string;
-  difficulty?: number
+  difficulty?: number // speedrun mode only
+  submitCount?: number // speedrun mode only
+  timeLimit?: number
 }
 
 
@@ -25,6 +27,7 @@ export default class GameModule {
     this.core = core
 
     this.col = this.core.db.collection<Game>('game')
+    this.logger.info('init')
   }
 
   async canAccessMeta(userId: ObjectId, gameId: ObjectId) {
@@ -249,6 +252,13 @@ export default class GameModule {
     return new Date().valueOf() - enterLevel.createdAt.valueOf()
   }
 
+  /**
+   * 用户完成题数量
+   */
+  async getUserFinishedCount(gameId: ObjectId) {
+    return 0
+  }
+
   async info(level: Level, userId: ObjectId): Promise<string[]> {
     let game = await this.get(level.gameId)
     /*let levels = await this.core.level.levelCol.find({
@@ -303,17 +313,23 @@ export default class GameModule {
       ]).next()
 
       const L = game.difficulty || 1 // 难度系数
+      const R = 1 // 结算排名 由完成题数排行计算
+      const C = await this.countPlayers(game) // 总人数
+      const RP = 1 - (R - 1) / C
+      const T = 0.1
+      const TL = game.timeLimit
+      const SPTS = 1000 * (1 + (L - 1) * 0.1) * (1 + RP * 0.25) * (0.75 + 0.25 * (TL - T) / TL)
 
-
-      return ['当前积分',
-        `完成题目数 ${finishedCount?.count || 0}`, 
-        '剩余比赛时间',
-        `当前题目难度系数 ${level.difficulty || '未设置'}`, 
-        '本题预估分数',
-        `关卡提交次数: ${userLevelCount}`,
-        `比赛提交次数: ${userGameCount}`,
-        `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
-        `比赛全局提交次数: ${await this.countTries(game._id)}`]
+      return [`预估积分 ${Math.floor(SPTS * 100) / 100}`,
+      `完成题目数 ${finishedCount?.count || 0}`,
+      `剩余比赛时间 ${TL - T}小时`,
+      `当前题目难度系数 ${level.difficulty || '未设置'}`,
+      // '本题预估分数',
+      `当前关卡人数`,
+      `关卡提交次数: ${userLevelCount}`,
+      `比赛提交次数: ${userGameCount}`,
+      `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
+      `比赛全局提交次数: ${await this.countTries(game._id)}`]
     }
   }
 

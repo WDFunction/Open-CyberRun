@@ -24,7 +24,6 @@ async function start() {
   app.use(levelRoute.routes())
   app.use(adminLogRoute.routes())
   app.listen(54000)
-  console.log('started')
 }
 
 start()

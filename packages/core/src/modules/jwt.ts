@@ -1,6 +1,7 @@
 import { Collection, ObjectId } from "mongodb"
 import { CyberRun } from "../app";
 import jwt from 'jsonwebtoken'
+import { Logger } from '../logger'
 import { User } from "./user";
 
 export interface JWT {
@@ -14,9 +15,11 @@ const KEY = "HelloWorld"
 export default class JWTModule {
   core: CyberRun
   col: Collection<JWT>
+  logger = new Logger('jwt')
   constructor(core: CyberRun) {
     this.core = core
     this.col = core.db.collection<JWT>('jwt')
+    this.logger.info('init')
   }
 
   async create(userId: ObjectId) {
