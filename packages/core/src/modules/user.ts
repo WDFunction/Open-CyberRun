@@ -136,7 +136,8 @@ export default class UserModule {
         gameId, userId
       }).project<{ type: Pick<Point, 'type'>, value: number }>({
         type: 1,
-        value: 1
+        value: 1,
+        levelId: 1
       }).toArray()).map(v => {
         v.value = Math.floor(v.value * 100) / 100
         return v

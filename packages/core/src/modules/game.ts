@@ -353,14 +353,13 @@ export default class GameModule {
         upsert: true
       })
 
-      const isFirst = (await this.core.log.col.count({
-        levelId: level._id, type: "passed"
-      })) === 0
+      // const isFirst = (await this.core.log.col.count({
+      //   levelId: level._id, type: "passed"
+      // })) === 0
 
       const [SPTS, BPTS, params] = await this.guessLevelPoint(userId, game, level)
-      const PTS = SPTS + (isFirst ? BPTS : 0)
 
-      return [`本题预估积分 ${Math.floor(PTS * 100) / 100}`,
+      return [`本题预估积分 ${Math.floor(SPTS * 100) / 100}`,
       `完赛预估积分 ${Math.floor(gamePTS * 100) / 100}`,
       `完成题目数 ${finishedCount?.count || 0}`,
       `剩余比赛时间 ${Math.floor((params.TL - params.T) * 100) / 100}小时`,

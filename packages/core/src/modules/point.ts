@@ -248,4 +248,46 @@ export default class PointModule {
       BPTS
     ]
   }
+
+  async calcAfterEnded(game: Game, levelId: ObjectId, userId: ObjectId) {
+    let level = await this.core.level.levelCol.findOne({ _id: levelId })
+    if (game.type === "speedrun" && level.type === "end") {
+      const L = game.difficulty!
+      const value = 10 * 0.25 * (1 + (L - 1) * 0.1) * 100
+      await this.col.updateOne({
+        type: 'finish',
+        userId,
+        timeout: true,
+        gameId: game._id
+      }, {
+        $set: {
+          createdAt: new Date(),
+          params: { L },
+          version: 1,
+          value
+        }
+      }, {
+        upsert: true
+      })
+    } else if (game.type === "meta") {
+      const L = level.difficulty!
+      const value = 10 * 0.25 * (1 + (L - 1) * 0.1) * 100
+      await this.col.updateOne({
+        type: 'finish',
+        userId,
+        timeout: true,
+        gameId: game._id,
+        levelId: levelId
+      }, {
+        $set: {
+          createdAt: new Date(),
+          params: { L },
+          version: 1,
+          value
+        }
+      }, {
+        upsert: true
+      })
+    }
+  }
 }

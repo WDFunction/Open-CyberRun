@@ -126,6 +126,8 @@ export default class LevelModule {
       throw new Error("回答错误")
     }
 
+    await this.core.point.calcAfterEnded(game, fromLevelId, userId)
+
     if (game.type === 'speedrun') {
       let nextLevel = await this.get(matchedMap[0].toLevelId)
       this.core.log.col.insertOne({

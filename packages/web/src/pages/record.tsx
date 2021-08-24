@@ -34,8 +34,14 @@ const Page = () => {
         </Box>
       ))}
       <Typography variant="h4">比赛积分</Typography>
-      {data.points?.length === 0 || !data.points ? <Typography>未结算</Typography> : data.points?.map(v => (
+      {(data.points?.length === 0 || !data.points) && <Typography>未结算</Typography>}
+      {(data.game.type === "speedrun" && data.points?.length) && data.points?.map(v => (
         <Typography>{v.type === 'finish' ? '完赛得分' : '奖励得分'} {v.value}</Typography>
+      ))}
+      {data.game.type === "meta" && data.points?.map(v => (
+        <Typography>{data.levels.find(l => l._id === v.levelId)?.title}
+          {v.type === 'finish' ? '完成得分' : '奖励得分'}: {v.value}
+        </Typography>
       ))}
     </Container>
   </Layout>
