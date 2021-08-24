@@ -17,15 +17,36 @@ export interface Point {
   gameId: ObjectId
   levelId?: ObjectId
 }
+
+export interface LivePoint {
+  _id: ObjectId
+  gameId: ObjectId
+  userId: ObjectId
+  updatedAt: Date
+  value: number
+}
+
+export type CalcType = {
+  L: number
+  R: number,
+  C: number,
+  T: number,
+  TL: number,
+  TY: number,
+  STY: number
+}
+
 export default class PointModule {
   core: CyberRun
   col: Collection<Point>
+  liveCol: Collection<LivePoint>
   logger = new Logger('point')
   interval: any
   constructor(core: CyberRun) {
     this.core = core
 
     this.col = this.core.db.collection<Point>('point')
+    this.liveCol = this.core.db.collection<LivePoint>('livePoint')
     this.logger.info('init')
     this.interval = setInterval(this.checkout.bind(this), 60000)
     this.logger.info('created interval')
@@ -85,12 +106,12 @@ export default class PointModule {
           userId: item.userId,
           type: { $ne: "join" }
         })
-        const SPTS = 1000 * (1 + (L - 1) * 0.1) * (1 + RP * 0.25) * (0.75 + 0.25 * (TL - T) / TL)
-        const BPTS = R === 0 ? (SPTS * 0.1 * (1 / (TY - STY + 1))) : 0
-        const PTS = SPTS + BPTS
+
         const params = {
-          SPTS, BPTS, PTS, L, TL, STY, C, R, T, RP, TY
+          L, TL, STY, C, R, T, RP, TY
         }
+        const [version, SPTS, BPTS] = this.calc(params)
+
         this.logger.info('user %s: %o', item.userId, params)
 
         await this.col.insertOne({
@@ -99,7 +120,7 @@ export default class PointModule {
           timeout: false,
           createdAt: new Date(),
           params,
-          version: 1,
+          version,
           gameId: game._id,
           value: SPTS
         })
@@ -110,7 +131,7 @@ export default class PointModule {
             timeout: false,
             createdAt: new Date(),
             params,
-            version: 1,
+            version,
             gameId: game._id,
             value: BPTS
           })
@@ -124,5 +145,17 @@ export default class PointModule {
         ended: true
       }
     })
+  }
+
+  calc(data: CalcType) {
+    this.logger.info('pts params %o', data)
+    // version spts btps
+    const RP = 1 - (data.R - 1) / data.C
+    const SPTS = 1000 * (1 + (data.L - 1) * 0.1) * (1 + RP * 0.25) * (0.75 + 0.25 * (data.TL - data.T) / data.TL)
+    const BPTS = SPTS * 0.1 * (1 / (data.TY - data.STY + 1))
+    return [1,
+      SPTS,
+      BPTS
+    ]
   }
 }

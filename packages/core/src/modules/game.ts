@@ -3,6 +3,7 @@ import { CyberRun } from "../app";
 import { Level, LevelMap } from "./level";
 import { User } from "./user";
 import { Logger } from '../logger'
+import { CalcType } from "./point";
 
 export interface Game {
   _id: ObjectId
@@ -24,6 +25,8 @@ export interface Online {
   userId: ObjectId
   updatedAt: Date
 }
+
+type FirstArgument<T> = T extends (arg1: infer U, ...args: any[]) => any ? U : any;
 
 export default class GameModule {
   core: CyberRun
@@ -329,52 +332,84 @@ export default class GameModule {
       ]).next()
       this.logger.info('game %o', game)
 
-      // 此题完成的人数
-      let finishedThisCount = (await this.core.log.col.aggregate<{count: number}>([
-        {
-          $match: {
-            levelId: level._id,
-            type: "passed"
-          }
-        },
-        { $group: { _id: '$userId' } },
-        { $count: 'count' }
-      ]).next())?.count || 0
 
-      const L = level.difficulty || 1 // 难度系数
-      const R = finishedThisCount + 1 // 结算排名 由完成题数排行计算
-      const C = await this.getMetaOnline(level._id) // 总人数
-      const RP = 1 - (R - 1) / C
-      const T = (new Date().valueOf() - game.startedAt.valueOf()) / 3600 / 1000
-      const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
-      const SPTS = 1000 * (1 + (L - 1) * 0.1) * (1 + RP * 0.25) * (0.75 + 0.25 * (TL - T) / TL)
-      const TY = await this.core.log.col.count({
-        userId, levelId: level._id
+      const gamePTS = await this.guessGamePoint(userId, game)
+      // game
+      await this.core.point.liveCol.updateOne({
+        gameId: game._id
+      }, {
+        $set: {
+          value: gamePTS,
+          updatedAt: new Date()
+        }
+      }, {
+        upsert: true
       })
-      const STY = level.submitCount
 
       const isFirst = (await this.core.log.col.count({
         levelId: level._id, type: "passed"
       })) === 0
 
-      const BPTS = isFirst ? (SPTS * 0.1 * (1 / (TY - STY + 1))) : 0
-      const PTS = SPTS + BPTS
-
-      this.logger.info('pts params %o', {
-        L, R, C, RP, T, TL, SPTS, TY, STY, isFirst, BPTS, PTS
-      })
+      const [SPTS, BPTS, params] = await this.guessLevelPoint(userId, game, level)
+      const PTS = SPTS + (isFirst ? BPTS : 0)
 
       return [`本题预估积分 ${Math.floor(PTS * 100) / 100}`,
-      '完赛预估积分',
+      `完赛预估积分 ${Math.floor(gamePTS * 100) / 100}`,
       `完成题目数 ${finishedCount?.count || 0}`,
-      `剩余比赛时间 ${Math.floor((TL - T) * 100) / 100}小时`,
+      `剩余比赛时间 ${Math.floor((params.TL - params.T) * 100) / 100}小时`,
       `当前题目难度系数 ${level.difficulty || '未设置'}`,
-      `当前关卡人数 ${C}`,
+      `当前关卡人数 ${params.C}`,
       `关卡提交次数: ${userLevelCount}`,
       `比赛提交次数: ${userGameCount}`,
       `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
       `比赛全局提交次数: ${await this.countTries(game._id)}`]
     }
+  }
+
+  async guessLevelPoint(userId: ObjectId, game: Game, level: Level): Promise<[number, number, CalcType]> {
+    // 此题完成的人数
+    let finishedThisCount = (await this.core.log.col.aggregate<{ count: number }>([
+      {
+        $match: {
+          levelId: level._id,
+          type: "passed"
+        }
+      },
+      { $group: { _id: '$userId' } },
+      { $count: 'count' }
+    ]).next())?.count || 0
+
+    const L = level.difficulty || 1 // 难度系数
+    const R = finishedThisCount + 1 // 结算排名 由完成题数排行计算
+    const C = await this.getMetaOnline(level._id) || await this.countPlayers(game) // 总人数
+
+    const T = (new Date().valueOf() - game.startedAt.valueOf()) / 3600 / 1000
+    const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
+    const TY = await this.core.log.col.count({
+      userId, levelId: level._id
+    })
+    const STY = level.submitCount
+
+    const params = {
+      L, R, C, T, TL, TY, STY
+    }
+
+    const [, SPTS, BPTS] = this.core.point.calc(params)
+    return [SPTS, BPTS, params]
+  }
+
+  // meta only
+  async guessGamePoint(userId: ObjectId, game: Game) {
+    const levels = await this.core.level.levelCol.find({
+      gameId: game._id
+    }).toArray()
+    let result = 0
+    for (const level of levels) {
+      let [SPTS] = await this.guessLevelPoint(userId, game, level)
+      this.logger.info('guess game point, level %s: %d', level._id, SPTS)
+      result += SPTS
+    }
+    return result
   }
 
   async getPassedLogs(gameId: ObjectId) {
