@@ -46,7 +46,7 @@ const routes: RouteConfig[] = [
     component: loadable(() => import('./pages/rank'))
   },
   {
-    path: '/record',
+    path: '/record/:id',
     exact: true,
     component: loadable(() => import('./pages/record'))
   },

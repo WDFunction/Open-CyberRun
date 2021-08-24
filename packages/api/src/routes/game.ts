@@ -22,4 +22,8 @@ router.get('/:id/admin/stats', getUser(), async (ctx) => {
   ctx.body = await cbr.game.adminStats(new ObjectId(ctx.params.id))
 })
 
+router.get('/:id/record', getUser(), async (ctx) => {
+  ctx.body = await cbr.user.record(new ObjectId(ctx.params.id), ctx.state.user._id)
+})
+
 export default router

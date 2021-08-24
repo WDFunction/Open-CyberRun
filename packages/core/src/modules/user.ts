@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 import nodemailer, { Transporter } from 'nodemailer'
 import Config from "../components/config";
 import { Logger } from '../logger'
+import { Point } from "./point";
 export interface User {
   _id: ObjectId;
   email: string;
@@ -111,5 +112,44 @@ export default class UserModule {
         }
       }
     })
+  }
+
+  async record(gameId: ObjectId, userId: ObjectId) {
+    let logs = await this.core.log.col.aggregate([
+      { $match: { gameId, userId, type: "passed" } },
+      {
+        $group: {
+          _id: '$levelId', document: {
+            $first: "$$ROOT"
+          }
+        }
+      },
+      {
+        $replaceRoot: { newRoot: '$document' }
+      },
+      { $sort: { createdAt: -1 } }
+    ]).toArray()
+    const game = await this.core.game.get(gameId)
+    let points
+    if (game.ended) {
+      points = (await this.core.point.col.find({
+        gameId, userId
+      }).project<{ type: Pick<Point, 'type'>, value: number }>({
+        type: 1,
+        value: 1
+      }).toArray()).map(v => {
+        v.value = Math.floor(v.value * 100) / 100
+        return v
+      })
+    }
+    let levels = await this.core.level.levelCol.find({
+      gameId
+    }).project({
+      _id: 1,
+      title: 1
+    }).toArray()
+    return {
+      logs, points, game, levels
+    }
   }
 }
