@@ -13,6 +13,7 @@ export interface Level {
   mapPoint: { x: number; y: number }
   difficulty?: number // meta mode only
   submitCount?: number // meta mode only
+  cooldown?: number
 }
 
 export interface LevelMap {
@@ -100,6 +101,17 @@ export default class LevelModule {
     if (finished) {
       this.logger.info('verify answer: user %s has finished the game %s', userId.toString(), game._id.toString())
       throw new Error("您已通关游戏")
+    }
+    let level = await this.levelCol.findOne({ _id: fromLevelId })
+    if (level.cooldown) {
+      let last = await this.core.log.col.findOne({
+        levelId: level._id,
+        userId,
+        createdAt: { $gte: new Date(new Date().valueOf() - level.cooldown * 1000) }
+      })
+      if (last) {
+        throw new Error("冷却中")
+      }
     }
     // @TODO not safe
     const addedFields = answers.map((v, i) => {

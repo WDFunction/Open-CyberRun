@@ -29,10 +29,11 @@ const LevelPage = () => {
   const [title, setTitle] = useState('')
   const [difficulty, setDifficulty] = useState('5')
   const [submitCount, setSubmitCount] = useState('5')
+  const [cooldown, setCooldown] = useState('')
   const save = async () => {
     await instance({
       url: `/admin/levels/${levelId}/patch`,
-      data: { title, content, difficulty: Number(difficulty), submitCount: Number(submitCount) },
+      data: { title, content, difficulty: Number(difficulty), submitCount: Number(submitCount), cooldown: cooldown ? Number(cooldown) : undefined },
       method: 'post'
     })
     toast.success("保存成功")
@@ -43,6 +44,7 @@ const LevelPage = () => {
       setContent(data.content)
       setDifficulty(data.difficulty?.toString() ?? '5')
       setSubmitCount(data.submitCount?.toString() ?? '5')
+      setCooldown(data.cooldown?.toString() ?? '')
     }
   }, [data])
   return <AdminLayout>
@@ -54,6 +56,7 @@ const LevelPage = () => {
       <TextField variant="outlined" color="primary" label={"内容(markdown)"} multiline fullWidth value={content} onChange={(e) => setContent(e.target.value)} />
       <TextField variant="outlined" color="primary" type="number" label={"难度系数"} fullWidth value={difficulty} onChange={(e) => setDifficulty(e.target.value)} />
       <TextField variant="outlined" color="primary" type="number" label={"提交次数"} fullWidth value={submitCount} onChange={(e) => setSubmitCount(e.target.value)} />
+      <TextField variant="outlined" color="primary" type="number" label={"提交冷却时间(秒)"} fullWidth value={cooldown} onChange={(e) => setCooldown(e.target.value)} />
       <Button type="submit" color="primary" variant="contained" fullWidth disableElevation>保存</Button>
     </form>
   </AdminLayout>
