@@ -1,4 +1,4 @@
-import { Collection, ObjectId, Document, Timestamp } from "mongodb";
+import { Collection, ObjectId, Document, Timestamp, LEGAL_TCP_SOCKET_OPTIONS } from "mongodb";
 import { CyberRun } from "../app";
 import { Level, LevelMap } from "./level";
 import { User } from "./user";
@@ -57,7 +57,7 @@ export default class PointModule {
   async checkout() {
     if (this.runningTask) return;
     let list = await this.core.game.col.find({
-      ended: false,
+      ended: { $ne: true },
       endedAt: { $lte: new Date() }
     }).toArray()
     if (!list.length) return;
@@ -73,6 +73,7 @@ export default class PointModule {
     let levels = await this.core.level.levelCol.find({
       gameId: game._id
     }).toArray()
+    const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
 
     if (game.type === "speedrun") {
       const endLevel = levels.find(v => v.type === "end")!
@@ -92,7 +93,6 @@ export default class PointModule {
       this.logger.info('finished list: %o', finished)
 
       const L = game.difficulty!
-      const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
       const STY = game.submitCount!
       const C = await this.core.game.countPlayers(game)
       for (const [R, item] of finished.entries()) {
@@ -101,11 +101,11 @@ export default class PointModule {
         const RP = 1 - (R - 1) / C
 
         // 大概能放进aggregate
-        const TY = await this.core.log.col.count({
+        const TY = R === 0 ? (await this.core.log.col.count({
           gameId: game._id,
           userId: item.userId,
           type: { $ne: "join" }
-        })
+        })) : 0
 
         const params = {
           L, TL, STY, C, R, T, RP, TY
@@ -114,28 +114,118 @@ export default class PointModule {
 
         this.logger.info('user %s: %o', item.userId, params)
 
-        await this.col.insertOne({
+        await this.col.updateOne({
           type: "finish",
           userId: item.userId,
           timeout: false,
-          createdAt: new Date(),
-          params,
-          version,
           gameId: game._id,
-          value: SPTS
-        })
-        if (BPTS) {
-          await this.col.insertOne({
-            type: "bonus",
-            userId: item.userId,
-            timeout: false,
+        }, {
+          $set: {
             createdAt: new Date(),
             params,
             version,
+            value: SPTS
+          }
+        }, {
+          upsert: true
+        })
+        if (BPTS) {
+          await this.col.updateOne({
+            type: "bonus",
+            userId: item.userId,
+            timeout: false,
             gameId: game._id,
-            value: BPTS
+          }, {
+            $set: {
+              createdAt: new Date(),
+              params,
+              version,
+              value: BPTS
+            }
+          }, {
+            upsert: true
           })
         }
+      }
+    }
+    else if (game.type === "meta") {
+      for await (const level of levels) {
+        let finished = await this.core.log.col.aggregate([
+          { $match: { levelId: level._id, type: "passed" } },
+          { $sort: { createdAt: 1 } },
+          {
+            $group: {
+              _id: '$userId', document: {
+                $first: "$$ROOT"
+              }
+            }
+          },
+          {
+            $replaceRoot: { newRoot: '$document' }
+          }
+        ]).toArray()
+        this.logger.info('finished level %s list: %o', level.title, finished)
+
+        const L = level.difficulty
+        const STY = level.submitCount
+        // 参与人数不可能是0的 这里就不用管了
+        const C = (await this.core.log.col.aggregate<{ count: number }>([
+          { $match: { levelId: level._id } },
+          { $group: { _id: '$userId' } },
+          { $count: 'count' }
+        ]).next())?.count
+        for (const [R, item] of finished.entries()) {
+          const T = (item.createdAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
+
+          const RP = 1 - (R - 1) / C
+          const TY = R === 0 ? (await this.core.log.col.count({
+            gameId: game._id,
+            userId: item.userId,
+            type: { $ne: "join" }
+          })) : 0
+          const params = {
+            L, TL, STY, C, R, T, RP, TY
+          }
+          const [version, SPTS, BPTS] = this.calc(params)
+
+          this.logger.info('user %s: %o, result: %o', item.userId, params, { SPTS, BPTS, version })
+
+          await this.col.updateOne({
+            type: "finish",
+            userId: item.userId,
+            timeout: false,
+            gameId: game._id,
+            levelId: level._id
+          }, {
+            $set: {
+              createdAt: new Date(),
+              params,
+              version,
+              value: SPTS
+            }
+          }, {
+            upsert: true
+          })
+          if (BPTS) {
+            await this.col.updateOne({
+              type: "bonus",
+              userId: item.userId,
+              timeout: false,
+              gameId: game._id,
+              levelId: level._id
+            }, {
+              $set: {
+                createdAt: new Date(),
+                params,
+                version,
+                value: BPTS
+              }
+            }, {
+              upsert: true
+            })
+          }
+        }
+
       }
     }
     await this.core.game.col.updateOne({
