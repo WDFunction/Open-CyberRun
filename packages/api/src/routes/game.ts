@@ -12,9 +12,6 @@ router.get('/', async (ctx) => {
 })
 
 router.get('/:id', getUser({ignoreGuest: true}), async (ctx) => {
-  if(ctx.state.user){
-    await cbr.log.joinGame(ctx.state.user._id, new ObjectId(ctx.params.id))
-  }
   ctx.body = await cbr.game.get(new ObjectId(ctx.params.id))
 })
 

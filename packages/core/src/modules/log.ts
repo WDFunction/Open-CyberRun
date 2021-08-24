@@ -71,7 +71,7 @@ export default class LogModule {
         }
       },
       {
-        $unset: ["userId", "user.email", "user.password"]
+        $unset: ["userId", "user.password"]
       }
     ]).toArray()
     return list

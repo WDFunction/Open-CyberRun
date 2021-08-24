@@ -168,7 +168,8 @@ export default class GameModule {
       })
       let passed = await this.core.log.col.count({
         userId,
-        newLevelId: endLevel._id
+        newLevelId: endLevel._id,
+        type: "passed"
       })
       return passed >= 1
     } else {
@@ -178,7 +179,8 @@ export default class GameModule {
       })
       let passed = await this.core.log.col.count({
         userId,
-        levelId: endLevel._id
+        levelId: endLevel._id,
+        type: "passed"
       })
       return passed >= 1
     }
@@ -285,6 +287,7 @@ export default class GameModule {
 
   async info(level: Level, userId: ObjectId): Promise<string[]> {
     let game = await this.get(level.gameId)
+    await this.core.log.joinGame(userId, level.gameId)
     /*let levels = await this.core.level.levelCol.find({
       gameId: game._id
     }).toArray()*/

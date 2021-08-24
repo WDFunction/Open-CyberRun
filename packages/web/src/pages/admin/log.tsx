@@ -2,10 +2,11 @@ import React, { useState } from 'react'
 import AdminLayout from './layout'
 import { useParams } from 'react-router-dom'
 import useSWR from 'swr';
-import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
+import { Avatar, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
 import type { Log, User, Level } from '@cyberrun/core'
 import { Pagination } from '@material-ui/lab'
-import { ChevronDoubleRight, Close } from 'mdi-material-ui'
+import { ChevronDoubleRight, Close, Check } from 'mdi-material-ui'
+import md5 from '../../components/md5'
 
 type AdvancedLog = Log & {
   user: User
@@ -21,9 +22,6 @@ const LogPage = () => {
   }>(`/admin/logs/${id}?page=${page - 1}`, {
     refreshInterval: 5000
   })
-  if (isValidating) {
-    return <AdminLayout />
-  }
   return <AdminLayout>
     <Typography>
 
@@ -36,6 +34,7 @@ const LogPage = () => {
           </TableCell>
           <TableCell>时间</TableCell>
           <TableCell>比赛情况</TableCell>
+          <TableCell>回答内容</TableCell>
           {/* <TableCell>操作</TableCell> */}
         </TableRow>
       </TableHead>
@@ -46,22 +45,26 @@ const LogPage = () => {
           const fromLevel = data?.levels?.find(l => l._id === v.levelId)
           if (v.type === "passed") {
             const newLevel = data?.levels?.find(l => l._id === v.newLevelId)
-            status = <span>{fromLevel!.title} → {newLevel!.title}</span>
+            if (newLevel) {
+              status = <span><Check />{fromLevel!.title} → {newLevel!.title}</span>
+            } else {
+              status = <span><Check />{fromLevel!.title}</span>
+            }
           } else if (v.type === "failed") {
             status = <span><Close />{fromLevel!.title}</span>
           } else if (v.type === "join") {
-            status = <span>参与</span>
+            status = <span>加入游戏</span>
           }
           return (
             <TableRow key={v._id.toString()}>
               <TableCell>
-                {v.user.username}
+                <Avatar src={`https://cn.gravatar.com/avatar/${md5(v.user.email)}`} /> {v.user.username}
               </TableCell>
               <TableCell>
                 {new Date(v.createdAt).toLocaleString()}
               </TableCell>
               <TableCell>{status}</TableCell>
-              {/* <TableCell></TableCell> */}
+              <TableCell>{v.answers?.join(", ")}</TableCell>
             </TableRow>
           );
         })}
