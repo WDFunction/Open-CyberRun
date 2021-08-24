@@ -12,6 +12,7 @@ export interface Point {
   version: number
   userId: ObjectId
   gameId: ObjectId
+  levelId: ObjectId
 }
 export default class PointModule {
   core: CyberRun

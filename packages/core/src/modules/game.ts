@@ -8,25 +8,39 @@ export interface Game {
   _id: ObjectId
   name: string;
   cover: string;
-  startAt: Date;
+  startedAt: Date;
   endedAt: Date;
   ended: boolean;
   type: "meta" | "speedrun"
   map: string;
   difficulty?: number // speedrun mode only
   submitCount?: number // speedrun mode only
-  timeLimit?: number
 }
 
+export interface Online {
+  _id: ObjectId
+  gameId?: ObjectId
+  levelId: ObjectId
+  userId: ObjectId
+  updatedAt: Date
+}
 
 export default class GameModule {
   core: CyberRun
   col: Collection<Game>
+  onlineCol: Collection<Online>
   logger = new Logger('game')
   constructor(core: CyberRun) {
     this.core = core
 
     this.col = this.core.db.collection<Game>('game')
+    this.onlineCol = this.core.db.collection<Online>('online')
+    /*this.onlineCol.createIndex({
+      updateAt: 1
+    }, {
+      expireAfterSeconds: 10
+    })*/
+
     this.logger.info('init')
   }
 
@@ -299,8 +313,10 @@ export default class GameModule {
         `比赛全局提交次数: ${await this.countTries(game._id)}`
       ]
     } else {
+      await this.updateMetaOnline(level._id, userId)
       // 这里应该要考虑meta 但是完成meta后就不显示了 先不考虑
-      let finishedCount = await this.core.log.col.aggregate<{ count: string }>([
+      // 完成题目数
+      let finishedCount = await this.core.log.col.aggregate<{ count: number }>([
         {
           $match: {
             gameId: game._id, userId, type: {
@@ -311,21 +327,49 @@ export default class GameModule {
         { $group: { _id: '$levelId' } },
         { $count: 'count' }
       ]).next()
+      this.logger.info('game %o', game)
 
-      const L = game.difficulty || 1 // 难度系数
-      const R = 1 // 结算排名 由完成题数排行计算
-      const C = await this.countPlayers(game) // 总人数
+      // 此题完成的人数
+      let finishedThisCount = (await this.core.log.col.aggregate<{count: number}>([
+        {
+          $match: {
+            levelId: level._id,
+            type: "passed"
+          }
+        },
+        { $group: { _id: '$userId' } },
+        { $count: 'count' }
+      ]).next())?.count || 0
+
+      const L = level.difficulty || 1 // 难度系数
+      const R = finishedThisCount + 1 // 结算排名 由完成题数排行计算
+      const C = await this.getMetaOnline(level._id) // 总人数
       const RP = 1 - (R - 1) / C
-      const T = 0.1
-      const TL = game.timeLimit
+      const T = (new Date().valueOf() - game.startedAt.valueOf()) / 3600 / 1000
+      const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
       const SPTS = 1000 * (1 + (L - 1) * 0.1) * (1 + RP * 0.25) * (0.75 + 0.25 * (TL - T) / TL)
+      const TY = await this.core.log.col.count({
+        userId, levelId: level._id
+      })
+      const STY = level.submitCount
 
-      return [`预估积分 ${Math.floor(SPTS * 100) / 100}`,
+      const isFirst = (await this.core.log.col.count({
+        levelId: level._id, type: "passed"
+      })) === 0
+
+      const BPTS = isFirst ? (SPTS * 0.1 * (1 / (TY - STY + 1))) : 0
+      const PTS = SPTS + BPTS
+
+      this.logger.info('pts params %o', {
+        L, R, C, RP, T, TL, SPTS, TY, STY, isFirst, BPTS, PTS
+      })
+
+      return [`本题预估积分 ${Math.floor(PTS * 100) / 100}`,
+      '完赛预估积分',
       `完成题目数 ${finishedCount?.count || 0}`,
-      `剩余比赛时间 ${TL - T}小时`,
+      `剩余比赛时间 ${Math.floor((TL - T) * 100) / 100}小时`,
       `当前题目难度系数 ${level.difficulty || '未设置'}`,
-      // '本题预估分数',
-      `当前关卡人数`,
+      `当前关卡人数 ${C}`,
       `关卡提交次数: ${userLevelCount}`,
       `比赛提交次数: ${userGameCount}`,
       `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
@@ -409,5 +453,24 @@ export default class GameModule {
       },
       levels
     }
+  }
+
+  async updateMetaOnline(levelId: ObjectId, userId: ObjectId) {
+    await this.onlineCol.updateOne({
+      levelId, userId
+    }, {
+      $set: {
+        updatedAt: new Date()
+      }
+    }, {
+      upsert: true
+    })
+  }
+
+  async getMetaOnline(levelId: ObjectId) {
+    return this.onlineCol.find({
+      updatedAt: { $gte: new Date(new Date().valueOf() - 10000) },
+      levelId
+    }).count()
   }
 }
