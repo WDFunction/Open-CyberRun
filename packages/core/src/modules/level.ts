@@ -245,6 +245,8 @@ export default class LevelModule {
       content: '',
       type: 'normal',
       distance: -1,
+      difficulty: 5,
+      submitCount: 5,
       gameId: data.gameId,
       mapPoint: {
         x: data.x, y: data.y
@@ -273,6 +275,12 @@ export default class LevelModule {
     await this.mapCol.deleteMany({
       toLevelId: levelId
     })
+    await this.core.log.col.deleteMany({
+      levelId
+    })
+    await this.core.log.col.deleteMany({
+      newLevelId: levelId
+    })
   }
 
   async stringifyMap(mapId: ObjectId) {
@@ -299,7 +307,7 @@ export default class LevelModule {
     return this.levelCol.findOne({ _id: id })
   }
 
-  async adminUpdate(levelId: ObjectId, data: Pick<Level, 'content' | 'title'>) {
+  async adminUpdate(levelId: ObjectId, data: Pick<Level, 'content' | 'title' | 'difficulty' | 'submitCount'>) {
     await this.levelCol.updateOne({
       _id: levelId
     }, {

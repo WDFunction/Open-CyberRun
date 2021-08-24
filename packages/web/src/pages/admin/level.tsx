@@ -6,7 +6,20 @@ import { Box, Button, TextField } from '@material-ui/core'
 import type { Level } from '@cyberrun/core'
 import instance from '../../components/instance'
 import { toast } from 'react-toastify'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      '& .MuiTextField-root': {
+        margin: theme.spacing(1)
+      },
+    },
+  }),
+);
+
 const LevelPage = () => {
+  const classes = useStyles()
   const { id, levelId } = useParams<{
     id: string;
     levelId: string
@@ -14,10 +27,12 @@ const LevelPage = () => {
   const { data } = useSWR<Level>(`/admin/levels/${levelId}`)
   const [content, setContent] = useState('')
   const [title, setTitle] = useState('')
+  const [difficulty, setDifficulty] = useState('5')
+  const [submitCount, setSubmitCount] = useState('5')
   const save = async () => {
     await instance({
       url: `/admin/levels/${levelId}/patch`,
-      data: { title, content },
+      data: { title, content, difficulty: Number(difficulty), submitCount: Number(submitCount) },
       method: 'post'
     })
     toast.success("保存成功")
@@ -26,15 +41,21 @@ const LevelPage = () => {
     if (data) {
       setTitle(data.title)
       setContent(data.content)
+      setDifficulty(data.difficulty?.toString() ?? '5')
+      setSubmitCount(data.submitCount?.toString() ?? '5')
     }
   }, [data])
   return <AdminLayout>
-    <TextField variant="outlined" color="primary" label="标题" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} />
-
-    <Box mt={2}>
+    <form className={classes.root} autoComplete="off" onSubmit={(e) => {
+      e.preventDefault()
+      save()
+    }}>
+      <TextField variant="outlined" color="primary" label="标题" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} />
       <TextField variant="outlined" color="primary" label={"内容(markdown)"} multiline fullWidth value={content} onChange={(e) => setContent(e.target.value)} />
-    </Box>
-    <Button onClick={save} color="primary" variant="contained">保存</Button>
+      <TextField variant="outlined" color="primary" type="number" label={"难度系数"} fullWidth value={difficulty} onChange={(e) => setDifficulty(e.target.value)} />
+      <TextField variant="outlined" color="primary" type="number" label={"提交次数"} fullWidth value={submitCount} onChange={(e) => setSubmitCount(e.target.value)} />
+      <Button type="submit" color="primary" variant="contained" fullWidth disableElevation>保存</Button>
+    </form>
   </AdminLayout>
 }
 

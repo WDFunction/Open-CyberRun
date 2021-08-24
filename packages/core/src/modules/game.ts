@@ -424,8 +424,14 @@ export default class GameModule {
       type: { $in: ["meta", "end"] }
     })
     let passedLogs = await this.core.log.col.find({
-      newLevelId: end._id,
-      type: "passed"
+      $or: [{
+        newLevelId: end._id,
+        type: "passed"
+      },
+      {
+        levelId: end._id,
+        type: "passed"
+      }]
     }).toArray()
     return passedLogs
   }
@@ -460,9 +466,10 @@ export default class GameModule {
         level.avgSubmit = (users.map(v => v.count).reduce((a, b) => a + b, 0) / users.length) || 0
       }
     } else {
-      for (let level of levels) {
-        level.onlineCount = 0
-        level.avgSubmit = 0
+      for await (let level of levels) {
+        level.onlineCount = await this.getMetaOnline(level._id)
+        level.avgSubmit = (await this.getMetaSubmitCount(level._id)) / (await this.getMetaSubmitUserCount(level._id))
+        // 先不管效率了 能用就行
       }
     }
 
@@ -494,6 +501,20 @@ export default class GameModule {
       },
       levels
     }
+  }
+
+  async getMetaSubmitCount(levelId: ObjectId) {
+    return await this.core.log.col.count({
+      levelId
+    })
+  }
+
+  async getMetaSubmitUserCount(levelId: ObjectId) {
+    return (await this.core.log.col.aggregate<{ count: number }>([
+      { $match: { levelId } },
+      { $group: { _id: '$userId' } },
+      { $count: 'count' }
+    ]).next())?.count ?? 0
   }
 
   async updateMetaOnline(levelId: ObjectId, userId: ObjectId) {
