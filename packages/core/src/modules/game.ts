@@ -91,9 +91,16 @@ export default class GameModule {
     return game
   }
 
-  async list() {
+  async list(): Promise<Partial<Game>[]> {
     let list = await this.col.find().toArray()
-    return list
+    return list.map(v => ({
+      _id: v._id,
+      cover: v.cover,
+      name: v.name,
+      startedAt: v.startedAt,
+      type: v.type,
+      ended: v.ended
+    }))
   }
 
   async get(id: ObjectId) {

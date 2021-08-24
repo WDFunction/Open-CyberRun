@@ -138,7 +138,7 @@ export default class PointModule {
         }
       }
     }
-    await this.col.updateOne({
+    await this.core.game.col.updateOne({
       _id: game._id
     }, {
       $set: {
