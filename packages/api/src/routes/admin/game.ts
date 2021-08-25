@@ -45,6 +45,7 @@ router.post('/:id/maps', async (ctx) => {
 })
 
 router.post('/:id/patch', async (ctx) => {
+  // @ts-ignore
   await cbr.game.adminUpdate(new ObjectId(ctx.params.id), ctx.request.body)
   ctx.status = 204
 })
