@@ -6,6 +6,11 @@ const router = new Router<ICustomAppState>({
   prefix: '/admin/games'
 })
 
+router.post('/', async (ctx) => {
+  await cbr.game.adminNew()
+  ctx.status = 204
+})
+
 router.get('/', async (ctx) => {
   ctx.body = await cbr.game.col.find({}).sort({ id: -1 }).toArray()
 })

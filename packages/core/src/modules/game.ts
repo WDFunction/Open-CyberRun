@@ -539,9 +539,29 @@ export default class GameModule {
     }).count()
   }
 
-  async adminUpdate(gameId: ObjectId, data: Partial<Game>){
-    await this.col.updateOne({_id: gameId}, {
-      $set: data
+  async adminUpdate(gameId: ObjectId, data: {
+    startedAt: string
+    endedAt: string
+  } & Pick<Game, 'map' | 'cover' | 'type' | 'difficulty' | 'submitCount'>) {
+    await this.col.updateOne({ _id: gameId }, {
+      $set: {
+        ...data, ...{
+          startedAt: new Date(data.startedAt),
+          endedAt: new Date(data.endedAt)
+        }
+      }
+    })
+  }
+
+  async adminNew() {
+    await this.col.insertOne({
+      name: new Date().valueOf().toString(),
+      type: "speedrun",
+      startedAt: new Date(),
+      endedAt: new Date(),
+      ended: false,
+      map: '',
+      cover: ''
     })
   }
 }

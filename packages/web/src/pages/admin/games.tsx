@@ -133,7 +133,7 @@ const Row: React.FunctionComponent<{
               <TextField fullWidth label="封面地址" value={cover} onChange={(e) => setCover(e.target.value)} variant="outlined" />
 
               <TextField variant="outlined" color="primary" type="number" label={"难度系数"} fullWidth value={difficulty} onChange={(e) => setDifficulty(e.target.value)} disabled={type !== 'speedrun'} />
-              <TextField variant="outlined" color="primary" type="number" label={"提交次数"} fullWidth value={submitCount} onChange={(e) => setSubmitCount(e.target.value)} disabled={type !== 'speedrun'} />
+              <TextField variant="outlined" color="primary" type="number" label={"提交 次数"} fullWidth value={submitCount} onChange={(e) => setSubmitCount(e.target.value)} disabled={type !== 'speedrun'} />
               <Button type="submit" variant="contained" fullWidth disableElevation color="primary">提交</Button>
             </form>
           </Box>
@@ -146,6 +146,15 @@ const Row: React.FunctionComponent<{
 const GamesPage = () => {
   const classes = useStyles();
   const { data, mutate } = useSWR<Game[]>('/admin/games')
+
+  const createNew = async () => {
+    await instance({
+      url: `/admin/games`,
+      method: 'post'
+    })
+    mutate()
+  }
+
   return <AdminLayout>
     <Container>
       <Paper variant="outlined">
@@ -163,6 +172,11 @@ const GamesPage = () => {
             {data?.map(v => (
               <Row key={v._id.toString()} game={v} mutate={mutate} />
             ))}
+            <TableRow>
+              <TableCell colSpan={5} style={{ padding: 0 }}>
+                <Button fullWidth color="primary" onClick={createNew}>新增</Button>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </Paper>
