@@ -68,11 +68,13 @@ export default class UserModule {
       createdAt: new Date()
     })
 
+    const root = (await Config.get()).root
+
     await this.transport.sendMail({
       from: 'CyberRun <cyberrun@wd-api.com>',
       to: data.email,
       subject: 'CyberRun用户激活',
-      html: `<b>以下为您的激活链接</b><br>http://localhost:3000/user/email_verify/${email_verify_token}`
+      html: `<b>以下为您的激活链接</b><br>${root}user/email_verify/${email_verify_token}`
     })
 
     let t = await this.core.jwt.create(inserted.insertedId)
@@ -130,6 +132,9 @@ export default class UserModule {
       { $sort: { createdAt: -1 } }
     ]).toArray()
     const game = await this.core.game.get(gameId)
+    if (!game) {
+      throw new Error("比赛不存在")
+    }
     let points
     if (game.ended) {
       points = (await this.core.point.col.find({

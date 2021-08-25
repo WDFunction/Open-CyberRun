@@ -8,7 +8,8 @@ export const DefaultConfig = {
   },
   mongodb: {
     connection: ""
-  }
+  },
+  root: ""
 }
 
 export type IConfig = typeof DefaultConfig

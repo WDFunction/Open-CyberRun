@@ -11,11 +11,11 @@ router.get('/', async (ctx) => {
   ctx.body = r
 })
 
-router.get('/:id', getUser({ignoreGuest: true}), async (ctx) => {
+router.get('/:id', getUser({ ignoreGuest: true }), async (ctx) => {
   ctx.body = await cbr.game.get(new ObjectId(ctx.params.id))
 })
 
-router.get('/:id/admin/stats', getUser(), async (ctx) => {
+router.get('/:id/admin/stats', getUser({ admin: true }), async (ctx) => {
   ctx.body = await cbr.game.adminStats(new ObjectId(ctx.params.id))
 })
 
