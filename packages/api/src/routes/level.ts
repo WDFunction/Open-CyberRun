@@ -21,14 +21,8 @@ router.get('/:id', getUser({ ignoreGuest: true }), async (ctx) => {
     return ctx.status = 404
   }
   let userId = ctx.state.user ? ctx.state.user._id : new ObjectId()
-  let can: boolean;
-  if (level.type === "meta") {
-    can = await cbr.game.canAccessMeta(userId, level.gameId)
 
-  } else {
-    can = await cbr.game.canAccessLevel(userId, level.gameId, id)
-  }
-  if (!can) {
+  if (!await cbr.game.canAccessLevel(userId, level.gameId, id)) {
     ctx.status = 403
     ctx.body = {
       message: "你不配"

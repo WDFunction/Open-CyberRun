@@ -57,31 +57,38 @@ export default class GameModule {
   }
 
   async canAccessLevel(userId: ObjectId, gameId: ObjectId, levelId: ObjectId) {
-    let game = await this.core.game.get(gameId)
-    if (game.type === "meta") {
-      let levels = await this.core.level.levelCol.find({
-        gameId,
-        type: "normal"
-      }).toArray()
-      let passed = await this.core.level.checkUserPassed(userId, levels.map(v => v._id))
-      if (levels.find(v => v._id.equals(levelId))) {
-        // 是普通关卡
-        return true;
-      }
-
-      // 是meta
-      if (Object.values(passed).filter(v => v).length === Object.values(passed).length) {
-        return true;
-      }
-    } else {
-      let levels = await this.core.level.levelCol.find({ gameId }).toArray()
-      let level = levels.find(v => v._id.equals(levelId))
-      if (level.type === "start") return true;
-
-      let ca = await this.core.level.canAccessLevels(gameId, userId)
-      if (ca.find(v => v.equals(level._id))) return true;
+    // let game = await this.core.game.get(gameId)
+    let maps = await this.core.level.mapCol.find({
+      $or: [{
+        fromLevelId: levelId
+      }, {
+        toLevelId: levelId
+      }]
+    }).toArray()
+    const isFirstLevel = maps.filter(v => v.toLevelId.equals(levelId)).length === 0
+    if (isFirstLevel) {
+      this.logger.info('%s is first level', levelId)
     }
 
+    // 不是第一关 看levelMap 之前的关卡必须要都passed
+
+    let toThisMaps = maps.filter(v => v.toLevelId.equals(levelId))
+    let toThisLogs = await this.core.log.col.aggregate([
+      { $match: { userId, newLevelId: levelId, type: "passed" } },
+      { $group: { _id: '$levelId' } }
+    ]).toArray()
+
+    const isEqualSet = (a: ObjectId[], b: ObjectId[]): boolean => {
+      const union = new Set([...a, ...b])
+      return union.size === a.length && union.size === b.length;
+    }
+
+    if (isEqualSet(
+      toThisMaps.map(v => v.fromLevelId),
+      toThisLogs.map(v => v.levelId)
+    )) {
+      return true
+    }
     return false
   }
 
@@ -162,34 +169,34 @@ export default class GameModule {
   }
 
 
+  async getEndLevel(gameId: ObjectId) {
+    let levels = await this.core.level.levelCol.find({
+      gameId
+    }).toArray()
+    let maps = await this.core.level.mapCol.find({
+      $or: [{
+        toLevelId: { $in: levels.map(v => v._id) }
+      }, {
+        fromLevelId: { $in: levels.map(v => v._id) }
+      }]
+    }).toArray()
+    for (const level of levels) {
+      // 没有这一关的出口关卡
+      if (maps.filter(v => v.fromLevelId === level._id).length === 0) {
+        return level
+      }
+    }
+  }
+
   /**
    * 用户是否完赛
    */
   async isUserFinished(game: Game, userId: ObjectId): Promise<boolean> {
-    if (game.type === 'speedrun') {
-      let endLevel = await this.core.level.levelCol.findOne({
-        type: "end",
-        gameId: game._id
-      })
-      let passed = await this.core.log.col.count({
-        userId,
-        newLevelId: endLevel._id,
-        type: "passed"
-      })
-      return passed >= 1
-    } else {
-      let endLevel = await this.core.level.levelCol.findOne({
-        type: "meta",
-        gameId: game._id
-      })
-      let passed = await this.core.log.col.count({
-        userId,
-        levelId: endLevel._id,
-        type: "passed"
-      })
-      return passed >= 1
-    }
-    return true
+    let endLevel = await this.getEndLevel(game._id)
+    let log = await this.core.log.col.count({
+      userId, newLevelId: endLevel._id
+    })
+    return log >= 1
   }
 
   async countPlayers(game: Game) {
@@ -276,11 +283,12 @@ export default class GameModule {
     if (leaveLevel) {
       return leaveLevel.createdAt.valueOf() - enterLevel.createdAt.valueOf()
     }
-    if (level.type === "start") {
-      let join = await this.playerJoinTime(userId, level.gameId)
-      return new Date().valueOf() - join.valueOf()
+    if (enterLevel) {
+      return new Date().valueOf() - enterLevel.createdAt.valueOf()
     }
-    return new Date().valueOf() - enterLevel.createdAt.valueOf()
+    // is start level
+    let join = await this.playerJoinTime(userId, level.gameId)
+    return new Date().valueOf() - join.valueOf()
   }
 
   /**

@@ -8,7 +8,7 @@ export interface Level {
   gameId: ObjectId;
   title: string;
   content: string;
-  type: "start" | "end" | "normal" | "meta"
+  // type: "start" | "end" | "normal" | "meta"
   distance: number
   mapPoint: { x: number; y: number }
   difficulty?: number // meta mode only
@@ -57,34 +57,35 @@ export default class LevelModule {
     if (!game) {
       throw new Error("比赛不存在")
     }
-    if (game.type === "speedrun") {
-      let levels = await this.levelCol.find({
-        gameId
-      }).toArray()
-      let ca = userId ? await this.canAccessLevels(gameId, userId) : []
-      levels = levels.filter(v => {
-        if (v.type === "start") return true
-        if (ca.find(c => c.equals(v._id))) return true
-        return false
-      })
-      let rtnLevels: Partial<Level>[] = levels.map(v => ({
-        mapPoint: v.mapPoint,
-        title: v.title,
-        _id: v._id
-      }))
+    let levels = await this.levelCol.find({
+      gameId
+    }).toArray()
+    let rtnLevels: Partial<Level>[] = levels.map(v => ({
+      mapPoint: v.mapPoint,
+      title: v.title,
+      _id: v._id
+    }))
+    return rtnLevels
+    // if (game.type === "speedrun") {
+    //   let levels = await this.levelCol.find({
+    //     gameId
+    //   }).toArray()
+    //   let ca = userId ? await this.canAccessLevels(gameId, userId) : []
+    //   levels = levels.filter(v => {
+    //     if (v.type === "start") return true
+    //     if (ca.find(c => c.equals(v._id))) return true
+    //     return false
+    //   })
+    //   let rtnLevels: Partial<Level>[] = levels.map(v => ({
+    //     mapPoint: v.mapPoint,
+    //     title: v.title,
+    //     _id: v._id
+    //   }))
 
-      return rtnLevels
-    } else {
-      let levels = await this.levelCol.find({
-        gameId
-      }).toArray()
-      let rtnLevels: Partial<Level>[] = levels.map(v => ({
-        mapPoint: v.mapPoint,
-        title: v.title,
-        _id: v._id
-      }))
-      return rtnLevels
-    }
+    //   return rtnLevels
+    // } else {
+      
+    // }
   }
 
   async getLevelMaxAnswersCount(id: ObjectId) {
@@ -258,7 +259,6 @@ export default class LevelModule {
     let r = await this.levelCol.insertOne({
       title: new Date().valueOf().toString(),
       content: '',
-      type: 'normal',
       distance: -1,
       difficulty: 5,
       submitCount: 5,

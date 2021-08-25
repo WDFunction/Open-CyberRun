@@ -46,9 +46,11 @@ const Row: React.FunctionComponent<{
   const [difficulty, setDifficulty] = useState('5')
   const [submitCount, setSubmitCount] = useState('5');
   const [type, setType] = useState('speedrun')
+  const [name, setName] = useState('')
 
   useEffect(() => {
     if (game) {
+      setName(game.name)
       setStarted(new Date(game.startedAt))
       setEnded(new Date(game.endedAt))
       setMap(game.map)
@@ -65,7 +67,7 @@ const Row: React.FunctionComponent<{
       method: 'post',
       data: {
         startedAt: started.toISOString(), endedAt: ended.toISOString(),
-        map, cover, type, difficulty: difficulty ? Number(difficulty) : undefined,
+        map, cover, type, difficulty: difficulty ? Number(difficulty) : undefined, name, 
         submitCount: submitCount ? Number(submitCount) : undefined
       }
     })
@@ -128,7 +130,7 @@ const Row: React.FunctionComponent<{
                   <FormControlLabel label="积分" value="meta" control={<Radio />} />
                 </RadioGroup>
               </FormControl>
-
+              <TextField fullWidth label="比赛名称" value={name} onChange={(e) => setName(e.target.value)} variant="outlined" />
               <TextField fullWidth label="地图地址" value={map} onChange={(e) => setMap(e.target.value)} variant="outlined" />
               <TextField fullWidth label="封面地址" value={cover} onChange={(e) => setCover(e.target.value)} variant="outlined" />
 

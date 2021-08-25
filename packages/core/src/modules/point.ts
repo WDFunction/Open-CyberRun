@@ -76,7 +76,7 @@ export default class PointModule {
     const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
 
     if (game.type === "speedrun") {
-      const endLevel = levels.find(v => v.type === "end")!
+      const endLevel = await this.core.game.getEndLevel(game._id)
       if (!endLevel) {
         return this.logger.error('do not have end level')
       }
@@ -254,7 +254,8 @@ export default class PointModule {
 
   async calcAfterEnded(game: Game, levelId: ObjectId, userId: ObjectId) {
     let level = await this.core.level.levelCol.findOne({ _id: levelId })
-    if (game.type === "speedrun" && level.type === "end") {
+    const endLevel = await this.core.game.getEndLevel(game._id)
+    if (game.type === "speedrun" && level._id.equals(endLevel._id)) {
       const L = game.difficulty!
       const value = 10 * 0.25 * (1 + (L - 1) * 0.1) * 100
       await this.col.updateOne({

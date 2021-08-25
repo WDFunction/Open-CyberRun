@@ -31,7 +31,7 @@ const LevelPage = () => {
   const [difficulty, setDifficulty] = useState('5')
   const [submitCount, setSubmitCount] = useState('5')
   const [cooldown, setCooldown] = useState('')
-  const [type, setType] = useState('')
+  //const [type, setType] = useState('')
   const save = async () => {
     await instance({
       url: `/admin/levels/${levelId}/patch`,
@@ -47,7 +47,7 @@ const LevelPage = () => {
       setDifficulty(data.difficulty?.toString() ?? '5')
       setSubmitCount(data.submitCount?.toString() ?? '5')
       setCooldown(data.cooldown?.toString() ?? '')
-      setType(data.type)
+      //setType(data.type)
     }
   }, [data])
   return <AdminLayout>
@@ -55,21 +55,16 @@ const LevelPage = () => {
       e.preventDefault()
       save()
     }}>
-      <FormControl component="fieldset">
+      {/* <FormControl component="fieldset">
         <FormLabel component="legend">比赛类型</FormLabel>
         <RadioGroup row value={type} onChange={(e) => setType(e.target.value)}>
-          {gameData?.type === "speedrun" && (
-            <>
-              <FormControlLabel label="起始关" value="start" control={<Radio />} />
-              <FormControlLabel label="结束关" value="end" control={<Radio />} />
-            </>
-          )}
+          <FormControlLabel label="普通关" value="normal" control={<Radio />} />
+          <FormControlLabel label="结束关" value="end" control={<Radio />} />
           {gameData?.type === "meta" && (
             <FormControlLabel label="元关卡" value="meta" control={<Radio />} />
           )}
-          <FormControlLabel label="普通关" value="normal" control={<Radio />} />
         </RadioGroup>
-      </FormControl>
+      </FormControl> */}
       <TextField variant="outlined" color="primary" label="标题" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} />
       <TextField variant="outlined" color="primary" label={"内容(markdown)"} multiline fullWidth value={content} onChange={(e) => setContent(e.target.value)} />
       <TextField variant="outlined" color="primary" type="number" label={"难度系数"} fullWidth value={difficulty} onChange={(e) => setDifficulty(e.target.value)} />
