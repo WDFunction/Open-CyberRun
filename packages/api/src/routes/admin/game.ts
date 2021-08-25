@@ -6,6 +6,10 @@ const router = new Router<ICustomAppState>({
   prefix: '/admin/games'
 })
 
+router.get('/', async (ctx) => {
+  ctx.body = await cbr.game.col.find({}).sort({ id: -1 }).toArray()
+})
+
 router.get('/:id/maps', async (ctx) => {
   const [levels, maps] = await cbr.level.adminGetMaps(new ObjectId(ctx.params.id))
   ctx.body = {
@@ -31,6 +35,11 @@ router.post('/:id/maps', async (ctx) => {
     toLevelId: new ObjectId(body.toLevelId)
   })
   ctx.body = id
+})
+
+router.post('/:id/patch', async (ctx) => {
+  await cbr.game.adminUpdate(new ObjectId(ctx.params.id), ctx.request.body)
+  ctx.status = 204
 })
 
 router.get('/any/maps/:id', async (ctx) => {

@@ -5,6 +5,9 @@ import loadable from '@loadable/component'
 import { SWRConfig } from 'swr'
 import instance from './components/instance'
 import { ToastContainer } from 'react-toastify'
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
+
 const routes: RouteConfig[] = [
   {
     path: '/',
@@ -59,7 +62,7 @@ const routes: RouteConfig[] = [
     path: '/admin/:id/wordcloud/:levelId',
     exact: true,
     component: loadable(() => import('./pages/admin/wordcloud'))
-  },{
+  }, {
     path: '/admin/:id/map',
     exact: true,
     component: loadable(() => import('./pages/admin/map'))
@@ -75,6 +78,11 @@ const routes: RouteConfig[] = [
     component: loadable(() => import('./pages/admin/index'))
   },
   {
+    path: '/admin/games',
+    exact: true,
+    component: loadable(() => import('./pages/admin/games'))
+  },
+  {
     path: '/admin/:id/log',
     exact: true,
     component: loadable(() => import('./pages/admin/log'))
@@ -83,14 +91,16 @@ const routes: RouteConfig[] = [
 
 const App = () => {
   return <BrowserRouter>
-    <ToastContainer />
-    <SWRConfig value={{
-      fetcher: url => instance.get(url).then(res => res.data)
-    }}>
-      <Switch>
-        {renderRoutes(routes)}
-      </Switch>
-    </SWRConfig>
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <ToastContainer />
+      <SWRConfig value={{
+        fetcher: url => instance.get(url).then(res => res.data)
+      }}>
+        <Switch>
+          {renderRoutes(routes)}
+        </Switch>
+      </SWRConfig>
+    </MuiPickersUtilsProvider>
   </BrowserRouter>
 }
 

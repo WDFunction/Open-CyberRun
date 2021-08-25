@@ -78,13 +78,13 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
           </FormControl>
         </Box>
       </div>
-      {/* <Divider />
+      <Divider />
       <List>
-        <ListItem button>
+        <ListItem button onClick={() => history.push(`/admin/games`)}>
           <ListItemIcon><ListIcon /></ListItemIcon>
           <ListItemText primary="比赛列表" />
         </ListItem>
-      </List> */}
+      </List>
       <Divider />
       {selected && (
         <List>

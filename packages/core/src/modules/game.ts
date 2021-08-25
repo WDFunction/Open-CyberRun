@@ -538,4 +538,10 @@ export default class GameModule {
       levelId
     }).count()
   }
+
+  async adminUpdate(gameId: ObjectId, data: Partial<Game>){
+    await this.col.updateOne({_id: gameId}, {
+      $set: data
+    })
+  }
 }
