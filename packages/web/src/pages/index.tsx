@@ -44,8 +44,9 @@ const IndexPage = () => {
       )}
       <Grid container spacing={2}>
         {data?.map(v => {
+          const started = new Date().valueOf() > new Date(v.startedAt!).valueOf()
           const status = v.ended! ? '已完赛' :
-            (new Date().valueOf() > new Date(v.startedAt!).valueOf() ? '进行中' : '未开始')
+            (started ? '进行中' : '未开始')
           return (
             <Grid item xs={12} sm={4}>
               <Card variant="outlined">
@@ -58,11 +59,11 @@ const IndexPage = () => {
                 </CardContent>
                 <CardActions>
                   <div className={classes.root} style={{ marginLeft: 'auto' }}>
-                    {!error && <Button color="primary" variant="outlined" href={`/record/${v._id!.toString()}`} onClick={(e) => {
+                    {!error && started && <Button color="primary" variant="outlined" href={`/record/${v._id!.toString()}`} onClick={(e) => {
                       e.preventDefault()
                       history.push(`/record/${v._id!.toString()}`)
                     }}>个人战绩</Button>}
-                    <Button style={{ marginLeft: 'auto' }} color="primary" variant="contained" disableElevation onClick={() => join(v._id!.toString())}>参加</Button>
+                    {started && <Button style={{ marginLeft: 'auto' }} color="primary" variant="contained" disableElevation onClick={() => join(v._id!.toString())}>参加</Button>}
                   </div>
                 </CardActions>
               </Card>

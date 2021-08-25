@@ -12,6 +12,8 @@ instance.interceptors.request.use((req) => {
 instance.interceptors.response.use((res) => res, (err) => {
   if (err.response?.status === 403) {
     toast.error(err.response?.data.message)
+  } else if (err.response?.status === 500) {
+    toast.error(err.response?.data?.message)
   }
   return Promise.reject(err)
 })

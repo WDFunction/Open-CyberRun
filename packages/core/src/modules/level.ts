@@ -54,6 +54,9 @@ export default class LevelModule {
 
   async getGameLevels(gameId: ObjectId, userId?: ObjectId) {
     let game = await this.core.game.get(gameId)
+    if (!game) {
+      throw new Error("比赛不存在")
+    }
     if (game.type === "speedrun") {
       let levels = await this.levelCol.find({
         gameId

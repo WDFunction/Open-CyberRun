@@ -104,7 +104,12 @@ export default class GameModule {
   }
 
   async get(id: ObjectId) {
-    let item = await this.col.findOne({ _id: id })
+    let item = await this.col.findOne({
+      _id: id,
+      startedAt: {
+        $lte: new Date()
+      }
+    })
     return item
   }
 

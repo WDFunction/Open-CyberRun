@@ -6,6 +6,8 @@ const router = new Router<ICustomAppState>({
   prefix: '/admin/levels'
 })
 
+router.use(getUser({ admin: true }))
+
 router.get('/:id', async (ctx) => {
   ctx.body = await cbr.level.adminGet(new ObjectId(ctx.params.id))
 })

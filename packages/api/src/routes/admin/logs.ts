@@ -6,6 +6,8 @@ const router = new Router<ICustomAppState>({
   prefix: '/admin/logs'
 })
 
+router.use(getUser({ admin: true }))
+
 router.get('/:id', async (ctx) => {
   let id = new ObjectId(ctx.params.id)
   let page = ~~ctx.query.page ?? 0

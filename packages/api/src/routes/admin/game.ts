@@ -6,6 +6,8 @@ const router = new Router<ICustomAppState>({
   prefix: '/admin/games'
 })
 
+router.use(getUser({ admin: true }))
+
 router.post('/', async (ctx) => {
   await cbr.game.adminNew()
   ctx.status = 204

@@ -1,4 +1,4 @@
-import Koa from 'koa'
+import Koa, { Context } from 'koa'
 import userRoute from './routes/user'
 import gameRoute from './routes/game'
 import levelRoute from './routes/level'
@@ -6,7 +6,7 @@ import adminLogRoute from './routes/admin/logs'
 import adminGameRoute from './routes/admin/game'
 import adminLevelRoute from './routes/admin/level'
 import bodyParser from 'koa-bodyparser'
-import { CyberRun } from '@cyberrun/core'
+import { CyberRun, Logger } from '@cyberrun/core'
 import cors from '@koa/cors'
 require('source-map-support').install()
 
@@ -14,6 +14,18 @@ export const cbr = new CyberRun()
 const app = new Koa()
 app.use(bodyParser())
 app.use(cors())
+
+const logger = new Logger('api')
+
+app.use(async (ctx, next) => {
+  try {
+    await next();
+  } catch (err) {
+    ctx.status = err.status || 500;
+    ctx.body = err.message;
+    ctx.app.emit('error', err, ctx);
+  }
+});
 
 async function start() {
   await cbr.start()
@@ -23,6 +35,16 @@ async function start() {
   app.use(adminLevelRoute.routes())
   app.use(levelRoute.routes())
   app.use(adminLogRoute.routes())
+
+  app.on('error', (err, ctx: Context) => {
+    logger.error('%s %s, user:', ctx.method, ctx.path, ctx.state?.user?._id.toString())
+    logger.error(err.stack)
+    ctx.status = 500
+    ctx.body = {
+      message: err.toString()
+    }
+  })
+
   app.listen(54000)
 }
 
