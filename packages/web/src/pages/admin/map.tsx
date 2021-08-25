@@ -207,7 +207,6 @@ const MapPage = () => {
         mutate()
       });
       graph.current.on("edge:click", async (e) => {
-        console.log(e)
         // @ts-ignore
         setEditingMap(e.item?.getID()!)
       });
@@ -257,7 +256,6 @@ const MapPage = () => {
         setOpen(true)
       });
       graph.current.on("node:dragend", (e) => {
-        console.log(e)
         // @ts-ignore
         submitPosChange(e.item?.getID(), e.item?.getBBox().centerX, e.item?.getBBox().centerY)
       })

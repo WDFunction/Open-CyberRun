@@ -92,7 +92,7 @@ const routes: RouteConfig[] = [
 const App = () => {
   return <BrowserRouter>
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <ToastContainer />
+      <ToastContainer position="bottom-right"/>
       <SWRConfig value={{
         fetcher: url => instance.get(url).then(res => res.data)
       }}>

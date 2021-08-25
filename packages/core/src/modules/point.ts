@@ -77,6 +77,9 @@ export default class PointModule {
 
     if (game.type === "speedrun") {
       const endLevel = levels.find(v => v.type === "end")!
+      if (!endLevel) {
+        return this.logger.error('do not have end level')
+      }
       let finished = await this.core.log.col.aggregate([
         { $match: { newLevelId: endLevel._id, type: "passed" } },
         {

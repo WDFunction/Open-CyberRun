@@ -558,7 +558,7 @@ export default class GameModule {
       name: new Date().valueOf().toString(),
       type: "speedrun",
       startedAt: new Date(),
-      endedAt: new Date(),
+      endedAt: new Date(new Date().valueOf() + 3600 * 24 * 1000),
       ended: false,
       map: '',
       cover: ''

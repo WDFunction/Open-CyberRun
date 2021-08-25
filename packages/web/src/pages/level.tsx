@@ -48,7 +48,6 @@ const Page = () => {
       }
     } catch (e) {
       if (e.response.status === 403) {
-        toast.error(e.response.data?.message)
         infoMutate()
       }
     }
