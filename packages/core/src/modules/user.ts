@@ -32,17 +32,20 @@ export default class UserModule {
     this.core = core
     this.col = core.db.collection<User>('user')
 
-    Config.get().then(r => {
-      this.transport = nodemailer.createTransport({
-        host: 'smtp.sendgrid.net',
-        port: 465,
-        auth: {
-          user: 'apikey',
-          pass: r.sendgrid.apikey
-        }
-      })
-    })
     this.logger.info('init')
+  }
+
+  async loadModule() {
+    let r = await Config.get()
+    this.transport = nodemailer.createTransport({
+      host: 'smtp.sendgrid.net',
+      port: 465,
+      auth: {
+        user: 'apikey',
+        pass: r.sendgrid.apikey
+      }
+    })
+
   }
 
   // [is new user, token]

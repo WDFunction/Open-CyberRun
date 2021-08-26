@@ -8,7 +8,7 @@ export const DefaultConfig = {
     apikey: ""
   },
   mongodb: {
-    connection: "mongodb://localhost/"
+    connection: "mongodb://127.0.0.1/"
   },
   root: ""
 }

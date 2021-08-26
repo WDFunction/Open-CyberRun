@@ -18,8 +18,10 @@ export class CyberRun {
   log: LogModule
   point: PointModule
 
-  constructor() {
-    
+  constructor(ci?: boolean) {
+    if (ci) {
+      process.env.CI ||= "true"
+    }
   }
 
   async start() {
@@ -30,10 +32,15 @@ export class CyberRun {
     this.db = await this.client.db('cyberrun')
 
     this.user = new UserModule(this)
+    await this.user.loadModule()
     this.jwt = new JWTModule(this)
     this.game = new GameModule(this)
     this.level = new LevelModule(this)
     this.log = new LogModule(this)
     this.point = new PointModule(this)
+  }
+
+  async stop() {
+    await this.client.close()
   }
 }

@@ -42,6 +42,8 @@ jobs:
       run: yarn build:core
     - name: Unit Test
       run: yarn workspace @cyberrun/core test
+      env:
+        CI: true
     - name: Report Coverage
       uses: codecov/codecov-action@v1
       with:

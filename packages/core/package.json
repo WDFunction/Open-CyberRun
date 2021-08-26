@@ -9,7 +9,7 @@
     "scripts": {
         "watch": "tsc --watch",
         "build": "tsc",
-        "test": "jest"
+        "test": "jest --detectOpenHandles"
     },
     "dependencies": {
         "@types/jest": "^27.0.1",
