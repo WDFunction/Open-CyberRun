@@ -26,7 +26,9 @@ router.get('/:id/maps', async (ctx) => {
 })
 
 router.get('/:id', async (ctx) => {
-  ctx.body = await cbr.game.get(new ObjectId(ctx.params.id))
+  ctx.body = await cbr.game.col.findOne({
+    _id: new ObjectId(ctx.params.id)
+  })
 })
 
 router.delete('/:id', async (ctx) => {
