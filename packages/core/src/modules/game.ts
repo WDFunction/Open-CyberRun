@@ -61,24 +61,36 @@ export default class GameModule {
     const isFirstLevel = maps.filter(v => v.toLevelId.equals(levelId)).length === 0
     if (isFirstLevel) {
       this.logger.info('%s is first level', levelId)
+      return true
     }
 
     // 不是第一关 看levelMap 之前的关卡必须要都passed
-
     let toThisMaps = maps.filter(v => v.toLevelId.equals(levelId))
+
     let toThisLogs = await this.core.log.col.aggregate([
       { $match: { userId, newLevelId: levelId, type: "passed" } },
-      { $group: { _id: '$levelId' } }
+      {
+        $group: {
+          _id: '$levelId', document: {
+            $first: "$$ROOT"
+          }
+        }
+      },
+      {
+        $replaceRoot: { newRoot: '$document' }
+      }
     ]).toArray()
 
-    const isEqualSet = (a: ObjectId[], b: ObjectId[]): boolean => {
+    const isEqualSet = (a: string[], b: string[]): boolean => {
       const union = new Set([...a, ...b])
       return union.size === a.length && union.size === b.length;
     }
 
+    this.logger.info('%s not first level, verify maps and logs: %o %o', levelId, toThisMaps.map(v => v.fromLevelId),
+      toThisLogs.map(v => v.levelId))
     if (isEqualSet(
-      toThisMaps.map(v => v.fromLevelId),
-      toThisLogs.map(v => v.levelId)
+      toThisMaps.map(v => v.fromLevelId.toString()),
+      toThisLogs.map(v => v.levelId.toString())
     )) {
       return true
     }
@@ -180,7 +192,8 @@ export default class GameModule {
     }).toArray()
     for (const level of levels) {
       // 没有这一关的出口关卡
-      if (maps.filter(v => v.fromLevelId === level._id).length === 0) {
+      if (maps.filter(v => v.toLevelId.equals(level._id)).length === 1 &&
+        maps.filter(v => v.fromLevelId.equals(level._id)).length === 0) {
         return level
       }
     }
@@ -191,8 +204,9 @@ export default class GameModule {
    */
   async isUserFinished(game: Game, userId: ObjectId): Promise<boolean> {
     let endLevel = await this.getEndLevel(game._id)
+    this.logger.info('end level %o', endLevel)
     let log = await this.core.log.col.count({
-      userId, newLevelId: endLevel._id
+      userId, newLevelId: endLevel._id, type: "passed"
     })
     return log >= 1
   }
@@ -311,6 +325,9 @@ export default class GameModule {
     let finished = await this.isUserFinished(game, userId)
     if (finished) {
       return ['您已完赛']
+    }
+    if (!await this.canAccessLevel(userId, level._id)) {
+      return ['']
     }
 
     const userGameCount = userId ? (await this.countUserGameTries(game._id, userId)) : 0
@@ -433,9 +450,11 @@ export default class GameModule {
    * 预估比赛分数 (meta)
    */
   async guessGamePoint(userId: ObjectId, game: Game) {
-    const levels = await this.core.level.levelCol.find({
+    let levels = await this.core.level.levelCol.find({
       gameId: game._id
     }).toArray()
+    let endLevel = await this.getEndLevel(game._id)
+    levels = levels.filter(v => !v._id.equals(endLevel._id))
     let result = 0
     for (const level of levels) {
       let [SPTS] = await this.guessLevelPoint(userId, game, level)

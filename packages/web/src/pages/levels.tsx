@@ -4,44 +4,6 @@ import useSWR from 'swr'
 import type { Level, Game } from '@cyberrun/core'
 import { Button, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Menu, Popover, Typography } from '@material-ui/core'
 import { Card, MapMarker } from 'mdi-material-ui'
-import Layout from '../components/layout'
-/*
-const LevelsPage = () => {
-  const history = useHistory()
-  const { gameId } = useParams<{ gameId: string }>()
-  const { data, mutate } = useSWR<{
-    levels: Level[]
-    passed: Record<string, boolean>
-  }>(`/levels/meta/${gameId}`)
-  useEffect(() => {
-    mutate()
-  }, [history.location])
-  return <Layout>
-    <List>
-      {data?.levels.map(v => {
-        const available = v.type !== "meta" ? true :
-          (data?.levels
-            .filter(v => v.type !== "meta")
-            .map(v => data?.passed[v._id.toString()])
-            .filter(v => !v).length === 0)
-        return (
-          <ListItem>
-            <ListItemText primary={v.title} secondary={(data?.passed[v._id.toString()] || false) ? '已通过' : '未通过'} />
-            <ListItemSecondaryAction>
-              <Button color="primary" variant="contained"
-                disableElevation
-                disabled={!available}
-                onClick={() => {
-                  history.push(`/level/${v._id.toString()}`)
-                }}>参与</Button>
-            </ListItemSecondaryAction>
-          </ListItem>
-        )
-      })}
-    </List>
-  </Layout>
-}
-*/
 
 const LevelsPage = () => {
   const history = useHistory()
@@ -60,7 +22,7 @@ const LevelsPage = () => {
   return <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'scroll' }}>
     <Dialog open={open} onClose={() => {
       setOpen(false)
-    }} style={{minWidth: 300}}>
+    }} style={{ minWidth: 300 }}>
       <DialogTitle>
         关卡 {level?.title}
       </DialogTitle>

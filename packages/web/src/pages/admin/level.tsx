@@ -35,7 +35,7 @@ const LevelPage = () => {
   const save = async () => {
     await instance({
       url: `/admin/levels/${levelId}/patch`,
-      data: { title, content, difficulty: Number(difficulty), submitCount: Number(submitCount), cooldown: cooldown ? Number(cooldown) : undefined, type },
+      data: { title, content, difficulty: Number(difficulty), submitCount: Number(submitCount), cooldown: cooldown ? Number(cooldown) : undefined },
       method: 'post'
     })
     toast.success("保存成功")

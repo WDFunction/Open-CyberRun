@@ -218,18 +218,6 @@ const MapPage = () => {
           if (!level || !newLevel) {
             return;
           }
-          if (newLevel.type === "start") {
-            toast.error("目标关卡不能是起始关")
-            return
-          }
-          if (level.type === "end" || level.type === "meta") {
-            toast.error("不能由结束关创建路径")
-            return
-          }
-          if (gameDataRef.current?.type === "meta" && newLevel.type !== "meta") {
-            toast.error("meta赛仅允许终点为meta关")
-            return;
-          }
           if (newLevel._id === level._id) {
             return toast.error("?")
           }

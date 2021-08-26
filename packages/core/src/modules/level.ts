@@ -42,19 +42,6 @@ export default class LevelModule {
   }
 
   /**
-   * 获取用户可访问的关卡
-   */
-  async canAccessLevels(gameId: ObjectId, userId: ObjectId) {
-    let ids = await this.core.log.col.aggregate([
-      {
-        $match: { userId, gameId, type: "passed" }
-      },
-      { $group: { _id: "$newLevelId" } }
-    ]).toArray()
-    return ids.map(v => v._id)
-  }
-
-  /**
    * 前端 获取关卡
    */
   async getGameLevels(gameId: ObjectId, userId?: ObjectId) {
@@ -65,7 +52,15 @@ export default class LevelModule {
     let levels = await this.levelCol.find({
       gameId
     }).toArray()
-    let rtnLevels: Partial<Level>[] = levels.map(v => ({
+
+    // 速度爆炸 优化下
+    for (const [index, level] of levels.entries()) {
+      if (!await this.core.game.canAccessLevel(userId, level._id)) {
+        delete levels[index]
+      }
+    }
+
+    let rtnLevels: Partial<Level>[] = levels.filter(v => v).map(v => ({
       mapPoint: v.mapPoint,
       title: v.title,
       _id: v._id
@@ -131,21 +126,13 @@ export default class LevelModule {
     }
 
     await this.core.point.calcAfterEnded(game, fromLevelId, userId)
-
-    if (game.type === 'speedrun') {
-      let nextLevel = await this.get(matchedMap[0].toLevelId)
-      this.core.log.col.insertOne({
-        userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),
-        newLevelId: nextLevel._id, gameId: game._id, answers
-      })
-      this.core.user.setMinDistance(userId, game._id, nextLevel.distance)
-      return [game, nextLevel]
-    } else {
-      this.core.log.col.insertOne({
-        userId, levelId: fromLevelId, type: "passed", createdAt: new Date(), gameId: game._id, answers
-      })
-      return [game, null]
-    }
+    let nextLevel = await this.get(matchedMap[0].toLevelId)
+    this.core.log.col.insertOne({
+      userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),
+      newLevelId: nextLevel._id, gameId: game._id, answers
+    })
+    this.core.user.setMinDistance(userId, game._id, nextLevel.distance)
+    return [game, nextLevel]
   }
 
   async adminWordcloud(id: ObjectId) {
