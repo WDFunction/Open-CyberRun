@@ -1,5 +1,5 @@
 import { Button, Card, CardActions, CardContent, CardMedia, Grid, Typography, Container, Chip, Link, Box } from '@material-ui/core';
-import React from 'react'
+import React, { useState } from 'react'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
 import { useHistory } from 'react-router-dom'
@@ -7,6 +7,7 @@ import Layout from '../components/layout';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { AlertCircleOutline } from 'mdi-material-ui';
 import { Alert } from '@material-ui/lab';
+import useInterval from '../components/useInterval';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -18,6 +19,9 @@ const useStyles = makeStyles((theme: Theme) =>
         margin: theme.spacing(0.5),
       },
     },
+    notStartContainer: {
+      position: 'absolute', width: '100%', height: '100%', background: 'rgba(0,0,0,.4)', display: 'flex', justifyContent: 'center', alignItems: 'center'
+    }
   }),
 );
 
@@ -31,7 +35,10 @@ const IndexPage = () => {
     history.push(`/levels/${gameId}`)
   }
   const classes = useStyles();
-
+  const [date, setDate] = useState(new Date())
+  useInterval(() => {
+    setDate(new Date())
+  }, 500)
   return <Layout>
     <Container>
       {error && (
@@ -44,13 +51,21 @@ const IndexPage = () => {
       )}
       <Grid container spacing={2}>
         {data?.map(v => {
-          const started = new Date().valueOf() > new Date(v.startedAt!).valueOf()
+          const startedAt = new Date(v.startedAt!).valueOf()
+          const started = date.valueOf() > startedAt
           const status = v.ended! ? '已完赛' :
             (started ? '进行中' : '未开始')
+          const remain = Math.floor((startedAt - date.valueOf()) / 1000)
           return (
             <Grid item xs={12} sm={4}>
               <Card variant="outlined">
-                <CardMedia image={v.cover} style={{ height: 140 }}></CardMedia>
+                <CardMedia image={v.cover} style={{ height: 140, position: 'relative' }}>
+                  {!started && (
+                    <div className={classes.notStartContainer}>
+                      <Typography variant="h4" style={{ color: 'white' }}>{remain}秒后开始</Typography>
+                    </div>
+                  )}
+                </CardMedia>
                 <CardContent>
                   <Typography variant="h5">{v.name}</Typography>
                   <div className={classes.root}>
