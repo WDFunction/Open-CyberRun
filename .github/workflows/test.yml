@@ -38,8 +38,8 @@ jobs:
           ${{ runner.os }}-yarn-
     - name: Install
       run: yarn
-    #- name: Build
-    #  run: yarn build
+    - name: Build
+      run: yarn build:core
     - name: Unit Test
       run: yarn workspace @cyberrun/core test
     - name: Report Coverage

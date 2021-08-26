@@ -15,6 +15,7 @@
     "dev:server": "concurrently \"yarn watch:core\" \"yarn watch:api\"  \"yarn dev:api\"",
     "build:web": "yarn workspace @cyberrun/web build",
     "build:server": "yarn workspace @cyberrun/core build && yarn workspace @cyberrun/api build",
+    "build:core": "yarn workspace @cyberrun/core build",
     "start:server": "node packages/api/dist/main.js"
   },
   "dependencies": {
