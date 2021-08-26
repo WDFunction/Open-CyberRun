@@ -41,7 +41,9 @@ export default class LevelModule {
     return level
   }
 
-  // 获取用户可访问的关卡
+  /**
+   * 获取用户可访问的关卡
+   */
   async canAccessLevels(gameId: ObjectId, userId: ObjectId) {
     let ids = await this.core.log.col.aggregate([
       {
@@ -52,6 +54,9 @@ export default class LevelModule {
     return ids.map(v => v._id)
   }
 
+  /**
+   * 前端 获取关卡
+   */
   async getGameLevels(gameId: ObjectId, userId?: ObjectId) {
     let game = await this.core.game.get(gameId)
     if (!game) {
@@ -66,28 +71,11 @@ export default class LevelModule {
       _id: v._id
     }))
     return rtnLevels
-    // if (game.type === "speedrun") {
-    //   let levels = await this.levelCol.find({
-    //     gameId
-    //   }).toArray()
-    //   let ca = userId ? await this.canAccessLevels(gameId, userId) : []
-    //   levels = levels.filter(v => {
-    //     if (v.type === "start") return true
-    //     if (ca.find(c => c.equals(v._id))) return true
-    //     return false
-    //   })
-    //   let rtnLevels: Partial<Level>[] = levels.map(v => ({
-    //     mapPoint: v.mapPoint,
-    //     title: v.title,
-    //     _id: v._id
-    //   }))
-
-    //   return rtnLevels
-    // } else {
-      
-    // }
   }
 
+  /**
+   * 获取关卡输入框数
+   */
   async getLevelMaxAnswersCount(id: ObjectId) {
     let mostRecord = await this.mapCol.aggregate<{ size: number }>([
       { $match: { fromLevelId: id } },
@@ -100,13 +88,13 @@ export default class LevelModule {
   }
 
   async verifyAnswer(fromLevelId: ObjectId, answers: string[], userId: ObjectId): Promise<[Game, Level]> {
-    let game = await this.core.game.getByLevel(fromLevelId)
+    let level = await this.levelCol.findOne({ _id: fromLevelId })
+    let game = await this.core.game.get(level.gameId)
     let finished = await this.core.game.isUserFinished(game, userId)
     if (finished) {
       this.logger.info('verify answer: user %s has finished the game %s', userId.toString(), game._id.toString())
       throw new Error("您已通关游戏")
     }
-    let level = await this.levelCol.findOne({ _id: fromLevelId })
     if (level.cooldown) {
       let last = await this.core.log.col.findOne({
         levelId: level._id,
@@ -158,62 +146,6 @@ export default class LevelModule {
       })
       return [game, null]
     }
-  }
-
-  async checkUserPassed(userId: ObjectId, levelIds: ObjectId[]): Promise<Record<string, boolean>> {
-    let data = await this.levelCol.aggregate<{
-      _id: ObjectId;
-      result: boolean
-    }>(
-      [
-        {
-          $match: {
-            _id: {
-              $in: levelIds
-            }
-          }
-        },
-        { $project: { _id: 1 } },
-        {
-          $lookup: {
-            from: "log",
-            let: { userId, levelId: "$_id" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $and: [
-                      { $eq: ["$userId", "$$userId"] },
-                      { $eq: ["$$levelId", "$levelId"] },
-                      {
-                        $eq: ["$type", "passed"]
-                      }
-                    ]
-                  }
-                }
-              }
-            ],
-            as: "list"
-          }
-        },
-        {
-          $addFields: {
-            result: {
-              $cond: {
-                if: { $size: '$list' },
-                then: true,
-                else: false
-              }
-            }
-          }
-        },
-        {
-          $unset: 'list'
-        }
-      ]
-    ).toArray()
-    // this.logger.info('check user passed, %o', data)
-    return Object.fromEntries(data.map(v => [v._id.toString(), v.result]))
   }
 
   async adminWordcloud(id: ObjectId) {

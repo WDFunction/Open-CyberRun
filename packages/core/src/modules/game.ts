@@ -26,7 +26,6 @@ export interface Online {
   updatedAt: Date
 }
 
-type FirstArgument<T> = T extends (arg1: infer U, ...args: any[]) => any ? U : any;
 
 export default class GameModule {
   core: CyberRun
@@ -47,16 +46,10 @@ export default class GameModule {
     this.logger.info('init')
   }
 
-  async canAccessMeta(userId: ObjectId, gameId: ObjectId) {
-    let normalLevels = await this.core.level.levelCol.find({
-      gameId,
-      type: { $ne: "meta" }
-    }).toArray()
-    let passed = await this.core.level.checkUserPassed(userId, normalLevels.map(v => v._id))
-    return Object.values(passed).filter(v => !v).length === 0
-  }
-
-  async canAccessLevel(userId: ObjectId, gameId: ObjectId, levelId: ObjectId) {
+  /**
+   * 能否访问关卡
+   */
+  async canAccessLevel(userId: ObjectId, levelId: ObjectId) {
     // let game = await this.core.game.get(gameId)
     let maps = await this.core.level.mapCol.find({
       $or: [{
@@ -92,12 +85,9 @@ export default class GameModule {
     return false
   }
 
-  async getByLevel(levelId: ObjectId) {
-    let level = await this.core.level.get(levelId)
-    let game = await this.get(level.gameId)
-    return game
-  }
-
+  /**
+   * 前端获取比赛列表
+   */
   async list(): Promise<Partial<Game>[]> {
     let list = await this.col.find().toArray()
     return list.map(v => ({
@@ -110,6 +100,9 @@ export default class GameModule {
     }))
   }
 
+  /**
+   * 获取比赛(验证开始时间)
+   */
   async get(id: ObjectId) {
     let item = await this.col.findOne({
       _id: id,
@@ -120,13 +113,9 @@ export default class GameModule {
     return item
   }
 
-  async getStartLevel(gameId: ObjectId) {
-    let level = await this.core.level.levelCol.findOne({
-      gameId, type: "start"
-    })
-    return level
-  }
-
+  /**
+   * 比赛全局提交次数
+   */
   async countTries(gameId: ObjectId): Promise<number> {
     return this.core.log.col.find({
       type: {
@@ -136,6 +125,9 @@ export default class GameModule {
     }).count()
   }
 
+  /**
+   * 关卡全局提交次数
+   */
   async countLevelTries(levelId: ObjectId): Promise<number> {
     return this.core.log.col.find({
       type: {
@@ -146,7 +138,7 @@ export default class GameModule {
   }
 
   /**
-   * 获取用户提交次数
+   * 比赛用户提交次数
    */
   async countUserGameTries(gameId: ObjectId, userId: ObjectId): Promise<number> {
     return this.core.log.col.find({
@@ -158,6 +150,9 @@ export default class GameModule {
     }).count()
   }
 
+  /**
+   * 关卡用户提交次数
+   */
   async countUserLevelTries(levelId: ObjectId, userId: ObjectId): Promise<number> {
     return this.core.log.col.find({
       type: {
@@ -169,6 +164,9 @@ export default class GameModule {
   }
 
 
+  /**
+   * 获取结束关
+   */
   async getEndLevel(gameId: ObjectId) {
     let levels = await this.core.level.levelCol.find({
       gameId
@@ -199,6 +197,9 @@ export default class GameModule {
     return log >= 1
   }
 
+  /**
+   * 参与用户数
+   */
   async countPlayers(game: Game) {
     return this.core.log.col.count({
       gameId: game._id,
@@ -262,6 +263,10 @@ export default class GameModule {
     return toThisLevelCount - toNextLevelCount
   }
 
+
+  /**
+   * 用户参加时间(第一次heartbeat)
+   */
   async playerJoinTime(userId: ObjectId, gameId: ObjectId) {
     let log = await this.core.log.col.findOne({
       gameId, userId, type: "join"
@@ -269,6 +274,9 @@ export default class GameModule {
     return log.createdAt
   }
 
+  /**
+   * 用户在某一关的耗时(speedrun模式)
+   */
   async playerLevelTimeUsage(userId: ObjectId, level: Level) {
     let enterLevel = await this.core.log.col.findOne({
       newLevelId: level._id,
@@ -292,12 +300,8 @@ export default class GameModule {
   }
 
   /**
-   * 用户完成题数量
+   * 前端 获取侧边栏信息
    */
-  async getUserFinishedCount(gameId: ObjectId) {
-    return 0
-  }
-
   async info(level: Level, userId: ObjectId): Promise<string[]> {
     let game = await this.get(level.gameId)
     await this.core.log.joinGame(userId, level.gameId)
@@ -312,7 +316,7 @@ export default class GameModule {
     const userGameCount = userId ? (await this.countUserGameTries(game._id, userId)) : 0
     const userLevelCount = userId ? (await this.countUserLevelTries(level._id, userId)) : 0
 
-    await this.updateMetaOnline(level._id, userId)
+    await this.updateOnline(level._id, userId)
 
     if (game.type === 'speedrun') {
       const countPlayers = await this.countPlayers(game)
@@ -335,7 +339,7 @@ export default class GameModule {
         `当前排名 ${rank}/${countPlayers}`,
         `全局用时 ${timeUsage / 1000}秒`,
         //'剩余比赛时长',
-        `当前关卡人数 ${await this.getLevelUsers(level) || await this.getMetaOnline(level._id)}`,
+        `当前关卡人数 ${await this.getLevelUsers(level) || await this.getOnline(level._id)}`,
         `关卡提交次数: ${userLevelCount}`,
         `比赛提交次数: ${userGameCount}`,
         `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
@@ -390,6 +394,9 @@ export default class GameModule {
     }
   }
 
+  /**
+   * 预估关卡分数
+   */
   async guessLevelPoint(userId: ObjectId, game: Game, level: Level): Promise<[number, number, CalcType]> {
     // 此题完成的人数
     let finishedThisCount = (await this.core.log.col.aggregate<{ count: number }>([
@@ -405,7 +412,7 @@ export default class GameModule {
 
     const L = level.difficulty || 1 // 难度系数
     const R = finishedThisCount + 1 // 结算排名 由完成题数排行计算
-    const C = await this.getMetaOnline(level._id) || await this.countPlayers(game) // 总人数
+    const C = await this.getOnline(level._id) || await this.countPlayers(game) // 总人数
 
     const T = (new Date().valueOf() - game.startedAt.valueOf()) / 3600 / 1000
     const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
@@ -422,7 +429,9 @@ export default class GameModule {
     return [SPTS, BPTS, params]
   }
 
-  // meta only
+  /**
+   * 预估比赛分数 (meta)
+   */
   async guessGamePoint(userId: ObjectId, game: Game) {
     const levels = await this.core.level.levelCol.find({
       gameId: game._id
@@ -436,6 +445,9 @@ export default class GameModule {
     return result
   }
 
+  /**
+   * 获取通关用户的 log 列表
+   */
   async getPassedLogs(gameId: ObjectId) {
     let end = await this.getEndLevel(gameId)
     let passedLogs = await this.core.log.col.find({
@@ -451,6 +463,9 @@ export default class GameModule {
     return passedLogs
   }
 
+  /**
+   * 幕后统计信息
+   */
   async adminStats(gameId: ObjectId) {
     let game = await this.get(gameId)
     let levels: NewLevel[] = await this.core.level.levelCol.find({
@@ -466,8 +481,8 @@ export default class GameModule {
     })
 
     for await (let level of levels) {
-      level.onlineCount = await this.getMetaOnline(level._id)
-      level.avgSubmit = (await this.getMetaSubmitCount(level._id)) / (await this.getMetaSubmitUserCount(level._id))
+      level.onlineCount = await this.getOnline(level._id)
+      level.avgSubmit = (await this.countLevelTries(level._id)) / (await this.getMetaSubmitUserCount(level._id))
       // 先不管效率了 能用就行
     }
 
@@ -501,22 +516,23 @@ export default class GameModule {
     }
   }
 
-  async getMetaSubmitCount(levelId: ObjectId) {
-    return await this.core.log.col.count({
-      levelId
-    })
-  }
 
+  /**
+   * 关卡提交用户数量
+   */
   async getMetaSubmitUserCount(levelId: ObjectId) {
     return (await this.core.log.col.aggregate<{ count: number }>([
-      { $match: { levelId } },
+      { $match: { levelId, type: { $ne: 'join' } } },
       { $group: { _id: '$userId' } },
       { $count: 'count' }
     ]).next())?.count ?? 0
   }
 
-  async updateMetaOnline(levelId: ObjectId, userId: ObjectId) {
-    await this.onlineCol.updateOne({
+  /**
+   * 更新在线状态
+   */
+  async updateOnline(levelId: ObjectId, userId: ObjectId) {
+    return this.onlineCol.updateOne({
       levelId, userId
     }, {
       $set: {
@@ -527,18 +543,24 @@ export default class GameModule {
     })
   }
 
-  async getMetaOnline(levelId: ObjectId) {
+  /**
+   * 获取关卡在线人数
+   */
+  async getOnline(levelId: ObjectId) {
     return this.onlineCol.find({
       updatedAt: { $gte: new Date(new Date().valueOf() - 10000) },
       levelId
     }).count()
   }
 
+  /**
+   * 幕后修改比赛
+   */
   async adminUpdate(gameId: ObjectId, data: {
     startedAt: string
     endedAt: string
   } & Pick<Game, 'map' | 'cover' | 'type' | 'difficulty' | 'submitCount'>) {
-    await this.col.updateOne({ _id: gameId }, {
+    return this.col.updateOne({ _id: gameId }, {
       $set: {
         ...data, ...{
           startedAt: new Date(data.startedAt),
@@ -548,8 +570,11 @@ export default class GameModule {
     })
   }
 
+  /**
+   * 幕后新建比赛
+   */
   async adminNew() {
-    await this.col.insertOne({
+    return this.col.insertOne({
       name: new Date().valueOf().toString(),
       type: "speedrun",
       startedAt: new Date(),
@@ -560,6 +585,9 @@ export default class GameModule {
     })
   }
 
+  /**
+   * 幕后删除比赛
+   */
   async adminDelete(gameId: ObjectId) {
     await this.col.deleteOne({ _id: gameId })
     const levels = await this.core.level.levelCol.find({
@@ -588,5 +616,6 @@ export default class GameModule {
     await this.core.game.onlineCol.deleteMany({
       gameId
     })
+    return true
   }
 }

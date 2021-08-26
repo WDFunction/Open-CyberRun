@@ -22,7 +22,7 @@ router.get('/:id', getUser({ ignoreGuest: true }), async (ctx) => {
   }
   let userId = ctx.state.user ? ctx.state.user._id : new ObjectId()
 
-  if (!await cbr.game.canAccessLevel(userId, level.gameId, id)) {
+  if (!await cbr.game.canAccessLevel(userId, id)) {
     ctx.status = 403
     ctx.body = {
       message: "你不配"
