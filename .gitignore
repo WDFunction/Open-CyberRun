@@ -4,3 +4,4 @@ dist
 .env.local
 .vercel
 yarn-error.log
+coverage

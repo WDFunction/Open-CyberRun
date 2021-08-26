@@ -1,19 +1,22 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "outDir": "dist",
-      "rootDir": "src",
-      "target": "es2019",
-      "isolatedModules": false,
-      "noEmit": false,
-      "esModuleInterop": true,
-      "baseUrl": ".",
-      "moduleResolution": "node",
-      "declaration": true,
-      "allowJs": true,
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "incremental": true,
-      "inlineSourceMap": true
-    }
+  "exclude": [
+    "test"
+  ],
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist",
+    "rootDir": "src",
+    "target": "es2019",
+    "isolatedModules": false,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "declaration": true,
+    "allowJs": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "incremental": true,
+    "inlineSourceMap": true
   }
+}
