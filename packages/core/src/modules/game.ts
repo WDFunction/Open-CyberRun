@@ -129,12 +129,12 @@ export default class GameModule {
    * 比赛全局提交次数
    */
   async countTries(gameId: ObjectId): Promise<number> {
-    return this.core.log.col.find({
+    return this.core.log.col.count({
       type: {
         $ne: "join"
       },
       gameId
-    }).count()
+    })
   }
 
   /**

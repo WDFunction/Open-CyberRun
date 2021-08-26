@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import { inspect, InspectOptions, format } from 'util'
 import { clearScreenDown, cursorTo } from 'readline'
 import { stderr } from 'supports-color'

@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 export namespace Time {
   export const millisecond = 1
   export const second = 1000
