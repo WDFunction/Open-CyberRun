@@ -48,7 +48,7 @@ export default class PointModule {
     this.col = this.core.db.collection<Point>('point')
     this.liveCol = this.core.db.collection<LivePoint>('livePoint')
     this.logger.info('init')
-    if (process.env.CI) {
+    if (!process.env.CI) {
       this.interval = setInterval(this.checkout.bind(this), 60000)
       this.logger.info('created interval')
     }
