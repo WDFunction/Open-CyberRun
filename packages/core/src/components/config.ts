@@ -1,5 +1,6 @@
 import fs from 'fs'
 import os from 'os'
+import { Logger } from '../logger'
 
 
 export const DefaultConfig = {
@@ -7,20 +8,27 @@ export const DefaultConfig = {
     apikey: ""
   },
   mongodb: {
-    connection: ""
+    connection: "mongodb://localhost/"
   },
   root: ""
 }
+
+const logger = new Logger('config')
 
 export type IConfig = typeof DefaultConfig
 
 export default class Config {
   static async get(): Promise<IConfig> {
     return new Promise((r) => {
-      fs.readFile(`${os.homedir()}/.config/cyberrun.json`, (err, data) => {
+      const filePath = `${os.homedir()}/.config/cyberrun.json`
+      if (!fs.existsSync(filePath)) {
+        logger.warn('config file not found')
+        return r(DefaultConfig)
+      }
+      fs.readFile(filePath, (err, data) => {
         if (err) {
           console.log(err)
-          return DefaultConfig
+          return r(DefaultConfig)
         }
         let json = JSON.parse(data.toString())
         r(json as IConfig)
