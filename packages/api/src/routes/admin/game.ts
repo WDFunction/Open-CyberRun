@@ -17,6 +17,7 @@ router.get('/', async (ctx) => {
   ctx.body = await cbr.game.col.find({}).sort({ id: -1 }).toArray()
 })
 
+
 router.get('/:id/maps', async (ctx) => {
   const [levels, maps] = await cbr.level.adminGetMaps(new ObjectId(ctx.params.id))
   ctx.body = {
@@ -27,6 +28,12 @@ router.get('/:id/maps', async (ctx) => {
 router.get('/:id', async (ctx) => {
   ctx.body = await cbr.game.get(new ObjectId(ctx.params.id))
 })
+
+router.delete('/:id', async (ctx) => {
+  await cbr.game.adminDelete(new ObjectId(ctx.params.id))
+  ctx.status = 204
+})
+
 
 router.post('/:id/maps/:levelId/mapPoint', async (ctx) => {
   // @ts-ignore

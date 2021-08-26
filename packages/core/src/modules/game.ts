@@ -311,6 +311,9 @@ export default class GameModule {
 
     const userGameCount = userId ? (await this.countUserGameTries(game._id, userId)) : 0
     const userLevelCount = userId ? (await this.countUserLevelTries(level._id, userId)) : 0
+
+    await this.updateMetaOnline(level._id, userId)
+
     if (game.type === 'speedrun') {
       const countPlayers = await this.countPlayers(game)
       const distance = userId ? (await this.core.user.getMinDistance(userId, game._id)) : 0
@@ -332,14 +335,13 @@ export default class GameModule {
         `当前排名 ${rank}/${countPlayers}`,
         `全局用时 ${timeUsage / 1000}秒`,
         //'剩余比赛时长',
-        `当前关卡人数 ${await this.getLevelUsers(level)}`,
+        `当前关卡人数 ${await this.getLevelUsers(level) || await this.getMetaOnline(level._id)}`,
         `关卡提交次数: ${userLevelCount}`,
         `比赛提交次数: ${userGameCount}`,
         `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
         `比赛全局提交次数: ${await this.countTries(game._id)}`
       ]
     } else {
-      await this.updateMetaOnline(level._id, userId)
       // 这里应该要考虑meta 但是完成meta后就不显示了 先不考虑
       // 完成题目数
       let finishedCount = await this.core.log.col.aggregate<{ count: number }>([
@@ -435,10 +437,7 @@ export default class GameModule {
   }
 
   async getPassedLogs(gameId: ObjectId) {
-    let end = await this.core.level.levelCol.findOne({
-      gameId,
-      type: { $in: ["meta", "end"] }
-    })
+    let end = await this.getEndLevel(gameId)
     let passedLogs = await this.core.log.col.find({
       $or: [{
         newLevelId: end._id,
@@ -466,27 +465,10 @@ export default class GameModule {
       type: { $ne: "join" }
     })
 
-    if (game.type === "speedrun") {
-      for (let level of levels) {
-        level.onlineCount = await this.getLevelUsers(level)
-
-        // TODO 优化
-        let users = await this.core.log.col.aggregate<{
-          _id: ObjectId
-          count: number
-        }>([
-          { $match: { levelId: level._id } },
-          { $group: { _id: "$userId", count: { $sum: 1 } } }
-        ]).toArray()
-
-        level.avgSubmit = (users.map(v => v.count).reduce((a, b) => a + b, 0) / users.length) || 0
-      }
-    } else {
-      for await (let level of levels) {
-        level.onlineCount = await this.getMetaOnline(level._id)
-        level.avgSubmit = (await this.getMetaSubmitCount(level._id)) / (await this.getMetaSubmitUserCount(level._id))
-        // 先不管效率了 能用就行
-      }
+    for await (let level of levels) {
+      level.onlineCount = await this.getMetaOnline(level._id)
+      level.avgSubmit = (await this.getMetaSubmitCount(level._id)) / (await this.getMetaSubmitUserCount(level._id))
+      // 先不管效率了 能用就行
     }
 
     const userTriesCount = await this.core.log.col.aggregate<{
@@ -575,6 +557,36 @@ export default class GameModule {
       ended: false,
       map: '',
       cover: ''
+    })
+  }
+
+  async adminDelete(gameId: ObjectId) {
+    await this.col.deleteOne({ _id: gameId })
+    const levels = await this.core.level.levelCol.find({
+      gameId
+    }).toArray()
+    const ids = levels.map(v => v._id)
+    await this.core.level.levelCol.deleteMany({
+      gameId
+    })
+    await this.core.level.mapCol.deleteMany({
+      $or: [{
+        fromLevelId: { $in: ids }
+      }, {
+        toLevelId: { $in: ids }
+      }]
+    })
+    await this.core.log.col.deleteMany({
+      gameId
+    })
+    await this.core.point.col.deleteMany({
+      gameId
+    })
+    await this.core.point.liveCol.deleteMany({
+      gameId
+    })
+    await this.core.game.onlineCol.deleteMany({
+      gameId
     })
   }
 }

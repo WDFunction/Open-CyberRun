@@ -67,11 +67,19 @@ const Row: React.FunctionComponent<{
       method: 'post',
       data: {
         startedAt: started.toISOString(), endedAt: ended.toISOString(),
-        map, cover, type, difficulty: difficulty ? Number(difficulty) : undefined, name, 
+        map, cover, type, difficulty: difficulty ? Number(difficulty) : undefined, name,
         submitCount: submitCount ? Number(submitCount) : undefined
       }
     })
     toast.success("保存成功")
+    mutate()
+  }
+
+  const del = async () => {
+    await instance({
+      url: `/admin/games/${game._id.toString()}`,
+      method: 'delete'
+    })
     mutate()
   }
 
@@ -92,7 +100,7 @@ const Row: React.FunctionComponent<{
         <Collapse in={open} timeout="auto" unmountOnExit>
           <Box margin={1}>
             <Typography variant="h6" gutterBottom component="div">
-              编辑
+              编辑 <Button color="secondary" variant="contained" onClick={del}>删除</Button>
             </Typography>
             <form className={classes.form} onSubmit={(e) => {
               e.preventDefault()
