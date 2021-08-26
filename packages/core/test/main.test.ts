@@ -1,7 +1,15 @@
-import {} from 'jest'
+import { } from 'jest'
+import { CyberRun } from '@cyberrun/core'
 
 describe('test', () => {
+  let cbr: CyberRun
+
+  beforeAll(async () => {
+    cbr = new CyberRun()
+    await cbr.start()
+  })
+
   test('test', () => {
-    expect(1).toBe(1)
+    expect(cbr).not.toBe(null)
   })
 })
