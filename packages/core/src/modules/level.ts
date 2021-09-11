@@ -125,7 +125,9 @@ export default class LevelModule {
       throw new Error("回答错误")
     }
 
-    await this.core.point.calcAfterEnded(game, fromLevelId, userId)
+    if (game.ended && new Date().valueOf() > game.endedAt.valueOf()) {
+      await this.core.point.calcAfterEnded(game, fromLevelId, userId)
+    }
     let nextLevel = await this.get(matchedMap[0].toLevelId)
     this.core.log.col.insertOne({
       userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),

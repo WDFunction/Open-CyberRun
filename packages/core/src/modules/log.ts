@@ -29,6 +29,9 @@ export default class LogModule {
    * 加入比赛
    */
   async joinGame(userId: ObjectId, gameId: ObjectId) {
+    if (!userId) {
+      return
+    }
     let start = await this.core.level.levelCol.findOne({
       gameId, type: "start"
     })

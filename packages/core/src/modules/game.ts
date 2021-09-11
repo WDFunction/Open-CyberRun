@@ -192,7 +192,7 @@ export default class GameModule {
     }).toArray()
     for (const level of levels) {
       // 没有这一关的出口关卡
-      if (maps.filter(v => v.toLevelId.equals(level._id)).length >=1 &&
+      if (maps.filter(v => v.toLevelId.equals(level._id)).length >= 1 &&
         maps.filter(v => v.fromLevelId.equals(level._id)).length === 0) {
         return level
       }
@@ -208,6 +208,7 @@ export default class GameModule {
     let log = await this.core.log.col.count({
       userId, newLevelId: endLevel._id, type: "passed"
     })
+    this.logger.info('is user finished, userId: %s, result: %o', userId, log >= 1)
     return log >= 1
   }
 
@@ -456,9 +457,12 @@ export default class GameModule {
     let endLevel = await this.getEndLevel(game._id)
     levels = levels.filter(v => !v._id.equals(endLevel._id))
     let result = 0
-    for (const level of levels) {
-      let [SPTS] = await this.guessLevelPoint(userId, game, level)
-      this.logger.info('guess game point, level %s: %d', level._id, SPTS)
+    let datas = await Promise.all(levels.map(level =>
+      this.guessLevelPoint(userId, game, level)
+    ))
+    for (const [idx, level] of levels.entries()) {
+      let [SPTS] = datas[idx]
+      this.logger.debug('guess game point, level %s: %d', level._id, SPTS)
       result += SPTS
     }
     return result

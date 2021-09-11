@@ -242,7 +242,7 @@ export default class PointModule {
   }
 
   calc(data: CalcType) {
-    this.logger.info('pts params %o', data)
+    this.logger.debug('pts params %o', data)
     // version spts btps
     const RP = 1 - (data.R - 1) / data.C
     const SPTS = 1000 * (1 + (data.L - 1) * 0.1) * (1 + RP * 0.25) * (0.75 + 0.25 * (data.TL - data.T) / data.TL)
