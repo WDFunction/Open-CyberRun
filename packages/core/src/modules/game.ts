@@ -192,7 +192,7 @@ export default class GameModule {
     }).toArray()
     for (const level of levels) {
       // 没有这一关的出口关卡
-      if (maps.filter(v => v.toLevelId.equals(level._id)).length === 1 &&
+      if (maps.filter(v => v.toLevelId.equals(level._id)).length >=1 &&
         maps.filter(v => v.fromLevelId.equals(level._id)).length === 0) {
         return level
       }

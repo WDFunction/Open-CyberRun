@@ -37,6 +37,9 @@ export default class JWTModule {
       return null
     }
     let record = await this.col.findOne({ token })
+    if (!record) {
+      return null
+    }
     let user = await this.core.user.col.findOne({ _id: record.userId })
     delete user.password
     return user
