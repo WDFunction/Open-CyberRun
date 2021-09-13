@@ -11,12 +11,14 @@
     "build": "ts-node ./scripts/build.ts",
     "web": "yarn workspace @cyberrun/web",
     "start": "node packages/api/dist/main.js",
-    "test":"yarn workspace @cyberrun/core test"
+    "test": "yarn workspace @cyberrun/core test",
+    "dev": "nodemon ./packages/api/dist/main.js"
   },
   "dependencies": {},
   "devDependencies": {
     "esbuild": "^0.12.27",
     "esbuild-node-externals": "^1.3.0",
+    "nodemon": "^2.0.12",
     "ts-node": "^10.2.1"
   }
 }

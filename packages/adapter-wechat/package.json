@@ -5,5 +5,12 @@
   "scripts": {
     "watch": "tsc --watch",
     "build": "tsc"
+  },
+  "devDependencies": {
+    "@koa/router": "^10.1.1",
+    "@types/koa__router": "^8.0.8"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^3.20.0"
   }
 }

@@ -6,7 +6,6 @@
         "@koa/router": "^10.1.0",
         "@types/koa__cors": "^3.0.3",
         "email-validator": "^2.0.4",
-        "esbuild": "^0.12.27",
         "koa": "^2.13.1",
         "koa-bodyparser": "^4.3.0",
         "mongodb": "^4.0.1",
@@ -16,7 +15,6 @@
     "devDependencies": {
         "@types/koa": "^2.13.4",
         "@types/koa-bodyparser": "^4.3.2",
-        "@types/koa__router": "^8.0.7",
-        "nodemon": "^2.0.12"
+        "@types/koa__router": "^8.0.7"
     }
 }

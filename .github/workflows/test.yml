@@ -39,9 +39,9 @@ jobs:
     - name: Install
       run: yarn
     - name: Build
-      run: yarn build:core
+      run: yarn build
     - name: Unit Test
-      run: yarn workspace @cyberrun/core test
+      run: yarn test
       env:
         CI: true
     - name: Report Coverage
