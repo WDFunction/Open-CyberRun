@@ -29,9 +29,6 @@ export default class LogModule {
    * 加入比赛
    */
   async joinGame(userId: ObjectId, gameId: ObjectId) {
-    if (!userId) {
-      return
-    }
     let start = await this.core.level.levelCol.findOne({
       gameId, type: "start"
     })
@@ -44,7 +41,6 @@ export default class LogModule {
     }, {
       upsert: true
     })
-    this.core.user.setMinDistance(userId, gameId, start?.distance ?? -1)
   }
 
   async adminGetWithUsers(gameId: ObjectId, skip = 0) {

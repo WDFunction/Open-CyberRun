@@ -8,8 +8,9 @@ import adminLevelRoute from './routes/admin/level'
 import bodyParser from 'koa-bodyparser'
 import { CyberRun, Logger } from '@cyberrun/core'
 import cors from '@koa/cors'
+import {apply as wechatRoute} from '@cyberrun/adapter-wechat'
 require('source-map-support').install()
-
+console.log(process.env.NODE_ENV)
 export const cbr = new CyberRun()
 const app = new Koa()
 app.use(bodyParser())
@@ -35,13 +36,15 @@ async function start() {
   app.use(adminLevelRoute.routes())
   app.use(levelRoute.routes())
   app.use(adminLogRoute.routes())
+  console.log(wechatRoute)
 
   app.on('error', (err, ctx: Context) => {
     logger.error('%s %s, user:', ctx.method, ctx.path, ctx.state?.user?._id.toString())
     logger.error(err.stack)
     ctx.status = 500
     ctx.body = {
-      message: err.toString()
+      message: err.toString(),
+      stack: err.stack
     }
   })
 

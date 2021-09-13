@@ -1,0 +1,9 @@
+{
+  "name": "@cyberrun/adapter-wechat",
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "scripts": {
+    "watch": "tsc --watch",
+    "build": "tsc"
+  }
+}

@@ -133,7 +133,7 @@ export default class LevelModule {
       userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),
       newLevelId: nextLevel._id, gameId: game._id, answers
     })
-    this.core.user.setMinDistance(userId, game._id, nextLevel.distance)
+    // this.core.user.setMinDistance(userId, game._id, nextLevel.distance)
     return [game, nextLevel]
   }
 

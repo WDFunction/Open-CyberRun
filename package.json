@@ -8,17 +8,15 @@
   "repository": "https://github.com/WDFunction/Open-CyberRun",
   "author": "LittleC <i@ltlec.cn>",
   "scripts": {
-    "dev:web": "yarn workspace @cyberrun/web dev",
-    "watch:core": "yarn workspace @cyberrun/core watch",
-    "dev:api": "yarn workspace @cyberrun/api dev",
-    "watch:api": "yarn workspace @cyberrun/api watch",
-    "dev:server": "concurrently \"yarn watch:core\" \"yarn watch:api\"  \"yarn dev:api\"",
-    "build:web": "yarn workspace @cyberrun/web build",
-    "build:server": "yarn workspace @cyberrun/core build && yarn workspace @cyberrun/api build",
-    "build:core": "yarn workspace @cyberrun/core build",
-    "start:server": "node packages/api/dist/main.js"
+    "build": "ts-node ./scripts/build.ts",
+    "web": "yarn workspace @cyberrun/web",
+    "start": "node packages/api/dist/main.js",
+    "test":"yarn workspace @cyberrun/core test"
   },
-  "dependencies": {
-    "concurrently": "^6.2.0"
+  "dependencies": {},
+  "devDependencies": {
+    "esbuild": "^0.12.27",
+    "esbuild-node-externals": "^1.3.0",
+    "ts-node": "^10.2.1"
   }
 }

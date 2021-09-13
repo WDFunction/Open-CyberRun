@@ -1,16 +1,12 @@
 {
     "name": "@cyberrun/api",
     "version": "0.0.1-alpha.1",
-    "scripts": {
-        "watch": "tsc --watch",
-        "build": "tsc",
-        "dev": "nodemon --watch ./dist/**/* --watch ../core/dist/**/* dist/main.js"
-    },
     "dependencies": {
         "@koa/cors": "^3.1.0",
         "@koa/router": "^10.1.0",
         "@types/koa__cors": "^3.0.3",
         "email-validator": "^2.0.4",
+        "esbuild": "^0.12.27",
         "koa": "^2.13.1",
         "koa-bodyparser": "^4.3.0",
         "mongodb": "^4.0.1",

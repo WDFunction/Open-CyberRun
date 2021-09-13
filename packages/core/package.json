@@ -7,8 +7,6 @@
         "dist"
     ],
     "scripts": {
-        "watch": "tsc --watch",
-        "build": "tsc",
         "test": "jest --detectOpenHandles"
     },
     "dependencies": {
