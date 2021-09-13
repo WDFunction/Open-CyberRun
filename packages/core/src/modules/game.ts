@@ -338,7 +338,8 @@ export default class GameModule {
 
     if (game.type === 'speedrun') {
       const countPlayers = await this.countPlayers(game)
-      const distance = userId ? (await this.core.user.getMinDistance(userId, game._id)) : 0
+      //const distance = userId ? (await this.core.user.getMinDistance(userId, game._id)) : 0
+      const distance = 0
       let globalDistances = await this.getUserDistances(game._id)
 
       // 从排名最后开始减
