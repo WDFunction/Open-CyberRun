@@ -15,24 +15,33 @@ export async function apply(cbr: CyberRun) {
   const router = new Router({
     prefix: '/wechat'
   })
+  
+  const j2x = new j2xParser({})
   router.get('/', async (ctx) => {
     ctx.body = ctx.query.echostr
   })
   router.post('/', async (ctx) => {
     const data: IComing = parser.parse(ctx.request.body as string).xml
     console.log(data)
-    const j2x = new j2xParser({})
-    const resp = j2x.parse({
-      xml: {
-        ToUserName: data.FromUserName,
-        FromUserName: data.ToUserName,
-        CreateTime: Math.floor(new Date().valueOf() / 1000),
-        MsgType: "text",
-        Content: "?"
-      }
-    })
-    console.log(resp)
-    ctx.body = resp
+    function reply(content: string){
+      const resp = j2x.parse({
+        xml: {
+          ToUserName: data.FromUserName,
+          FromUserName: data.ToUserName,
+          CreateTime: Math.floor(new Date().valueOf() / 1000),
+          MsgType: "text",
+          Content: content
+        }
+      })
+      console.log(resp)
+      ctx.body = resp
+    }
+
+    if(data.Content.startsWith("加入比赛 ")){
+      const id = data.Content.slice("加入比赛 ".length)
+      return reply(`加入成功 ${id}`)
+    }
+    ctx.body = ""
   })
   return router
 }

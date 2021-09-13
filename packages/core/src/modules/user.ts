@@ -8,19 +8,21 @@ import { Logger } from '../logger'
 import { Point } from "./point";
 export interface User {
   _id: ObjectId;
-  email: string;
-  email_verified: boolean;
-  email_verify_token: string;
+  email?: string;
+  email_verified?: boolean;
+  email_verify_token?: string;
   // @TODO verify expires
   username: string;
-  password: string;
+  password?: string;
   createdAt: Date;
   admin?: boolean;
   gravatar?: string;
 
-  gameData?: Record<string, {
-    minDistance: number
-  }>
+  wxOpenId?: string;
+
+  // gameData?: Record<string, {
+  //   minDistance: number
+  // }>
 }
 
 export default class UserModule {
@@ -95,29 +97,29 @@ export default class UserModule {
   /**
    * 获取离终点的距离(数据库里设置的)
    */
-  async getMinDistance(userId: ObjectId, gameId: ObjectId) {
-    let u = await this.col.findOne({ _id: userId })
-    let data = u.gameData?.[gameId.toString()]?.minDistance
-    if (!data) {
-      let record = await this.core.level.levelCol.find({
-        gameId
-      }).sort({ distance: -1 }).limit(1).next()
-      data = record.distance
-    }
-    return data
-  }
+  // async getMinDistance(userId: ObjectId, gameId: ObjectId) {
+  //   let u = await this.col.findOne({ _id: userId })
+  //   let data = u.gameData?.[gameId.toString()]?.minDistance
+  //   if (!data) {
+  //     let record = await this.core.level.levelCol.find({
+  //       gameId
+  //     }).sort({ distance: -1 }).limit(1).next()
+  //     data = record.distance
+  //   }
+  //   return data
+  // }
 
-  async setMinDistance(userId: ObjectId, gameId: ObjectId, distance: number) {
-    return this.col.updateOne({ _id: userId }, {
-      $set: {
-        gameData: {
-          [gameId.toString()]: {
-            minDistance: distance
-          }
-        }
-      }
-    })
-  }
+  // async setMinDistance(userId: ObjectId, gameId: ObjectId, distance: number) {
+  //   return this.col.updateOne({ _id: userId }, {
+  //     $set: {
+  //       gameData: {
+  //         [gameId.toString()]: {
+  //           minDistance: distance
+  //         }
+  //       }
+  //     }
+  //   })
+  // }
 
   async record(gameId: ObjectId, userId: ObjectId) {
     let logs = await this.core.log.col.aggregate([
