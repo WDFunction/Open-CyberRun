@@ -38,7 +38,7 @@ export default class UserModule {
   }
 
   async loadModule() {
-    let r = await Config.get()
+    let r = await this.core.config.get()
     this.transport = nodemailer.createTransport({
       host: 'smtp.sendgrid.net',
       port: 465,
@@ -73,7 +73,7 @@ export default class UserModule {
       createdAt: new Date()
     })
 
-    const root = (await Config.get()).root
+    const root = (await this.core.config.get()).root
 
     await this.transport.sendMail({
       from: 'CyberRun <cyberrun@wd-api.com>',

@@ -10,6 +10,10 @@ export const DefaultConfig = {
   mongodb: {
     connection: "mongodb://127.0.0.1/"
   },
+  weixin: {
+    appid: "",
+    secret: ""
+  },
   root: ""
 }
 
@@ -18,7 +22,7 @@ const logger = new Logger('config')
 export type IConfig = typeof DefaultConfig
 
 export default class Config {
-  static async get(): Promise<IConfig> {
+  async get(): Promise<IConfig> {
     return new Promise((r) => {
       const filePath = `${os.homedir()}/.config/cyberrun.json`
       if (!fs.existsSync(filePath)) {

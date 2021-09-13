@@ -18,6 +18,8 @@ export class CyberRun {
   log: LogModule
   point: PointModule
 
+  config: Config
+
   constructor(ci?: boolean) {
     if (ci) {
       process.env.CI ||= "true"
@@ -25,7 +27,8 @@ export class CyberRun {
   }
 
   async start() {
-    const uri = (await Config.get()).mongodb.connection
+    this.config = new Config()
+    const uri = (await this.config.get()).mongodb.connection
 
     this.client = new MongoClient(uri)
     await this.client.connect()

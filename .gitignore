@@ -5,3 +5,5 @@ dist
 .vercel
 yarn-error.log
 coverage
+packages/**/*.d.ts
+!packages/web/*.d.ts
