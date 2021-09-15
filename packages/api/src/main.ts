@@ -31,6 +31,7 @@ app.use(async (ctx, next) => {
 
 async function start() {
   await cbr.start()
+  app.use(cbr.koishiRouter.routes()).use(cbr.koishiRouter.allowedMethods())
   app.use(gameRoute.routes()).use(gameRoute.allowedMethods())
   app.use(userRoute.routes()).use(userRoute.allowedMethods())
   app.use(adminGameRoute.routes()).use(adminGameRoute.allowedMethods())

@@ -6,7 +6,7 @@ import LevelModule from "./modules/level";
 import LogModule from "./modules/log";
 import PointModule from "./modules/point";
 import UserModule from "./modules/user";
-import '@cyberrun/koishi'
+import {default as koishi, router} from '@cyberrun/koishi'
 
 export class CyberRun {
   client: MongoClient
@@ -20,6 +20,7 @@ export class CyberRun {
   point: PointModule
 
   config: Config
+  koishiRouter: typeof router
 
   constructor(ci?: boolean) {
     if (ci) {
@@ -42,6 +43,7 @@ export class CyberRun {
     this.level = new LevelModule(this)
     this.log = new LogModule(this)
     this.point = new PointModule(this)
+    this.koishiRouter = router
   }
 
   async stop() {

@@ -1,12 +1,17 @@
-import {App} from 'koishi'
+import { App } from 'koishi'
 import Wechat from '@koishijs/plugin-wechat'
 
-let app = new App()
+let app = new App({
+  port: 55555
+})
 app.plugin(Wechat, {
   bots: [{
-    
+
   }]
 })
 app.start()
+console.log(app.router)
 
 export default app
+
+export const router = app.router

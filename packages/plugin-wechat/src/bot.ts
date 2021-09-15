@@ -13,4 +13,9 @@ export class WechatBot extends Bot<WechatBot.Config> {
   constructor(adapter: Adapter, options: WechatBot.Config){
     super(adapter, options)
   }
+
+  async sendMessage(channelId: string, content: string){
+    this.app.emit('wechat/response/' + channelId, {channelId, content})
+    return ''
+  }
 }
