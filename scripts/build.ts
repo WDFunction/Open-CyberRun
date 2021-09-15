@@ -1,7 +1,7 @@
 import { build } from 'esbuild';
 import { nodeExternalsPlugin } from 'esbuild-node-externals'
 
-const local = ['api', 'adapter-wechat', 'core']
+const local = ['api', 'koishi', 'plugin-wechat', 'core']
 
 async function buildCBR() {
   await build({
@@ -9,13 +9,13 @@ async function buildCBR() {
     outfile: 'packages/api/dist/main.js',
     bundle: true,
     color: true,
-    minify: true,
+    minify: false,
     sourcemap: 'inline',
     platform: 'node',
     target: 'node14.4.0',
     plugins: [nodeExternalsPlugin({
       packagePath: local.map(v => `${__dirname}/../packages/${v}/package.json`),
-      allowList: local.map(v => `@cyberrun/${v}`)
+      allowList: local.map(v => `@cyberrun/${v}`).concat('@koishijs/plugin-wechat')
     })]
   })
 }

@@ -6,6 +6,7 @@ import LevelModule from "./modules/level";
 import LogModule from "./modules/log";
 import PointModule from "./modules/point";
 import UserModule from "./modules/user";
+import '@cyberrun/koishi'
 
 export class CyberRun {
   client: MongoClient
