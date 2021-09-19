@@ -1,4 +1,4 @@
-import { Adapter, App, Session } from "koishi";
+import { Adapter, App, Logger, Session } from "koishi";
 import { WechatBot } from './bot'
 import parser, { j2xParser } from 'fast-xml-parser'
 
@@ -15,7 +15,9 @@ interface IComing {
   MsgId: number
 }
 
-const j2x = new j2xParser({})
+const j2x = new j2xParser({
+  cdataTagName: "_cdata"
+})
 
 const timeout = (prom, time, exception) => {
   let timer;
@@ -26,11 +28,11 @@ const timeout = (prom, time, exception) => {
 }
 
 export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> {
+  logger = new Logger('adapter')
   constructor(app: App, config: WechatConfig) {
     super(app, config)
   }
   async connect(bot: WechatBot) {
-    console.log('???')
     bot.resolve()
   }
   async start() {
@@ -40,7 +42,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
     })
     this.app.router.post('/wechat', async (ctx) => {
       const data: IComing = parser.parse(ctx.request.body as string).xml
-      console.log(data)
+      this.logger.debug('webhook %o', data)
       const body: Partial<Session> = { selfId: "test" }
       body.messageId = data.MsgId.toString()
       body.type = "message"
@@ -50,7 +52,6 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
       body.channelId = data.ToUserName
       body.subtype === "private"
       const session = new Session(bot, body)
-      console.log(session)
       this.dispatch(session)
       try {
         await timeout(new Promise((resolve) => {
@@ -61,17 +62,20 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
                 FromUserName: data.ToUserName,
                 CreateTime: Math.floor(new Date().valueOf() / 1000),
                 MsgType: "text",
-                Content: resp.content
+                Content: {
+                  _cdata: resp.content
+                }
               }
             })
-            console.log(r)
+
+            this.logger.info('receive message response from app: %o, response: %s', resp, r)
             ctx.body = r
             resolve(1)
           })
-        }), 4900, Symbol())
+        }), 4500, Symbol())
       } catch (e) {
-        console.log(e)
-        ctx.body = ""
+        this.logger.warn('receive nothing, return null, %o', e)
+        ctx.body = "success"
       }
     })
   }

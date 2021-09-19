@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "main": "./src/index.ts",
   "dependencies": {
+    "@koishijs/plugin-mongo": "^3.0.0-alpha.2",
     "@koishijs/plugin-wechat": "0.0.0",
     "koishi": "4.0.0-alpha.6"
   }
