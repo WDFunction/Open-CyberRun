@@ -175,7 +175,6 @@ export default class GameModule {
     }).count()
   }
 
-
   /**
    * 获取结束关
    */

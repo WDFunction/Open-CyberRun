@@ -55,6 +55,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
       this.dispatch(session)
       try {
         await timeout(new Promise((resolve) => {
+          // @ts-ignore
           bot.app.once('wechat/response/' + data.ToUserName, (resp) => {
             const r = j2x.parse({
               xml: {

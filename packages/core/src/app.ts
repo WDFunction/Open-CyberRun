@@ -6,8 +6,10 @@ import LevelModule from "./modules/level";
 import LogModule from "./modules/log";
 import PointModule from "./modules/point";
 import UserModule from "./modules/user";
-import {default as koishi, router} from '@cyberrun/koishi'
-
+import PlatformModule from "./modules/platform";
+import {default as initKoishi} from '@cyberrun/koishi'
+import {App} from 'koishi'
+import Router from '@koa/router'
 export class CyberRun {
   client: MongoClient
   db: Db
@@ -18,9 +20,11 @@ export class CyberRun {
   level: LevelModule
   log: LogModule
   point: PointModule
+  platform: PlatformModule
 
   config: Config
-  koishiRouter: typeof router
+  koishiRouter: Router
+  koishi: App
 
   constructor(ci?: boolean) {
     if (ci) {
@@ -29,6 +33,7 @@ export class CyberRun {
   }
 
   async start() {
+    this.koishi = await initKoishi(this)
     this.config = new Config()
     const uri = (await this.config.get()).mongodb.connection
 
@@ -43,7 +48,8 @@ export class CyberRun {
     this.level = new LevelModule(this)
     this.log = new LogModule(this)
     this.point = new PointModule(this)
-    this.koishiRouter = router
+    this.platform = new PlatformModule(this)
+    this.koishiRouter = this.koishi.router
   }
 
   async stop() {
