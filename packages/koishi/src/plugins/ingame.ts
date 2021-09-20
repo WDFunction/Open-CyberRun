@@ -8,22 +8,6 @@ export async function apply(ctx: Context, options: {
   const logger = new Logger('koishi-ingame')
   const { cbr } = options
 
-  ctx.middleware(async (session, next) => {
-    const { inGameId, inLevelId } = await session.observeUser(['inGameId', 'inLevelId'])
-
-    logger.info('user %s answer: %s, data: %s, %s', session.userId, session.content, inGameId, inLevelId)
-    if (inGameId) {
-      let answers = session.content.split(" ")
-      try {
-        let [game, level] = await cbr.platform.verifyAnswer(session.userId, inLevelId, answers)
-        console.log(game, level)
-      } catch (e) {
-        logger.warn('user err: %o', e)
-      }
-    }
-    return next()
-  })
-
   ctx.command('levels', '查看关卡列表')
     .userFields(['inGameId'])
     .action(async ({ session }) => {

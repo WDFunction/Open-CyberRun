@@ -31,7 +31,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
   logger = new Logger('adapter')
   constructor(app: App, config: WechatConfig) {
     super(app, config)
-    this.logger.level = 3
+    // this.logger.level = 3
   }
   async connect(bot: WechatBot) {
     bot.resolve()
@@ -55,9 +55,11 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
       const session = new Session(bot, body)
       this.dispatch(session)
       try {
+        let valid = new Date().valueOf() + 4500
         await timeout(new Promise((resolve) => {
           // @ts-ignore
           bot.app.once('wechat/response/' + data.ToUserName, (resp) => {
+            if(new Date().valueOf() > valid) return;
             const r = j2x.parse({
               xml: {
                 ToUserName: data.FromUserName,
@@ -70,7 +72,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
               }
             })
 
-            this.logger.info('receive message response from app: %o', resp)
+            this.logger.debug('receive message response from app: %o', resp)
             ctx.body = r
             resolve(1)
           })
