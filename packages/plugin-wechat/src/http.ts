@@ -31,6 +31,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
   logger = new Logger('adapter')
   constructor(app: App, config: WechatConfig) {
     super(app, config)
+    this.logger.level = 3
   }
   async connect(bot: WechatBot) {
     bot.resolve()
@@ -69,7 +70,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
               }
             })
 
-            this.logger.info('receive message response from app: %o, response: %s', resp, r)
+            this.logger.info('receive message response from app: %o', resp)
             ctx.body = r
             resolve(1)
           })

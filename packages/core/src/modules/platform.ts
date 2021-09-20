@@ -16,25 +16,44 @@ export default class PlatformModule {
     })
     this.logger.info('ensure user %s -> %o', wxUserId, user
     )
-    if (user) return true;
+    if (user) return user;
     await this.core.user.col.insertOne({
       createdAt: new Date(),
       wxOpenId: wxUserId,
       username: wxUserId
     })
-    return true
+    user = await this.core.user.col.findOne({
+      wxOpenId: wxUserId
+    })
+    return user
   }
 
-  async games(){
+  async games() {
     let list = await this.core.game.list()
     return list.map(v => `${v._id.toString()} ${v.name}`).join("\n")
   }
 
-  async getGameLevels(wxUserId: string, gameId: string){
+  async getGameLevels(wxUserId: string, gameId: string) {
     let user = await this.core.user.col.findOne({
       wxOpenId: wxUserId
     })
     let levels = await this.core.level.getGameLevels(new ObjectId(gameId), user._id)
-    return levels.map(v => v.title).join("\n")
+    return levels.map(v => `${v._id.toString()} ${v.title}`).join("\n")
+  }
+
+  async getLevel(userId: string, _levelId: string): Promise<[boolean, string]> {
+    let user = await this.ensureUser(userId)
+    let levelId = new ObjectId(_levelId)
+    if (!await this.core.game.canAccessLevel(user._id, levelId)) {
+      return [false, '你不配']
+    }
+    let level = await this.core.level.get(levelId)
+    return [true, `${level.title}
+    
+    ${level.content}`]  
+  }
+
+  async verifyAnswer(userId: string, levelId: string, answers: string[]){
+    return await this.core.level.verifyAnswer(new ObjectId(levelId), answers, (await this.ensureUser(userId))._id)
   }
 }
