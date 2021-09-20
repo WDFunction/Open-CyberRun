@@ -341,13 +341,9 @@ export default class GameModule {
       let globalDistances = await this.getUserDistances(game._id)
 
       // 从排名最后开始减
-      let rank = globalDistances.map(v => v.count).reduce((a, b) => a + b, 0)
+
+      const rank = globalDistances.filter(v => v._id < distance).map(v => v.count).reduce((a, b) => a + b, 0) + 1
       this.logger.info(`rank %o, global %o`, rank, globalDistances)
-      for (const gd of globalDistances) {
-        if (distance < gd._id) {
-          rank -= gd.count
-        }
-      }
       const levelUsage = await this.playerLevelTimeUsage(userId, level)
       const joinTime = await this.playerJoinTime(userId, level.gameId)
       const timeUsage = new Date().valueOf() - joinTime.valueOf()
@@ -486,8 +482,8 @@ export default class GameModule {
   }
 
   async updateLevelDistances(gameId: ObjectId) {
-    let game = await this.col.findOne({_id: gameId})
-    if(game.type === "meta") return;
+    let game = await this.col.findOne({ _id: gameId })
+    if (game.type === "meta") return;
     const graph = Graph()
     let levels = await this.core.level.levelCol.find({
       gameId
@@ -508,6 +504,7 @@ export default class GameModule {
     let end = await this.getEndLevel(gameId)
     for (const level of levels) {
       let dis = graph.shortestPath(level._id.toString(), end._id.toString()).length
+      level.distance = dis
       await this.core.level.levelCol.updateOne({
         _id: level._id
       }, {
@@ -516,6 +513,39 @@ export default class GameModule {
         }
       })
       this.logger.info('update distance, level id: %s, distance: %d', level._id, dis)
+    }
+
+    this.logger.info('recalculate user min distance')
+    // starting from min, search from logs
+    const sorted = levels.sort((a, b) => a.distance - b.distance)
+    let updatedUser = []
+    // @TODO bulk
+    this.logger.info('sorted %o', sorted)
+    for (const level of sorted) {
+      let logs = await this.core.log.col.aggregate([
+        {
+          $match: {
+            newLevelId: level._id,
+            type: "passed"
+          }
+        },
+        {
+          $group: {
+            _id: '$userId', document: {
+              $first: "$$ROOT"
+            }
+          }
+        },
+        {
+          $replaceRoot: { newRoot: '$document' }
+        }
+      ]).toArray()
+      for (const log of logs) {
+        if (updatedUser.includes(log.userId.toString())) continue;
+        await this.core.user.setMinDistance(log.userId, log.gameId, level.distance, true)
+        updatedUser.push(log.userId.toString())
+        this.logger.info('level distance %d, user %o', level.distance, log.userId)
+      }
     }
   }
 

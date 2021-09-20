@@ -58,4 +58,14 @@ export default class PlatformModule {
   async verifyAnswer(userId: string, levelId: string, answers: string[]){
     return await this.core.level.verifyAnswer(new ObjectId(levelId), answers, (await this.ensureUser(userId))._id)
   }
+
+  async info(userId: string, levelId: string){
+    let id = new ObjectId(levelId)
+    let level = await this.core.level.get(id)
+    let info = await this.core.game.info(
+      level, 
+      (await this.ensureUser(userId))._id
+    )
+    return info.join("\n")
+  }
 }

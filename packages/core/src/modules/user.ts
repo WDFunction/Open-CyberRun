@@ -107,9 +107,9 @@ export default class UserModule {
     }))?.distance ?? -1
   }
 
-  async setMinDistance(userId: ObjectId, gameId: ObjectId, distance: number) {
+  async setMinDistance(userId: ObjectId, gameId: ObjectId, distance: number, force = false) {
     let exist = await this.getMinDistance(userId, gameId)
-    if (exist < distance && exist >= 0) {
+    if (exist < distance && exist >= 0 && !force) {
       return
     }
     this.logger.info('set min distance, user %o, exist: %d, input: %d', userId, exist, distance)

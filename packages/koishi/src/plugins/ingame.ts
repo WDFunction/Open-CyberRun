@@ -23,9 +23,10 @@ export async function apply(ctx: Context, options: {
     })
   ctx
     .command('rank', '查看排名')
-    .userFields(['inGameId'])
-    .action(({ session }) => {
-
+    .alias('info')
+    .userFields(['inLevelId'])
+    .action(async ({ session }) => {
+      return await cbr.platform.info(session.userId, session.user.inLevelId)
     })
   ctx
     .command('hint', '查看提示')
