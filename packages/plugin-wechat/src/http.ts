@@ -31,7 +31,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
   logger = new Logger('adapter')
   constructor(app: App, config: WechatConfig) {
     super(app, config)
-    // this.logger.level = 3
+    this.logger.level = 3
   }
   async connect(bot: WechatBot) {
     bot.resolve()

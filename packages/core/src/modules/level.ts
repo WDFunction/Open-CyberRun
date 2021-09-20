@@ -133,7 +133,9 @@ export default class LevelModule {
       userId, levelId: fromLevelId, type: "passed", createdAt: new Date(),
       newLevelId: nextLevel._id, gameId: game._id, answers
     })
-    // this.core.user.setMinDistance(userId, game._id, nextLevel.distance)
+    if (game.type === "speedrun") {
+      this.core.user.setMinDistance(userId, game._id, nextLevel.distance)
+    }
     return [game, nextLevel]
   }
 
@@ -227,6 +229,8 @@ export default class LevelModule {
   }
 
   async adminUpdateMap(mapId: ObjectId, list: string[]) {
+    let map = await this.mapCol.findOne({ _id: mapId })
+    let level = await this.levelCol.findOne({ _id: map.fromLevelId })
     if (list.length === 0 || (list.length === 1 && list?.[0]?.trim() === "")) {
       await this.mapCol.deleteOne({ _id: mapId })
     } else {
@@ -237,6 +241,7 @@ export default class LevelModule {
         }
       })
     }
+    await this.core.game.updateLevelDistances(level.gameId)
   }
 
   async adminGet(id: ObjectId) {

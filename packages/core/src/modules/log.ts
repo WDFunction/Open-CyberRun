@@ -29,11 +29,11 @@ export default class LogModule {
    * 加入比赛
    */
   async joinGame(userId: ObjectId, gameId: ObjectId) {
-    let start = await this.core.level.levelCol.findOne({
-      gameId, type: "start"
-    })
-    this.col.updateOne({
-      userId, gameId, newLevelId: start?._id
+    let maxDistance = (await this.core.level.levelCol.find({
+      gameId
+    }).sort("distance", -1).limit(1).toArray())[0].distance
+    await this.col.updateOne({
+      userId, gameId, type: "join"
     }, {
       $setOnInsert: {
         type: "join", createdAt: new Date()
@@ -41,6 +41,7 @@ export default class LogModule {
     }, {
       upsert: true
     })
+    await this.core.user.setMinDistance(userId, gameId, maxDistance)
   }
 
   async adminGetWithUsers(gameId: ObjectId, skip = 0) {

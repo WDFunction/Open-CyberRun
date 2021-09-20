@@ -34,11 +34,13 @@ export default class PlatformModule {
   }
 
   async getGameLevels(wxUserId: string, gameId: string) {
-    let user = await this.core.user.col.findOne({
-      wxOpenId: wxUserId
-    })
+    let user = await this.ensureUser(wxUserId)
     let levels = await this.core.level.getGameLevels(new ObjectId(gameId), user._id)
     return levels.map(v => `${v._id.toString()} ${v.title}`).join("\n")
+  }
+
+  async joinGame(wxUserId: string, gameId: string){
+    await this.core.log.joinGame((await this.ensureUser(wxUserId))._id, new ObjectId(gameId))
   }
 
   async getLevel(userId: string, _levelId: string): Promise<[boolean, string]> {

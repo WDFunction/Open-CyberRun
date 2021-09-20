@@ -4,6 +4,7 @@ import { Level, LevelMap } from "./level";
 import { User } from "./user";
 import { Logger } from '../logger'
 import { CalcType } from "./point";
+import Graph from 'graph-data-structure'
 
 export interface Game {
   _id: ObjectId
@@ -86,8 +87,8 @@ export default class GameModule {
       return union.size === a.length && union.size === b.length;
     }
 
-    this.logger.info('%s not first level, verify maps and logs: %o %o', levelId, toThisMaps.map(v => v.fromLevelId),
-      toThisLogs.map(v => v.levelId))
+    // this.logger.info('%s not first level, verify maps and logs: %o %o', levelId, toThisMaps.map(v => v.fromLevelId),
+    //   toThisLogs.map(v => v.levelId))
     if (isEqualSet(
       toThisMaps.map(v => v.fromLevelId.toString()),
       toThisLogs.map(v => v.levelId.toString())
@@ -203,7 +204,6 @@ export default class GameModule {
    */
   async isUserFinished(game: Game, userId: ObjectId): Promise<boolean> {
     let endLevel = await this.getEndLevel(game._id)
-    this.logger.info('end level %o', endLevel)
     let log = await this.core.log.col.count({
       userId, newLevelId: endLevel._id, type: "passed"
     })
@@ -228,14 +228,12 @@ export default class GameModule {
     _id: number,
     count: number
   }[]> {
-    let data = await this.core.user.col.aggregate<{
+    let data = await this.core.user.gameDataCol.aggregate<{
       _id: number,
       count: number
     }>([
-      {
-        $match: { [`gameData.${gameId}.minDistance`]: { $ne: null } }
-      },
-      { $group: { _id: `$gameData.${gameId}.minDistance`, count: { $sum: 1 } } },
+      { $match: { gameId } },
+      { $group: { _id: `$distance`, count: { $sum: 1 } } },
       { $sort: { count: -1 } }
     ]).toArray()
     return data
@@ -274,7 +272,9 @@ export default class GameModule {
         $count: "result"
       }
     ]).next())?.result ?? 0
-    return toThisLevelCount - toNextLevelCount
+    const r = toThisLevelCount - toNextLevelCount
+    if (r > 0) return r
+    return toNextLevelCount
   }
 
 
@@ -302,7 +302,7 @@ export default class GameModule {
       type: "passed",
       userId
     })
-    if (leaveLevel) {
+    if (leaveLevel && enterLevel) {
       return leaveLevel.createdAt.valueOf() - enterLevel.createdAt.valueOf()
     }
     if (enterLevel) {
@@ -337,13 +337,12 @@ export default class GameModule {
 
     if (game.type === 'speedrun') {
       const countPlayers = await this.countPlayers(game)
-      //const distance = userId ? (await this.core.user.getMinDistance(userId, game._id)) : 0
-      const distance = 0
+      const distance = userId ? (await this.core.user.getMinDistance(userId, game._id)) : 0
       let globalDistances = await this.getUserDistances(game._id)
 
       // 从排名最后开始减
       let rank = globalDistances.map(v => v.count).reduce((a, b) => a + b, 0)
-      // this.logger.info('rank %d', rank)
+      this.logger.info(`rank %o, global %o`, rank, globalDistances)
       for (const gd of globalDistances) {
         if (distance < gd._id) {
           rank -= gd.count
@@ -357,7 +356,7 @@ export default class GameModule {
         `当前排名 ${rank}/${countPlayers}`,
         `全局用时 ${timeUsage / 1000}秒`,
         //'剩余比赛时长',
-        `当前关卡人数 ${await this.getLevelUsers(level) || await this.getOnline(level._id)}`,
+        `当前关卡人数 ${await this.getLevelUsers(level)}`,
         `关卡提交次数: ${userLevelCount}`,
         `比赛提交次数: ${userGameCount}`,
         `关卡全局尝试次数: ${await this.countLevelTries(level._id)}`,
@@ -484,6 +483,40 @@ export default class GameModule {
       }]
     }).toArray()
     return passedLogs
+  }
+
+  async updateLevelDistances(gameId: ObjectId) {
+    let game = await this.col.findOne({_id: gameId})
+    if(game.type === "meta") return;
+    const graph = Graph()
+    let levels = await this.core.level.levelCol.find({
+      gameId
+    }).toArray()
+    let maps = await this.core.level.mapCol.find({
+      $or: [{
+        toLevelId: { $in: levels.map(v => v._id) }
+      }, {
+        fromLevelId: { $in: levels.map(v => v._id) }
+      }]
+    }).toArray()
+    for (const level of levels) {
+      graph.addNode(level._id.toString())
+    }
+    for (const map of maps) {
+      graph.addEdge(map.fromLevelId.toString(), map.toLevelId.toString())
+    }
+    let end = await this.getEndLevel(gameId)
+    for (const level of levels) {
+      let dis = graph.shortestPath(level._id.toString(), end._id.toString()).length
+      await this.core.level.levelCol.updateOne({
+        _id: level._id
+      }, {
+        $set: {
+          distance: dis
+        }
+      })
+      this.logger.info('update distance, level id: %s, distance: %d', level._id, dis)
+    }
   }
 
   /**

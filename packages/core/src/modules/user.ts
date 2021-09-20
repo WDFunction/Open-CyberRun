@@ -19,21 +19,25 @@ export interface User {
   gravatar?: string;
 
   wxOpenId?: string;
+}
 
-  // gameData?: Record<string, {
-  //   minDistance: number
-  // }>
+export interface GameData {
+  _id: ObjectId
+  userId: ObjectId
+  gameId: ObjectId
+  distance: number
 }
 
 export default class UserModule {
   core: CyberRun
   public col: Collection<User>
+  public gameDataCol: Collection<GameData>
   transport: Transporter
   logger = new Logger('user')
   constructor(core: CyberRun) {
     this.core = core
     this.col = core.db.collection<User>('user')
-
+    this.gameDataCol = core.db.collection<GameData>('userGameData')
     this.logger.info('init')
   }
 
@@ -97,29 +101,28 @@ export default class UserModule {
   /**
    * 获取离终点的距离(数据库里设置的)
    */
-  // async getMinDistance(userId: ObjectId, gameId: ObjectId) {
-  //   let u = await this.col.findOne({ _id: userId })
-  //   let data = u.gameData?.[gameId.toString()]?.minDistance
-  //   if (!data) {
-  //     let record = await this.core.level.levelCol.find({
-  //       gameId
-  //     }).sort({ distance: -1 }).limit(1).next()
-  //     data = record.distance
-  //   }
-  //   return data
-  // }
+  async getMinDistance(userId: ObjectId, gameId: ObjectId) {
+    return (await this.gameDataCol.findOne({
+      userId, gameId
+    }))?.distance ?? -1
+  }
 
-  // async setMinDistance(userId: ObjectId, gameId: ObjectId, distance: number) {
-  //   return this.col.updateOne({ _id: userId }, {
-  //     $set: {
-  //       gameData: {
-  //         [gameId.toString()]: {
-  //           minDistance: distance
-  //         }
-  //       }
-  //     }
-  //   })
-  // }
+  async setMinDistance(userId: ObjectId, gameId: ObjectId, distance: number) {
+    let exist = await this.getMinDistance(userId, gameId)
+    if (exist < distance && exist >= 0) {
+      return
+    }
+    this.logger.info('set min distance, user %o, exist: %d, input: %d', userId, exist, distance)
+    await this.gameDataCol.updateOne({
+      userId, gameId
+    }, {
+      $set: {
+        distance
+      }
+    }, {
+      upsert: true
+    })
+  }
 
   async record(gameId: ObjectId, userId: ObjectId) {
     let logs = await this.core.log.col.aggregate([
