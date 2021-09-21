@@ -61,7 +61,6 @@ export default class GameModule {
     }).toArray()
     const isFirstLevel = maps.filter(v => v.toLevelId.equals(levelId)).length === 0
     if (isFirstLevel) {
-      this.logger.info('%s is first level', levelId)
       return true
     }
 
@@ -318,7 +317,7 @@ export default class GameModule {
    */
   async info(level: Level, userId: ObjectId): Promise<string[]> {
     let game = await this.get(level.gameId)
-    await this.core.log.joinGame(userId, level.gameId)
+    await this.core.log.joinGame(userId, game)
     /*let levels = await this.core.level.levelCol.find({
       gameId: game._id
     }).toArray()*/

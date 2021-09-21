@@ -39,8 +39,9 @@ export default class PlatformModule {
     return levels.map(v => `${v._id.toString()} ${v.title}`).join("\n")
   }
 
-  async joinGame(wxUserId: string, gameId: string){
-    await this.core.log.joinGame((await this.ensureUser(wxUserId))._id, new ObjectId(gameId))
+  async joinGame(wxUserId: string, gameId: string) {
+    let game = await this.core.game.get(new ObjectId(gameId))
+    await this.core.log.joinGame((await this.ensureUser(wxUserId))._id, game)
   }
 
   async getLevel(userId: string, _levelId: string): Promise<[boolean, string]> {
@@ -52,18 +53,18 @@ export default class PlatformModule {
     let level = await this.core.level.get(levelId)
     return [true, `${level.title}
     
-    ${level.content}`]  
+    ${level.content}`]
   }
 
-  async verifyAnswer(userId: string, levelId: string, answers: string[]){
+  async verifyAnswer(userId: string, levelId: string, answers: string[]) {
     return await this.core.level.verifyAnswer(new ObjectId(levelId), answers, (await this.ensureUser(userId))._id)
   }
 
-  async info(userId: string, levelId: string){
+  async info(userId: string, levelId: string) {
     let id = new ObjectId(levelId)
     let level = await this.core.level.get(id)
     let info = await this.core.game.info(
-      level, 
+      level,
       (await this.ensureUser(userId))._id
     )
     return info.join("\n")

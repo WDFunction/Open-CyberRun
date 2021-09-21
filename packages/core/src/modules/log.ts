@@ -1,6 +1,7 @@
 import { Collection, ObjectId } from "mongodb";
 import { Logger } from "../logger";
 import { CyberRun } from "../app";
+import { Game } from "src";
 
 export interface Log {
   _id: ObjectId;
@@ -28,12 +29,12 @@ export default class LogModule {
   /**
    * 加入比赛
    */
-  async joinGame(userId: ObjectId, gameId: ObjectId) {
+  async joinGame(userId: ObjectId, game: Game) {
     let maxDistance = (await this.core.level.levelCol.find({
-      gameId
+      gameId: game._id
     }).sort("distance", -1).limit(1).toArray())[0].distance
     await this.col.updateOne({
-      userId, gameId, type: "join"
+      userId, gameId: game._id, type: "join"
     }, {
       $setOnInsert: {
         type: "join", createdAt: new Date()
@@ -41,7 +42,9 @@ export default class LogModule {
     }, {
       upsert: true
     })
-    await this.core.user.setMinDistance(userId, gameId, maxDistance)
+    if (game.type === "speedrun") {
+      await this.core.user.setMinDistance(userId, game._id, maxDistance)
+    }
   }
 
   async adminGetWithUsers(gameId: ObjectId, skip = 0) {
