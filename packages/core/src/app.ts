@@ -33,7 +33,6 @@ export class CyberRun {
   }
 
   async start() {
-    this.koishi = await initKoishi(this)
     this.config = new Config()
     const uri = (await this.config.get()).mongodb.connection
 
@@ -49,6 +48,7 @@ export class CyberRun {
     this.log = new LogModule(this)
     this.point = new PointModule(this)
     this.platform = new PlatformModule(this)
+    this.koishi = await initKoishi(this)
     this.koishiRouter = this.koishi.router
   }
 
