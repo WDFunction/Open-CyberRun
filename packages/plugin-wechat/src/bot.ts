@@ -15,6 +15,7 @@ export class WechatBot extends Bot<WechatBot.Config> {
   }
 
   async sendMessage(channelId: string, content: string){
+    // @ts-ignore
     this.app.emit('wechat/response/' + channelId, {channelId, content})
     return ''
   }

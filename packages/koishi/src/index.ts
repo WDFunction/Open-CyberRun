@@ -25,7 +25,7 @@ export default async function initKoishi(cbr: CyberRun) {
   
   const logger = new Logger('koishi')
   app.plugin(mongo, {
-    database: 'cyberrun',
+    uri: (await cbr.config.get()).mongodb.connection,
     prefix: 'koishi'
   })
   app.plugin(Wechat, {
