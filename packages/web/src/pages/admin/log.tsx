@@ -58,7 +58,12 @@ const LogPage = () => {
           return (
             <TableRow key={v._id.toString()}>
               <TableCell>
-                <Avatar src={`https://cn.gravatar.com/avatar/${md5(v.user.email)}`} /> {v.user.username}
+                {v.user.email && (
+                  <>
+                    <Avatar src={`https://gravatar.loli.net/avatar/${md5(v.user.email)}`} />
+                  </>
+                )}
+                {v.user.username}
               </TableCell>
               <TableCell>
                 {new Date(v.createdAt).toLocaleString()}
@@ -71,7 +76,7 @@ const LogPage = () => {
       </TableBody>
       <Pagination color={"primary"} page={page} onChange={(e: any, v: number) => {
         setPage(v)
-      }} count={Math.ceil(data?.count / 20)} />
+      }} count={Math.ceil((data?.count || 0) / 20)} />
     </Table>
   </AdminLayout>
 }
