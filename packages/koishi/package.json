@@ -5,6 +5,10 @@
   "dependencies": {
     "@koishijs/plugin-mongo": "^3.0.0-alpha.2",
     "@koishijs/plugin-wechat": "0.0.0",
-    "koishi": "4.0.0-alpha.6"
+    "koishi": "4.0.0-alpha.6",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.1"
   }
 }

@@ -1,7 +1,7 @@
 import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core'
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import React from 'react'
-import { Menu } from 'mdi-material-ui'
+import { Account } from 'mdi-material-ui'
 import { useHistory } from 'react-router-dom'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -31,6 +31,12 @@ const Layout: React.FunctionComponent = ({ children }) => {
         <Typography variant="h6" className={classes.title} onClick={() => history.push('/')}>
           CyberRun
         </Typography>
+        <IconButton color="inherit" href="/profile" onClick={(e) => {
+          e.preventDefault()
+          history.push('/profile')
+        }}>
+          <Account />
+        </IconButton>
       </Toolbar>
     </AppBar>
     <main style={{paddingTop: theme.spacing(2)}}>

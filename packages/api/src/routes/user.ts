@@ -14,7 +14,7 @@ router.get('/', getUser(), (ctx) => {
 router.post('/init', async (ctx) => {
   // @ts-ignore
   const email = ctx.request.body.email
-  if(!EmailValidator.validate(email)){
+  if (!EmailValidator.validate(email)) {
     ctx.status = 403
     ctx.body = {
       message: 'wrong email'
@@ -40,6 +40,20 @@ router.post('/verify', async (ctx) => {
   const token = (ctx.request.body as Record<string, unknown>).token as string
   let result = await cbr.user.emailVerify(token)
   ctx.status = result ? 204 : 403
+})
+
+router.post('/bind', getUser(), async (ctx) => {
+  const token = (ctx.request.body as Record<string, unknown>).token as string
+  const selected = (ctx.request.body as Record<string, unknown>).token as 'web' | 'wechat'
+  try {
+    await cbr.user.bindWechat(ctx.state.user._id, token, selected)
+    ctx.status = 200
+  } catch (e) {
+    ctx.status = 403
+    ctx.body = {
+      message: e.message
+    }
+  }
 })
 
 export default router

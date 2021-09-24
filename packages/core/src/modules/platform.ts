@@ -69,4 +69,14 @@ export default class PlatformModule {
     )
     return info.join("\n")
   }
+
+  async updateUserToken(userId: ObjectId, token: string){
+    await this.core.user.col.updateOne({
+      _id: userId
+    }, {
+      $set: {
+        password: token
+      }
+    })
+  }
 }

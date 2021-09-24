@@ -4,6 +4,7 @@ import { apply as mongo } from '@koishijs/plugin-mongo'
 import { CyberRun } from '@cyberrun/core'
 import { apply as guest } from './plugins/guest'
 import { apply as ingame } from './plugins/ingame'
+import { apply as bind } from './plugins/bind'
 declare module 'koishi' {
   interface User {
     inGameId: string
@@ -22,7 +23,7 @@ export default async function initKoishi(cbr: CyberRun) {
     autoAssign: true,
     autoAuthorize: 1
   })
-  
+
   const logger = new Logger('koishi')
   app.plugin(mongo, {
     uri: (await cbr.config.get()).mongodb.connection,
@@ -35,10 +36,10 @@ export default async function initKoishi(cbr: CyberRun) {
   })
 
   app.before('attach-user', (_, fields) => fields.add('inGameId'))
-
+  app.plugin(bind, { cbr })
   // @ts-ignore
   app.intersect(s => !s.user?.inGameId).plugin(guest, { cbr })
-  
+
   // @ts-ignore
   app.intersect(s => s.user?.inGameId).plugin(ingame, { cbr })
 
@@ -46,11 +47,11 @@ export default async function initKoishi(cbr: CyberRun) {
     const { inGameId, inLevelId } = await session.observeUser(['inGameId', 'inLevelId'])
 
     if (inGameId) {
-    logger.info('user %s answer: %s, game: %s, level: %s', session.userId, session.content, inGameId, inLevelId)
+      logger.info('user %s answer: %s, game: %s, level: %s', session.userId, session.content, inGameId, inLevelId)
       let answers = session.content.split(" ")
       try {
         let [game, level] = await cbr.platform.verifyAnswer(session.userId, inLevelId, answers)
-        if(level){
+        if (level) {
           logger.info('user %s passed, new level: %s', session.userId, level._id)
           return await session.execute(`level ${level._id}`)
         }

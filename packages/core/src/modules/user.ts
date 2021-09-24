@@ -166,4 +166,42 @@ export default class UserModule {
       logs, points, game, levels
     }
   }
+
+  async bindWechat(userId: ObjectId, token: string, selected: 'web' | 'wechat') {
+    let wechatUser = await this.col.findOne({
+      password: token
+    })
+    if (!wechatUser) {
+      throw new Error("user not found")
+    }
+    await this.col.updateOne({
+      _id: userId
+    }, {
+      $set: {
+        wxOpenId: wechatUser.wxOpenId
+      }
+    })
+    await this.col.deleteOne({ _id: wechatUser._id })
+
+    await this.core.point.liveCol.deleteMany({ userId: wechatUser._id })
+    await this.core.log.col.updateMany({ userId: wechatUser._id }, {
+      $set: {
+        userId: userId
+      }
+    })
+    await this.core.game.onlineCol.deleteMany({ userId: wechatUser._id })
+
+    const removeUserId = selected === 'web' ? wechatUser._id : userId
+
+    await this.core.log.col.deleteMany({
+      userId: removeUserId
+    })
+    await this.core.point.col.deleteMany({
+      userId: removeUserId
+    })
+    await this.core.user.gameDataCol.deleteMany({
+      userId: removeUserId
+    })
+
+  }
 }
