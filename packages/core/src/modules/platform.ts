@@ -42,9 +42,9 @@ export default class PlatformModule {
 
   async joinGame(wxUserId: string, gameId: string) {
     let game: Game
-    if(ObjectId.isValid(gameId)){
+    if (ObjectId.isValid(gameId)) {
       game = await this.core.game.get(new ObjectId(gameId))
-    }else{
+    } else {
       let game2 = await this.core.game.col.findOne({
         alias: gameId
       })
@@ -54,21 +54,21 @@ export default class PlatformModule {
     return game
   }
 
-  async getLevel(userId: string, _levelId: string): Promise<[boolean, string]> {
+  async getLevel(userId: string, _levelId: string): Promise<[boolean, ObjectId, string]> {
     let user = await this.ensureUser(userId)
     let levelId: ObjectId
-    if(ObjectId.isValid(_levelId)){
+    if (ObjectId.isValid(_levelId)) {
       levelId = new ObjectId(_levelId)
-    }else{
+    } else {
       levelId = (await this.core.level.levelCol.findOne({
         alias: _levelId
       }))?._id
     }
     if (!await this.core.game.canAccessLevel(user._id, levelId)) {
-      return [false, '你不配']
+      return [false, levelId, '你不配']
     }
     let level = await this.core.level.get(levelId)
-    return [true, `${level.title}
+    return [true, levelId, `${level.title}
     
     ${level.content}`]
   }
@@ -87,7 +87,7 @@ export default class PlatformModule {
     return info.join("\n")
   }
 
-  async updateUserToken(userId: ObjectId, token: string){
+  async updateUserToken(userId: ObjectId, token: string) {
     await this.core.user.col.updateOne({
       _id: userId
     }, {

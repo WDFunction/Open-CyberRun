@@ -28,19 +28,13 @@ export async function apply(ctx: Context, options: {
     .action(async ({ session }) => {
       return await cbr.platform.info(session.userId, session.user.inLevelId)
     })
-  ctx
-    .command('hint', '查看提示')
-    .userFields(['inGameId'])
-    .action(({ session }) => {
-
-    })
 
   ctx.command('level <id:string>', '查看关卡')
     .userFields(['inLevelId'])
     .action(async ({ session }, id) => {
-      let [succeed, text] = await cbr.platform.getLevel(session.userId, id)
+      let [succeed, levelId, text] = await cbr.platform.getLevel(session.userId, id)
       if (succeed) {
-        session.user.inLevelId = id
+        session.user.inLevelId = levelId.toString()
       }
       return text
     })
