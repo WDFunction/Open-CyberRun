@@ -2,6 +2,8 @@ import { Collection, ObjectId } from "mongodb";
 import { Logger } from "../logger";
 import { CyberRun } from "../app";
 import { Game } from "./game";
+import Graph from 'graph-data-structure'
+
 
 export interface Level {
   _id: ObjectId
@@ -155,7 +157,7 @@ export default class LevelModule {
     }))
   }
 
-  async adminGetMaps(gameId: ObjectId) {
+  async adminGetMaps(gameId: ObjectId): Promise<[Level[], LevelMap[]]> {
     let levels = await this.levelCol.find({
       gameId
     }).toArray()
@@ -193,15 +195,47 @@ export default class LevelModule {
     return r.insertedId
   }
 
+  validateMapAndLevels(levels: Level[], maps: LevelMap[]): boolean {
+    let endLevels = []
+    // has multiple end level
+    for (const level of levels) {
+      // 没有这一关的出口关卡
+      if (maps.filter(v => v.toLevelId.equals(level._id)).length >= 1 &&
+        maps.filter(v => v.fromLevelId.equals(level._id)).length === 0) {
+        endLevels.push(level)
+      }
+    }
+    if (endLevels.length >= 2) {
+      throw new Error("有多个结束关")
+    }
+
+    const graph = Graph()
+    for (const level of levels) {
+      graph.addNode(level._id.toString())
+    }
+    for (const map of maps) {
+      graph.addEdge(map.fromLevelId.toString(), map.toLevelId.toString())
+    }
+    if(graph.hasCycle()){
+      throw new Error("关卡有回环")
+    }
+
+    return true
+  }
+
   async adminAddMap(data: {
+    gameId: ObjectId
     fromLevelId: ObjectId
     toLevelId: ObjectId
   }) {
-    let r = await this.mapCol.insertOne({
+    const [levels, maps] = await this.adminGetMaps(data.gameId)
+    const insert = {
       toLevelId: data.toLevelId,
       fromLevelId: data.fromLevelId,
       answers: [/^Example$/]
-    })
+    } as LevelMap
+    this.validateMapAndLevels(levels, [...maps, insert])
+    let r = await this.mapCol.insertOne(insert)
     return r.insertedId
   }
 

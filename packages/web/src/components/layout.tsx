@@ -1,7 +1,7 @@
 import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core'
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import React from 'react'
-import { Account } from 'mdi-material-ui'
+import { Account, Cog } from 'mdi-material-ui'
 import { useHistory } from 'react-router-dom'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -37,6 +37,12 @@ const Layout: React.FunctionComponent = ({ children }) => {
         }}>
           <Account />
         </IconButton>
+        {/* <IconButton color="inherit" href="/admin" onClick={(e) => {
+          e.preventDefault()
+          history.push('/admin')
+        }}>
+          <Cog />
+        </IconButton> */}
       </Toolbar>
     </AppBar>
     <main style={{paddingTop: theme.spacing(2)}}>

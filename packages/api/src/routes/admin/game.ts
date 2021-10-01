@@ -47,6 +47,7 @@ router.post('/:id/maps', async (ctx) => {
   // @ts-ignore
   const body: Record<string, string> = ctx.request.body
   let id = await cbr.level.adminAddMap({
+    gameId: new ObjectId(ctx.params.id),
     fromLevelId: new ObjectId(body.fromLevelId),
     toLevelId: new ObjectId(body.toLevelId)
   })

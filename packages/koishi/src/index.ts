@@ -5,6 +5,7 @@ import { CyberRun } from '@cyberrun/core'
 import { apply as guest } from './plugins/guest'
 import { apply as ingame } from './plugins/ingame'
 import { apply as bind } from './plugins/bind'
+import { apply as webui } from '@koishijs/plugin-webui'
 declare module 'koishi' {
   interface User {
     inGameId: string
@@ -29,6 +30,7 @@ export default async function initKoishi(cbr: CyberRun) {
     uri: (await cbr.config.get()).mongodb.connection,
     prefix: 'koishi'
   })
+  // app.plugin(webui)
   app.plugin(Wechat, {
     bots: [{
 

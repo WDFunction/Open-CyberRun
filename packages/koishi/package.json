@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "main": "./src/index.ts",
   "dependencies": {
-    "@koishijs/plugin-mongo": "^3.0.0-alpha.2",
+    "@koishijs/plugin-mongo": "^3.0.0-alpha.4",
+    "@koishijs/plugin-webui": "^5.0.0-alpha.0",
     "@koishijs/plugin-wechat": "0.0.0",
-    "koishi": "4.0.0-alpha.6",
+    "koishi": "^4.0.0-alpha.8",
+    "proxy-agent": "^5.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
