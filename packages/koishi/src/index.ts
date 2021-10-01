@@ -1,11 +1,11 @@
-import { App, Command, Logger, Tables, User } from 'koishi'
+import { App, Logger, Tables } from 'koishi'
 import Wechat from '@koishijs/plugin-wechat'
 import { apply as mongo } from '@koishijs/plugin-mongo'
 import { CyberRun } from '@cyberrun/core'
 import { apply as guest } from './plugins/guest'
 import { apply as ingame } from './plugins/ingame'
 import { apply as bind } from './plugins/bind'
-import { apply as webui } from '@koishijs/plugin-webui'
+import { apply as webui } from '@koishijs/plugin-status'
 declare module 'koishi' {
   interface User {
     inGameId: string
@@ -30,7 +30,9 @@ export default async function initKoishi(cbr: CyberRun) {
     uri: (await cbr.config.get()).mongodb.connection,
     prefix: 'koishi'
   })
-  // app.plugin(webui)
+  /*app.plugin(webui, {
+    uiPath: '/console'
+  })*/
   app.plugin(Wechat, {
     bots: [{
 

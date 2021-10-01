@@ -31,11 +31,12 @@ const LevelPage = () => {
   const [difficulty, setDifficulty] = useState('5')
   const [submitCount, setSubmitCount] = useState('5')
   const [cooldown, setCooldown] = useState('')
+  const [alias, setAlias] = useState('')
   //const [type, setType] = useState('')
   const save = async () => {
     await instance({
       url: `/admin/levels/${levelId}/patch`,
-      data: { title, content, difficulty: Number(difficulty), submitCount: Number(submitCount), cooldown: cooldown ? Number(cooldown) : undefined },
+      data: { title, content, difficulty: Number(difficulty), submitCount: Number(submitCount), cooldown: cooldown ? Number(cooldown) : undefined, alias },
       method: 'post'
     })
     toast.success("保存成功")
@@ -47,6 +48,7 @@ const LevelPage = () => {
       setDifficulty(data.difficulty?.toString() ?? '5')
       setSubmitCount(data.submitCount?.toString() ?? '5')
       setCooldown(data.cooldown?.toString() ?? '')
+      setAlias(data.alias?.toString() ?? '')
       //setType(data.type)
     }
   }, [data])
@@ -67,6 +69,7 @@ const LevelPage = () => {
       </FormControl> */}
       <TextField variant="outlined" color="primary" label="标题" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} />
       <TextField variant="outlined" color="primary" label={"内容(markdown)"} multiline fullWidth value={content} onChange={(e) => setContent(e.target.value)} />
+      <TextField variant="outlined" color="primary" label="别名" fullWidth value={alias} onChange={(e) => setAlias(e.target.value)} />
       <TextField variant="outlined" color="primary" type="number" label={"难度系数"} fullWidth value={difficulty} onChange={(e) => setDifficulty(e.target.value)} />
       <TextField variant="outlined" color="primary" type="number" label={"提交次数"} fullWidth value={submitCount} onChange={(e) => setSubmitCount(e.target.value)} />
       <TextField variant="outlined" color="primary" type="number" label={"提交冷却时间(秒)"} fullWidth value={cooldown} onChange={(e) => setCooldown(e.target.value)} />

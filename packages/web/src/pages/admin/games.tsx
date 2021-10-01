@@ -47,6 +47,7 @@ const Row: React.FunctionComponent<{
   const [submitCount, setSubmitCount] = useState('5');
   const [type, setType] = useState('speedrun')
   const [name, setName] = useState('')
+  const [alias, setAlias] = useState('')
 
   useEffect(() => {
     if (game) {
@@ -58,6 +59,7 @@ const Row: React.FunctionComponent<{
       setDifficulty(game.difficulty?.toString() ?? '')
       setSubmitCount(game.submitCount?.toString() ?? '')
       setType(game.type)
+      setAlias(game.alias)
     }
   }, [game])
 
@@ -68,7 +70,7 @@ const Row: React.FunctionComponent<{
       data: {
         startedAt: started.toISOString(), endedAt: ended.toISOString(),
         map, cover, type, difficulty: difficulty ? Number(difficulty) : undefined, name,
-        submitCount: submitCount ? Number(submitCount) : undefined
+        submitCount: submitCount ? Number(submitCount) : undefined, alias
       }
     })
     toast.success("保存成功")
@@ -139,6 +141,7 @@ const Row: React.FunctionComponent<{
                 </RadioGroup>
               </FormControl>
               <TextField fullWidth label="比赛名称" value={name} onChange={(e) => setName(e.target.value)} variant="outlined" />
+              <TextField fullWidth label="别名" value={alias} onChange={(e) => setAlias(e.target.value)} variant="outlined" />
               <TextField fullWidth label="地图地址" value={map} onChange={(e) => setMap(e.target.value)} variant="outlined" />
               <TextField fullWidth label="封面地址" value={cover} onChange={(e) => setCover(e.target.value)} variant="outlined" />
 

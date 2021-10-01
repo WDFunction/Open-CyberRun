@@ -19,4 +19,10 @@ export class WechatBot extends Bot<WechatBot.Config> {
     this.app.emit('wechat/response/' + channelId, {channelId, content})
     return ''
   }
+
+  async getStatus(){
+    return {
+      
+    }
+  }
 }

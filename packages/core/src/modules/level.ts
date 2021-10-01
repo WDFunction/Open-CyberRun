@@ -16,6 +16,7 @@ export interface Level {
   difficulty?: number // meta mode only
   submitCount?: number // meta mode only
   cooldown?: number
+  alias?: string
 }
 
 export interface LevelMap {
@@ -65,7 +66,8 @@ export default class LevelModule {
     let rtnLevels: Partial<Level>[] = levels.filter(v => v).map(v => ({
       mapPoint: v.mapPoint,
       title: v.title,
-      _id: v._id
+      _id: v._id,
+      alias: v.alias
     }))
     return rtnLevels
   }
@@ -282,7 +284,7 @@ export default class LevelModule {
     return this.levelCol.findOne({ _id: id })
   }
 
-  async adminUpdate(levelId: ObjectId, data: Pick<Level, 'content' | 'title' | 'difficulty' | 'submitCount'>) {
+  async adminUpdate(levelId: ObjectId, data: Pick<Level, 'content' | 'title' | 'difficulty' | 'submitCount' | 'alias'>) {
     await this.levelCol.updateOne({
       _id: levelId
     }, {

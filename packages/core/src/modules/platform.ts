@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { Game } from "./game";
 import { CyberRun } from "../app";
 import { Logger } from '../logger'
 
@@ -30,23 +31,39 @@ export default class PlatformModule {
 
   async games() {
     let list = await this.core.game.list()
-    return list.map(v => `${v._id.toString()} ${v.name}`).join("\n")
+    return list.map(v => `[${v.alias ?? v._id.toString()}] ${v.name}`).join("\n")
   }
 
   async getGameLevels(wxUserId: string, gameId: string) {
     let user = await this.ensureUser(wxUserId)
     let levels = await this.core.level.getGameLevels(new ObjectId(gameId), user._id)
-    return levels.map(v => `${v._id.toString()} ${v.title}`).join("\n")
+    return levels.map(v => `[${v.alias ?? v._id.toString()}] ${v.title}`).join("\n")
   }
 
   async joinGame(wxUserId: string, gameId: string) {
-    let game = await this.core.game.get(new ObjectId(gameId))
+    let game: Game
+    if(ObjectId.isValid(gameId)){
+      game = await this.core.game.get(new ObjectId(gameId))
+    }else{
+      let game2 = await this.core.game.col.findOne({
+        alias: gameId
+      })
+      game = await this.core.game.get(game2._id)
+    }
     await this.core.log.joinGame((await this.ensureUser(wxUserId))._id, game)
+    return game
   }
 
   async getLevel(userId: string, _levelId: string): Promise<[boolean, string]> {
     let user = await this.ensureUser(userId)
-    let levelId = new ObjectId(_levelId)
+    let levelId: ObjectId
+    if(ObjectId.isValid(_levelId)){
+      levelId = new ObjectId(_levelId)
+    }else{
+      levelId = (await this.core.level.levelCol.findOne({
+        alias: _levelId
+      }))?._id
+    }
     if (!await this.core.game.canAccessLevel(user._id, levelId)) {
       return [false, '你不配']
     }

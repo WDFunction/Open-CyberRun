@@ -948,15 +948,21 @@
     "@types/mongodb" "^3.6.12"
     mongodb "^3.6.6"
 
-"@koishijs/plugin-webui@^5.0.0-alpha.0":
-  version "5.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/@koishijs/plugin-webui/-/plugin-webui-5.0.0-alpha.0.tgz#3a362e6b140252d92493104e846044e852853bcd"
-  integrity sha512-RYuxjgf3YhLoj2PwtftxpiVPEiV2weJmOi8+YWNCEvmKuCngqnrxSMp1MpFBFWaad42pPEU0OrYOLiHWtK8z+A==
+"@koishijs/plugin-status@^5.0.0-alpha.3":
+  version "5.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/@koishijs/plugin-status/-/plugin-status-5.0.0-alpha.3.tgz#0b0ca0af1e48c24bd601d01188558773ea3c2e4a"
+  integrity sha512-Bkl2t5EAwLEsCYO+Uez21UJ99CKYPXJm4f2eKzfVNPxVVh7xHj3rew4U+Pkr/KAmBKWhk2CG3JKCRci06l61oA==
   dependencies:
+    "@koishijs/ui-console" "^1.0.0-alpha.0"
     semver "^7.3.5"
-    systeminformation "^5.6.14"
+    systeminformation "^5.8.7"
     uuid "^8.3.2"
-    ws "^7.4.5"
+    ws "^8.2.1"
+
+"@koishijs/ui-console@^1.0.0-alpha.0":
+  version "1.0.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@koishijs/ui-console/-/ui-console-1.0.0-alpha.0.tgz#290593e76fd7543f5828d2285ee216b01b0a815a"
+  integrity sha512-2/3EqL+/PbS2vuEraMYTwABuYiwxVbrx3pl7mmcFUH1Wm8/eN/1QTeyZqj75QehpdHpVRyEHIKg5Ll6tMRCpeQ==
 
 "@koishijs/utils@^5.0.0-alpha.4":
   version "5.0.0-alpha.4"
@@ -5353,7 +5359,7 @@ symbol-tree@^3.2.4:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-systeminformation@^5.6.14:
+systeminformation@^5.8.7:
   version "5.9.4"
   resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.9.4.tgz#1f0e29e0aa376dec8f69cc517eeefc5cdcda411a"
   integrity sha512-FOsiTn0CyJZoj9kIhla11ndsMzbbwwuriul81wpqIBt9IpbxHZ6P/oZCphIFgJrwqjTnme0Qp1HDzIkUD9Xr/g==
@@ -5747,15 +5753,15 @@ write-file-atomic@^3.0.0:
     signal-exit "^3.0.2"
     typedarray-to-buffer "^3.1.5"
 
-ws@^7.4.5:
-  version "7.5.5"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.5.tgz#8b4bc4af518cfabd0473ae4f99144287b33eb881"
-  integrity sha512-BAkMFcAzl8as1G/hArkxOxq3G7pjUqQ3gzYbLL0/5zNkph70e+lCoxBGnm6AW1+/aiNeV4fnKqZ8m4GZewmH2w==
-
 ws@^7.4.6:
   version "7.5.3"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.3.tgz#160835b63c7d97bfab418fc1b8a9fced2ac01a74"
   integrity sha512-kQ/dHIzuLrS6Je9+uv81ueZomEwH0qVYstcAQ4/Z93K8zeko9gtAbttJWzoC5ukqXY1PpoouV3+VSOqEAFt5wg==
+
+ws@^8.2.1:
+  version "8.2.2"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.2.2.tgz#ca684330c6dd6076a737250ed81ac1606cb0a63e"
+  integrity sha512-Q6B6H2oc8QY3llc3cB8kVmQ6pnJWVQbP7Q5algTcIxx7YEpc0oU4NBVHlztA7Ekzfhw2r0rPducMUiCGWKQRzw==
 
 xdg-basedir@^4.0.0:
   version "4.0.0"

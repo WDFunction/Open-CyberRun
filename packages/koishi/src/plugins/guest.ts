@@ -1,6 +1,6 @@
 import { Context } from "koishi";
 import type { } from '../'
-import { CyberRun } from "../../../core/src";
+import { CyberRun } from "@cyberrun/core";
 
 export async function apply(ctx: Context, options: {
   cbr: CyberRun
@@ -12,8 +12,8 @@ export async function apply(ctx: Context, options: {
     .userFields(['inGameId'])
     .action(async ({ session }, id) => {
       await cbr.platform.ensureUser(session.userId)
-      await cbr.platform.joinGame(session.userId, id)
-      session.user.inGameId = id
+      let game = await cbr.platform.joinGame(session.userId, id)
+      session.user.inGameId = game._id.toString()
       return '加入成功, 请发送 levels 查看关卡列表'
     })
 

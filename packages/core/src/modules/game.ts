@@ -17,6 +17,7 @@ export interface Game {
   map: string;
   difficulty?: number // speedrun mode only
   submitCount?: number // speedrun mode only
+  alias?: string;
 }
 
 export interface Online {
@@ -108,7 +109,8 @@ export default class GameModule {
       name: v.name,
       startedAt: v.startedAt,
       type: v.type,
-      ended: v.ended
+      ended: v.ended,
+      alias: v.alias
     }))
   }
 
@@ -644,7 +646,7 @@ export default class GameModule {
   async adminUpdate(gameId: ObjectId, data: {
     startedAt: string
     endedAt: string
-  } & Pick<Game, 'map' | 'cover' | 'type' | 'difficulty' | 'submitCount'>) {
+  } & Pick<Game, 'map' | 'cover' | 'type' | 'difficulty' | 'submitCount' | 'alias'>) {
     return this.col.updateOne({ _id: gameId }, {
       $set: {
         ...data, ...{
