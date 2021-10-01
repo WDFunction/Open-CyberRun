@@ -31,6 +31,20 @@ const LevelMapEditDialog: React.FunctionComponent<IProps> = ({ id, onSave }) => 
     onSave()
   }
 
+  const deleteMap = async () => {
+    try {
+      await instance({
+        url: `/admin/games/any/maps/${id}`,
+        method: 'post',
+        data: []
+      })
+      toast.success("删除成功")
+      onSave()
+    } catch (e) { 
+      console.log(e)
+    }
+  }
+
   useEffect(() => {
     if (data) {
       setInput(data.join('\n'))
@@ -51,7 +65,8 @@ const LevelMapEditDialog: React.FunctionComponent<IProps> = ({ id, onSave }) => 
         <Button onClick={async () => {
           onSave()
         }}>取消</Button>
-        <Button onClick={submit}>保存</Button>
+        <Button onClick={submit} color="primary">保存</Button>
+        <Button color="secondary" onClick={deleteMap}>删除</Button>
       </DialogActions>
     </Dialog>
   </div>
@@ -221,7 +236,7 @@ const MapPage = () => {
           if (newLevel._id === level._id) {
             return toast.error("?")
           }
-          if(dataRef.current!.maps.find(v => v.fromLevelId === level._id && v.toLevelId === newLevel._id)){
+          if (dataRef.current!.maps.find(v => v.fromLevelId === level._id && v.toLevelId === newLevel._id)) {
             return toast.error("路径已存在!")
           }
           await instance({

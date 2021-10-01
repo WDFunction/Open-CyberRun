@@ -4,9 +4,9 @@
   "main": "./src/index.ts",
   "dependencies": {
     "@koishijs/plugin-mongo": "^3.0.0-alpha.4",
-    "@koishijs/plugin-status": "^5.0.0-alpha.3",
+    "@koishijs/plugin-status": "5.0.0-alpha.6",
     "@koishijs/plugin-wechat": "0.0.0",
-    "@koishijs/ui-console": "^1.0.0-alpha.0",
+    "@koishijs/ui-console": "^1.0.0-alpha.3",
     "koishi": "^4.0.0-alpha.8",
     "proxy-agent": "^5.0.0",
     "uuid": "^8.3.2"

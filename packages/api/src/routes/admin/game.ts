@@ -65,7 +65,11 @@ router.get('/any/maps/:id', async (ctx) => {
 })
 
 router.post('/any/maps/:id', async (ctx) => {
-  await cbr.level.adminUpdateMap(new ObjectId(ctx.params.id), ctx.request.body as unknown as string[])
+  try {
+    await cbr.level.adminUpdateMap(new ObjectId(ctx.params.id), ctx.request.body as unknown as string[])
+  } catch (e) {
+    
+  }
   ctx.status = 204
 })
 

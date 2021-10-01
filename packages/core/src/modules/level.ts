@@ -187,9 +187,10 @@ export default class LevelModule {
       title: new Date().valueOf().toString(),
       content: '',
       distance: -1,
-      difficulty: 5,
-      submitCount: 5,
+      difficulty: 1,
+      submitCount: 1,
       gameId: data.gameId,
+      cooldown: 10,
       mapPoint: {
         x: data.x, y: data.y
       }
@@ -218,7 +219,7 @@ export default class LevelModule {
     for (const map of maps) {
       graph.addEdge(map.fromLevelId.toString(), map.toLevelId.toString())
     }
-    if(graph.hasCycle()){
+    if (graph.hasCycle()) {
       throw new Error("关卡有回环")
     }
 
@@ -277,7 +278,11 @@ export default class LevelModule {
         }
       })
     }
-    await this.core.game.updateLevelDistances(level.gameId)
+    try {
+      await this.core.game.updateLevelDistances(level.gameId)
+    } catch (e) {
+      throw new Error(`保存成功, 距离计算失败 ` + e.message)
+    }
   }
 
   async adminGet(id: ObjectId) {
