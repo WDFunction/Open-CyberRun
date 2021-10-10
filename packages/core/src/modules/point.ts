@@ -75,7 +75,7 @@ export default class PointModule {
       gameId: game._id
     }).toArray()
     const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
-    if(game.type === "speedrun"){
+    if (game.type === "speedrun") {
       levels = [await this.core.game.getEndLevel(game._id)]
     }
     for await (const level of levels) {
@@ -218,5 +218,41 @@ export default class PointModule {
         upsert: true
       })
     }
+  }
+
+  async adminList(gameId: ObjectId) {
+    let list = await this.col.aggregate([
+      {
+        $match: {
+          gameId
+        }
+      },
+      {
+        $group: {
+          _id: '$userId',
+          point: { $sum: '$value' }
+        }
+      },
+      { $sort: { point: -1 } },
+      {
+        $lookup: {
+          from: "user",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $addFields: {
+          user: {
+            $arrayElemAt: ["$user", 0]
+          }
+        }
+      },
+      {
+        $unset: ["userId", "user.password"]
+      }
+    ]).toArray()
+    return list
   }
 }

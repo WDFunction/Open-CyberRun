@@ -86,6 +86,11 @@ const routes: RouteConfig[] = [
     path: '/admin/:id/log',
     exact: true,
     component: loadable(() => import('./pages/admin/log'))
+  },
+  {
+    path: '/admin/:id/point',
+    exact: true,
+    component: loadable(() => import('./pages/admin/point'))
   }
 ]
 

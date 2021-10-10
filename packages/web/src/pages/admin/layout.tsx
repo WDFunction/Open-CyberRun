@@ -100,6 +100,10 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
             <ListItemIcon><Seal /></ListItemIcon>
             <ListItemText primary="比赛统计" />
           </ListItem>
+          <ListItem button onClick={() => history.push(`/admin/${selected}/point`)}>
+            <ListItemIcon><Seal /></ListItemIcon>
+            <ListItemText primary="积分排行" />
+          </ListItem>
         </List>
       )}
     </Drawer>

@@ -73,4 +73,8 @@ router.post('/any/maps/:id', async (ctx) => {
   ctx.status = 204
 })
 
+router.get('/:id/point', async (ctx) => {
+  ctx.body = await cbr.point.adminList(new ObjectId(ctx.params.id))
+})
+
 export default router
