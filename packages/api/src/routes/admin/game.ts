@@ -68,13 +68,21 @@ router.post('/any/maps/:id', async (ctx) => {
   try {
     await cbr.level.adminUpdateMap(new ObjectId(ctx.params.id), ctx.request.body as unknown as string[])
   } catch (e) {
-    
+
   }
   ctx.status = 204
 })
 
 router.get('/:id/point', async (ctx) => {
   ctx.body = await cbr.point.adminList(new ObjectId(ctx.params.id))
+})
+
+router.post('/:id/point/reload', async (ctx) => {
+  let game = await cbr.game.col.findOne({
+    _id: new ObjectId(ctx.params.id)
+  })
+  await cbr.point.checkoutGame(game)
+  ctx.status = 204
 })
 
 export default router

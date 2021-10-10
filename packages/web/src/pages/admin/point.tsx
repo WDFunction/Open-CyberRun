@@ -4,6 +4,8 @@ import useSWR from 'swr';
 import AdminLayout from './layout'
 import { useParams, useHistory } from 'react-router-dom'
 import type { Point, User } from '@cyberrun/core'
+import instance from '../../components/instance';
+import {toast} from 'react-toastify'
 
 type IPoint = {
   user: User
@@ -39,7 +41,7 @@ function arrayToCsv(data: any[]) {
 
 const PointPage = () => {
   const { id } = useParams<{ id: string }>()
-  const { data } = useSWR<IPoint[]>(`/admin/games/${id}/point`)
+  const { data, mutate } = useSWR<IPoint[]>(`/admin/games/${id}/point`)
   const exportt = () => {
     const csv = arrayToCsv([
       ['username', 'email', 'point'],
@@ -49,8 +51,18 @@ const PointPage = () => {
     ])
     downloadBlob(csv, 'export.csv', 'text/csv')
   }
+  const reload = async () => {
+    toast.warning('请稍等, 勿重复点击')
+    await instance({
+      url: `/admin/games/${id}/point/reload`,
+      method: 'post'
+    })
+    toast.success('已完成')
+    mutate()
+  }
   return <AdminLayout>
     <Button color="primary" onClick={exportt}>导出</Button>
+    <Button color="secondary" onClick={reload}>重算</Button>
     <Table>
       <TableHead>
         <TableRow>

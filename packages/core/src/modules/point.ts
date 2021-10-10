@@ -71,6 +71,9 @@ export default class PointModule {
 
   async checkoutGame(game: Game) {
     this.logger.info('checkout game %o', game)
+    await this.col.deleteMany({
+      gameId: game._id
+    })
     let levels = await this.core.level.levelCol.find({
       gameId: game._id
     }).toArray()
@@ -80,8 +83,7 @@ export default class PointModule {
     }
     for await (const level of levels) {
       let finished = await this.core.log.col.aggregate([
-        { $match: { levelId: level._id, type: "passed" } },
-        { $sort: { createdAt: 1 } },
+        { $match: { levelId: level._id, type: "passed", createdAt: { $lte: game.endedAt } } },
         {
           $group: {
             _id: '$userId', document: {
@@ -91,12 +93,13 @@ export default class PointModule {
         },
         {
           $replaceRoot: { newRoot: '$document' }
-        }
+        },
+        { $sort: { createdAt: 1 } },
       ]).toArray()
       this.logger.info('finished level %s list: %o', level.title, finished)
 
-      const L = game.difficulty || level.difficulty
-      const STY = game.submitCount || level.submitCount
+      const L = game.type === "speedrun" ? game.difficulty : level.difficulty
+      const STY = game.type === "speedrun" ? game.submitCount : level.submitCount
       // 参与人数不可能是0的 这里就不用管了
       const C = (await this.core.log.col.aggregate<{ count: number }>([
         { $match: { levelId: level._id } },
@@ -110,6 +113,7 @@ export default class PointModule {
         const TY = R === 0 ? (await this.core.log.col.count({
           gameId: game._id,
           userId: item.userId,
+          levelId: item.levelId,
           type: { $ne: "join" }
         })) : 0
         const params = {
