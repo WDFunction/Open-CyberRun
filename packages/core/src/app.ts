@@ -50,6 +50,10 @@ export class CyberRun {
     this.platform = new PlatformModule(this)
     this.koishi = await initKoishi(this)
     this.koishiRouter = this.koishi.router
+
+    if (!process.env.CI) {
+      await this.point.checkout()
+    }
   }
 
   async stop() {

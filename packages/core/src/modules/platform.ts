@@ -36,7 +36,7 @@ export default class PlatformModule {
 
   async getGameLevels(wxUserId: string, gameId: string) {
     let user = await this.ensureUser(wxUserId)
-    let levels = await this.core.level.getGameLevels(new ObjectId(gameId), user._id)
+    let levels = await this.core.level.getGameLevels(new ObjectId(gameId), user)
     return levels.map(v => `[${v.alias ?? v._id.toString()}] ${v.title}`).join("\n")
   }
 
@@ -82,7 +82,7 @@ export default class PlatformModule {
     let level = await this.core.level.get(id)
     let info = await this.core.game.info(
       level,
-      (await this.ensureUser(userId))._id
+      (await this.ensureUser(userId))
     )
     return info.join("\n")
   }

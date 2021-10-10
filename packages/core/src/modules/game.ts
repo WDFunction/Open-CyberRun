@@ -18,6 +18,7 @@ export interface Game {
   difficulty?: number // speedrun mode only
   submitCount?: number // speedrun mode only
   alias?: string;
+  hidden: boolean
 }
 
 export interface Online {
@@ -101,8 +102,10 @@ export default class GameModule {
   /**
    * 前端获取比赛列表
    */
-  async list(): Promise<Partial<Game>[]> {
-    let list = await this.col.find().toArray()
+  async list(admin = false): Promise<Partial<Game>[]> {
+    let list = await this.col.find({
+      hidden: { $in: admin ? [true, false] : [false] }
+    }).toArray()
     return list.map(v => ({
       _id: v._id,
       cover: v.cover,
@@ -117,12 +120,20 @@ export default class GameModule {
   /**
    * 获取比赛(验证开始时间)
    */
-  async get(id: ObjectId) {
+  async get(id: ObjectId, admin = false) {
+    this.logger.info('get %o, admin: %o', id, admin)
     let item = await this.col.findOne({
-      _id: id,
-      startedAt: {
-        $lte: new Date()
-      }
+      $and: [
+        { _id: id },
+        admin ? {
+          _id: id
+        } : {
+          startedAt: {
+            $lte: new Date()
+          },
+          hidden: false
+        }
+      ]
     })
     return item
   }
@@ -317,8 +328,9 @@ export default class GameModule {
   /**
    * 前端 获取侧边栏信息
    */
-  async info(level: Level, userId: ObjectId): Promise<string[]> {
-    let game = await this.get(level.gameId)
+  async info(level: Level, user: User): Promise<string[]> {
+    const userId = user._id
+    let game = await this.get(level.gameId, user.admin)
     await this.core.log.joinGame(userId, game)
     /*let levels = await this.core.level.levelCol.find({
       gameId: game._id
@@ -554,7 +566,7 @@ export default class GameModule {
    * 幕后统计信息
    */
   async adminStats(gameId: ObjectId) {
-    let game = await this.get(gameId)
+    let game = await this.get(gameId, true)
     let levels: NewLevel[] = await this.core.level.levelCol.find({
       gameId: game._id
     }).toArray()
@@ -646,7 +658,7 @@ export default class GameModule {
   async adminUpdate(gameId: ObjectId, data: {
     startedAt: string
     endedAt: string
-  } & Pick<Game, 'map' | 'cover' | 'type' | 'difficulty' | 'submitCount' | 'alias'>) {
+  } & Pick<Game, 'map' | 'cover' | 'type' | 'difficulty' | 'submitCount' | 'alias' | 'hidden'>) {
     return this.col.updateOne({ _id: gameId }, {
       $set: {
         ...data, ...{
@@ -668,7 +680,8 @@ export default class GameModule {
       endedAt: new Date(new Date().valueOf() + 3600 * 24 * 1000),
       ended: false,
       map: '',
-      cover: ''
+      cover: '',
+      hidden: false
     })
   }
 

@@ -2,13 +2,14 @@ import Router from "@koa/router"
 import { cbr } from "../main"
 import { getUser, ICustomAppState } from "../components/getUser"
 import { ObjectId } from 'mongodb'
+import type { User } from "@cyberrun/core"
 const router = new Router<ICustomAppState>({
   prefix: '/levels'
 })
 
 router.get('/meta/:gameId', getUser({ ignoreGuest: true }), async (ctx) => {
   let gameId = new ObjectId(ctx.params.gameId)
-  let levels = await cbr.level.getGameLevels(gameId, ctx.state.user?._id)
+  let levels = await cbr.level.getGameLevels(gameId, ctx.state.user as User)
   ctx.body = {
     data: levels
   }
@@ -42,7 +43,7 @@ router.get('/:id', getUser({ ignoreGuest: true }), async (ctx) => {
 router.get('/:id/info', getUser({ ignoreGuest: true }), async (ctx) => {
   let id = new ObjectId(ctx.params.id)
   let level = await cbr.level.get(id)
-  let info = await cbr.game.info(level, ctx.state.user?._id)
+  let info = await cbr.game.info(level, ctx.state.user as User)
   ctx.body = {
     data: info
   }

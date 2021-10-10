@@ -75,14 +75,13 @@ export default class PointModule {
       gameId: game._id
     }).toArray()
     const TL = (game.endedAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
-
-    if (game.type === "speedrun") {
-      const endLevel = await this.core.game.getEndLevel(game._id)
-      if (!endLevel) {
-        return this.logger.error('do not have end level')
-      }
+    if(game.type === "speedrun"){
+      levels = [await this.core.game.getEndLevel(game._id)]
+    }
+    for await (const level of levels) {
       let finished = await this.core.log.col.aggregate([
-        { $match: { newLevelId: endLevel._id, type: "passed" } },
+        { $match: { levelId: level._id, type: "passed" } },
+        { $sort: { createdAt: 1 } },
         {
           $group: {
             _id: '$userId', document: {
@@ -94,35 +93,38 @@ export default class PointModule {
           $replaceRoot: { newRoot: '$document' }
         }
       ]).toArray()
-      this.logger.info('finished list: %o', finished)
+      this.logger.info('finished level %s list: %o', level.title, finished)
 
-      const L = game.difficulty!
-      const STY = game.submitCount!
-      const C = await this.core.game.countPlayers(game)
+      const L = game.difficulty || level.difficulty
+      const STY = game.submitCount || level.submitCount
+      // 参与人数不可能是0的 这里就不用管了
+      const C = (await this.core.log.col.aggregate<{ count: number }>([
+        { $match: { levelId: level._id } },
+        { $group: { _id: '$userId' } },
+        { $count: 'count' }
+      ]).next())?.count
       for (const [R, item] of finished.entries()) {
         const T = (item.createdAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
 
         const RP = 1 - (R - 1) / C
-
-        // 大概能放进aggregate
         const TY = R === 0 ? (await this.core.log.col.count({
           gameId: game._id,
           userId: item.userId,
           type: { $ne: "join" }
         })) : 0
-
         const params = {
           L, TL, STY, C, R, T, RP, TY
         }
         const [version, SPTS, BPTS] = this.calc(params)
 
-        this.logger.info('user %s: %o', item.userId, params)
+        this.logger.info('user %s: %o, result: %o', item.userId, params, { SPTS, BPTS, version })
 
         await this.col.updateOne({
           type: "finish",
           userId: item.userId,
           timeout: false,
           gameId: game._id,
+          levelId: level._id
         }, {
           $set: {
             createdAt: new Date(),
@@ -133,12 +135,13 @@ export default class PointModule {
         }, {
           upsert: true
         })
-        if (BPTS) {
+        if (R === 0) {
           await this.col.updateOne({
             type: "bonus",
             userId: item.userId,
             timeout: false,
             gameId: game._id,
+            levelId: level._id
           }, {
             $set: {
               createdAt: new Date(),
@@ -151,86 +154,7 @@ export default class PointModule {
           })
         }
       }
-    }
-    else if (game.type === "meta") {
-      for await (const level of levels) {
-        let finished = await this.core.log.col.aggregate([
-          { $match: { levelId: level._id, type: "passed" } },
-          { $sort: { createdAt: 1 } },
-          {
-            $group: {
-              _id: '$userId', document: {
-                $first: "$$ROOT"
-              }
-            }
-          },
-          {
-            $replaceRoot: { newRoot: '$document' }
-          }
-        ]).toArray()
-        this.logger.info('finished level %s list: %o', level.title, finished)
 
-        const L = level.difficulty
-        const STY = level.submitCount
-        // 参与人数不可能是0的 这里就不用管了
-        const C = (await this.core.log.col.aggregate<{ count: number }>([
-          { $match: { levelId: level._id } },
-          { $group: { _id: '$userId' } },
-          { $count: 'count' }
-        ]).next())?.count
-        for (const [R, item] of finished.entries()) {
-          const T = (item.createdAt.valueOf() - game.startedAt.valueOf()) / 3600 / 1000
-
-          const RP = 1 - (R - 1) / C
-          const TY = R === 0 ? (await this.core.log.col.count({
-            gameId: game._id,
-            userId: item.userId,
-            type: { $ne: "join" }
-          })) : 0
-          const params = {
-            L, TL, STY, C, R, T, RP, TY
-          }
-          const [version, SPTS, BPTS] = this.calc(params)
-
-          this.logger.info('user %s: %o, result: %o', item.userId, params, { SPTS, BPTS, version })
-
-          await this.col.updateOne({
-            type: "finish",
-            userId: item.userId,
-            timeout: false,
-            gameId: game._id,
-            levelId: level._id
-          }, {
-            $set: {
-              createdAt: new Date(),
-              params,
-              version,
-              value: SPTS
-            }
-          }, {
-            upsert: true
-          })
-          if (BPTS) {
-            await this.col.updateOne({
-              type: "bonus",
-              userId: item.userId,
-              timeout: false,
-              gameId: game._id,
-              levelId: level._id
-            }, {
-              $set: {
-                createdAt: new Date(),
-                params,
-                version,
-                value: BPTS
-              }
-            }, {
-              upsert: true
-            })
-          }
-        }
-
-      }
     }
     await this.core.game.col.updateOne({
       _id: game._id

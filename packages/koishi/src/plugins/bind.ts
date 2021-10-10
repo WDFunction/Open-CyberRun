@@ -1,6 +1,6 @@
 import { Context } from "koishi";
 import type { } from '../'
-import { CyberRun } from "../../../core/src";
+import { CyberRun } from "@cyberrun/core";
 import {v4} from 'uuid'
 export async function apply(ctx: Context, options: {
   cbr: CyberRun

@@ -4,7 +4,7 @@ import AdminLayout from './layout'
 import type { Game } from '@cyberrun/core'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-import { Paper, TableHead, TableCell, TableBody, Table, TableRow, Container, IconButton, Collapse, Typography, Box, Button, Grid, TextField, FormControl, FormControlLabel, Radio, FormLabel, RadioGroup } from '@material-ui/core'
+import { Paper, TableHead, TableCell, TableBody, Table, TableRow, Container, IconButton, Collapse, Typography, Box, Button, Grid, TextField, FormControl, FormControlLabel, Radio, FormLabel, RadioGroup, Switch } from '@material-ui/core'
 import { ChevronUp, ChevronDown } from 'mdi-material-ui'
 
 import { DateTimePicker } from "@material-ui/pickers";
@@ -48,6 +48,7 @@ const Row: React.FunctionComponent<{
   const [type, setType] = useState('speedrun')
   const [name, setName] = useState('')
   const [alias, setAlias] = useState('')
+  const [hidden, setHidden] = useState(false)
 
   useEffect(() => {
     if (game) {
@@ -59,7 +60,8 @@ const Row: React.FunctionComponent<{
       setDifficulty(game.difficulty?.toString() ?? '')
       setSubmitCount(game.submitCount?.toString() ?? '')
       setType(game.type)
-      setAlias(game.alias)
+      setAlias(game.alias?.toString() ?? '')
+      setHidden(game.hidden)
     }
   }, [game])
 
@@ -70,7 +72,7 @@ const Row: React.FunctionComponent<{
       data: {
         startedAt: started.toISOString(), endedAt: ended.toISOString(),
         map, cover, type, difficulty: difficulty ? Number(difficulty) : undefined, name,
-        submitCount: submitCount ? Number(submitCount) : undefined, alias
+        submitCount: submitCount ? Number(submitCount) : undefined, alias, hidden
       }
     })
     toast.success("保存成功")
@@ -139,6 +141,10 @@ const Row: React.FunctionComponent<{
                   <FormControlLabel label="竞速" value="speedrun" control={<Radio />} />
                   <FormControlLabel label="积分" value="meta" control={<Radio />} />
                 </RadioGroup>
+              </FormControl>
+              <br />
+              <FormControl>
+                <FormControlLabel control={<Switch value={hidden} onChange={(e) => setHidden(e.target.checked)} />} label="隐藏(管理员可见)" />
               </FormControl>
               <TextField fullWidth label="比赛名称" value={name} onChange={(e) => setName(e.target.value)} variant="outlined" />
               <TextField fullWidth label="别名" value={alias} onChange={(e) => setAlias(e.target.value)} variant="outlined" />

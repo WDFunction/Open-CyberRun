@@ -1,6 +1,5 @@
 import Koa from 'koa'
-import { User } from '../../../core/dist/modules/user';
-import jwt from 'jsonwebtoken'
+import type { User } from '@cyberrun/core';
 import { cbr } from '../main'
 
 // @TODO: import from core

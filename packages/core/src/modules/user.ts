@@ -124,7 +124,8 @@ export default class UserModule {
     })
   }
 
-  async record(gameId: ObjectId, userId: ObjectId) {
+  async record(gameId: ObjectId, user: Pick<User, '_id' | 'admin'>) {
+    const userId = user._id
     let logs = await this.core.log.col.aggregate([
       { $match: { gameId, userId, type: "passed" } },
       {
@@ -139,7 +140,7 @@ export default class UserModule {
       },
       { $sort: { createdAt: -1 } }
     ]).toArray()
-    const game = await this.core.game.get(gameId)
+    const game = await this.core.game.get(gameId, user.admin)
     if (!game) {
       throw new Error("比赛不存在")
     }

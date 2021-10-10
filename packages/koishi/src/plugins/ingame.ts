@@ -1,6 +1,6 @@
 import { Command, Context, Logger } from "koishi";
 import type { } from '../'
-import { CyberRun } from "../../../core/src";
+import { CyberRun } from "@cyberrun/core";
 
 export async function apply(ctx: Context, options: {
   cbr: CyberRun

@@ -3,6 +3,7 @@ import { Logger } from "../logger";
 import { CyberRun } from "../app";
 import { Game } from "./game";
 import Graph from 'graph-data-structure'
+import {User} from './user'
 
 
 export interface Level {
@@ -47,8 +48,9 @@ export default class LevelModule {
   /**
    * 前端 获取关卡
    */
-  async getGameLevels(gameId: ObjectId, userId?: ObjectId) {
-    let game = await this.core.game.get(gameId)
+  async getGameLevels(gameId: ObjectId, user?: User) {
+    const {_id: userId, admin} = user
+    let game = await this.core.game.get(gameId, admin)
     if (!game) {
       throw new Error("比赛不存在")
     }

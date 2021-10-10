@@ -8,7 +8,8 @@ import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { AlertCircleOutline } from 'mdi-material-ui';
 import { Alert } from '@material-ui/lab';
 import useInterval from '../components/useInterval';
-
+import { intervalToDuration, formatDistance } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -56,13 +57,15 @@ const IndexPage = () => {
           const status = v.ended! ? '已完赛' :
             (started ? '进行中' : '未开始')
           const remain = Math.floor((startedAt - date.valueOf()) / 1000)
+          const duration = intervalToDuration({ start: new Date().valueOf(), end: startedAt })
+          const formatted = formatDistance(new Date().valueOf(), startedAt, { includeSeconds: true, locale: zhCN })
           return (
             <Grid item xs={12} sm={4}>
               <Card variant="outlined">
                 <CardMedia image={v.cover} style={{ height: 140, position: 'relative' }}>
                   {!started && (
                     <div className={classes.notStartContainer}>
-                      <Typography variant="h4" style={{ color: 'white' }}>{remain}秒后开始</Typography>
+                      <Typography variant="h4" style={{ color: 'white' }}>{formatted}</Typography>
                     </div>
                   )}
                 </CardMedia>
