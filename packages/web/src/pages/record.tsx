@@ -1,13 +1,13 @@
 import React from 'react'
 import useSWR from 'swr'
 import Layout from '../components/layout'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Alert, AlertTitle } from '@material-ui/lab'
 import type { Game, Level, Log, Point } from '@cyberrun/core'
 import { Typography, Container, Box, Button } from '@material-ui/core'
 const Page = () => {
   const { id } = useParams<{ id: string }>()
-  const history = useHistory()
+  const history = useNavigate()
   const { data } = useSWR<{
     game: Partial<Game>
     logs: Partial<Log>[]
@@ -25,7 +25,7 @@ const Page = () => {
           <Alert severity="success" action={
             <Button color="inherit" size="small" href={`/level/${v.levelId}`} onClick={(e) => {
               e.preventDefault()
-              history.push(`/level/${v.levelId}`)
+              history(`/level/${v.levelId}`)
             }}>复习</Button>
           }>
             <AlertTitle>{data.levels.find(l => l._id === v.levelId)?.title}</AlertTitle>

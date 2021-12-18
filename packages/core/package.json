@@ -8,19 +8,19 @@
     "dependencies": {
         "@cyberrun/koishi": "0.0.0",
         "bcryptjs": "^2.4.3",
-        "jest": "^27.0.6",
+        "jest": "^27.4.5",
         "jsonwebtoken": "^8.5.1",
-        "mongodb": "^4.0.1",
-        "nanoid": "^3.1.23",
-        "nodemailer": "^6.6.3"
+        "mongodb": "^4.2.2",
+        "nanoid": "^3.1.30",
+        "nodemailer": "^6.7.2"
     },
     "devDependencies": {
-        "@types/jest": "^27.0.1",
-        "@types/jsonwebtoken": "^8.5.4",
+        "@types/jest": "^27.0.3",
+        "@types/jsonwebtoken": "^8.5.6",
         "@types/nanoid": "^3.0.0",
         "@types/nodemailer": "^6.4.4",
         "graph-data-structure": "^2.0.0",
-        "ts-jest": "^27.0.5",
-        "typescript": "^4.3.5"
+        "ts-jest": "^27.1.2",
+        "typescript": "^4.5.4"
     }
 }

@@ -5,7 +5,6 @@ import { CyberRun } from '@cyberrun/core'
 import { apply as guest } from './plugins/guest'
 import { apply as ingame } from './plugins/ingame'
 import { apply as bind } from './plugins/bind'
-import { apply as webui } from '@koishijs/plugin-status'
 declare module 'koishi' {
   interface User {
     inGameId: string
@@ -22,7 +21,8 @@ export default async function initKoishi(cbr: CyberRun) {
   let app = new App({
     port: 55555,
     autoAssign: true,
-    autoAuthorize: 1
+    autoAuthorize: 1,
+    host: '0.0.0.0'
   })
 
   const logger = new Logger('koishi')
@@ -30,14 +30,7 @@ export default async function initKoishi(cbr: CyberRun) {
     uri: (await cbr.config.get()).mongodb.connection,
     prefix: 'koishi'
   })
-  /*app.plugin(webui, {
-    uiPath: '/console'
-  })*/
-  app.plugin(Wechat, {
-    bots: [{
-
-    }]
-  })
+  app.plugin(Wechat)
 
   app.before('attach-user', (_, fields) => fields.add('inGameId'))
   app.plugin(bind, { cbr })
@@ -48,6 +41,7 @@ export default async function initKoishi(cbr: CyberRun) {
   app.intersect(s => s.user?.inGameId).plugin(ingame, { cbr })
 
   app.middleware(async (session, next) => {
+    // @ts-ignore
     const { inGameId, inLevelId } = await session.observeUser(['inGameId', 'inLevelId'])
 
     if (inGameId) {

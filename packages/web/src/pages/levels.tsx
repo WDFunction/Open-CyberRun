@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 import type { Level, Game } from '@cyberrun/core'
 import { Button, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Menu, Popover, Typography } from '@material-ui/core'
 import { Card, MapMarker } from 'mdi-material-ui'
 
 const LevelsPage = () => {
-  const history = useHistory()
+  const history = useNavigate()
   const { gameId } = useParams<{ gameId: string }>()
   const { data: gameData } = useSWR<Game>(`/games/${gameId}`)
   const [open, setOpen] = useState(false)
@@ -33,7 +33,7 @@ const LevelsPage = () => {
       </DialogContent>
       <DialogActions>
         <Button variant="contained" color="primary" disableElevation onClick={() => {
-          history.push(`/level/${level?._id}`)
+          history(`/level/${level?._id}`)
         }}>进入</Button>
       </DialogActions>
     </Dialog>

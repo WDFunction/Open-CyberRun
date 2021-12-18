@@ -2,7 +2,7 @@ import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core'
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import React from 'react'
 import { Account, Cog } from 'mdi-material-ui'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Layout: React.FunctionComponent = ({ children }) => {
   const classes = useStyles()
-  const history = useHistory()
+  const history = useNavigate()
   const theme = useTheme()
   return <div>
     <AppBar>
@@ -28,18 +28,18 @@ const Layout: React.FunctionComponent = ({ children }) => {
         {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
         <Menu />
       </IconButton> */}
-        <Typography variant="h6" className={classes.title} onClick={() => history.push('/')}>
+        <Typography variant="h6" className={classes.title} onClick={() => history('/')}>
           CyberRun
         </Typography>
         <IconButton color="inherit" href="/profile" onClick={(e) => {
           e.preventDefault()
-          history.push('/profile')
+          history('/profile')
         }}>
           <Account />
         </IconButton>
         {/* <IconButton color="inherit" href="/admin" onClick={(e) => {
           e.preventDefault()
-          history.push('/admin')
+          history('/admin')
         }}>
           <Cog />
         </IconButton> */}

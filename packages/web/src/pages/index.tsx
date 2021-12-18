@@ -2,7 +2,7 @@ import { Button, Card, CardActions, CardContent, CardMedia, Grid, Typography, Co
 import React, { useState } from 'react'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Layout from '../components/layout';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { AlertCircleOutline } from 'mdi-material-ui';
@@ -31,9 +31,9 @@ const IndexPage = () => {
   const { data: userData, error } = useSWR('/user/', {
     shouldRetryOnError: false
   })
-  const history = useHistory()
+  const history = useNavigate()
   const join = async (gameId: string) => {
-    history.push(`/levels/${gameId}`)
+    history(`/levels/${gameId}`)
   }
   const classes = useStyles();
   const [date, setDate] = useState(new Date())
@@ -46,7 +46,7 @@ const IndexPage = () => {
         <Box mb={2}>
           <Alert severity="warning"><Link href="/login" onClick={(e) => {
             e.preventDefault()
-            history.push('/login')
+            history('/login')
           }}>登录</Link>后获得完整游戏体验</Alert>
         </Box>
       )}
@@ -79,7 +79,7 @@ const IndexPage = () => {
                   <div className={classes.root} style={{ marginLeft: 'auto' }}>
                     {!error && started && <Button color="primary" variant="outlined" href={`/record/${v._id!.toString()}`} onClick={(e) => {
                       e.preventDefault()
-                      history.push(`/record/${v._id!.toString()}`)
+                      history(`/record/${v._id!.toString()}`)
                     }}>个人战绩</Button>}
                     {started && <Button style={{ marginLeft: 'auto' }} color="primary" variant="contained" disableElevation onClick={() => join(v._id!.toString())}>参加</Button>}
                   </div>

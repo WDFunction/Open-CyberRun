@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import useSWR from 'swr';
 import type { Level } from '@cyberrun/core'
 import { Typography, TextField, Button, Paper, Box, Grid, Container, Toolbar, Link } from '@material-ui/core';
@@ -11,7 +11,7 @@ const md = new markdownIt()
 
 const Page = () => {
   const { id } = useParams<{ id: string }>();
-  const history = useHistory()
+  const history = useNavigate()
   const { data, isValidating } = useSWR<{
     level: Level
     data: {
@@ -44,7 +44,7 @@ const Page = () => {
       })
       if (r.status === 200) {
         toast.success("恭喜您通过本关")
-        history.push(`/levels/${r.data.data}`)
+        history(`/levels/${r.data.data}`)
       }
     } catch (e) {
       if (e.response.status === 403) {
@@ -90,7 +90,7 @@ const Page = () => {
               <Typography variant="h5">Info</Typography>
               {data?.data.isGuest && (
                 <Typography>您未<Link onClick={() => {
-                  history.push('/login')
+                  history('/login')
                 }}>登录</Link>, 无法提交</Typography>
               )}
               {infoData?.data.map(v => (

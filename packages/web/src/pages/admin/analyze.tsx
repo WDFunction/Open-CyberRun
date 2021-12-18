@@ -1,7 +1,7 @@
 import { Button, Paper, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@material-ui/core'
 import React from 'react'
 import AdminLayout from './layout'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 import type { Level } from '@cyberrun/core'
 
@@ -12,7 +12,7 @@ type NewLevel = Level & {
 
 const Page = () => {
   const { id } = useParams<{ id: string }>()
-  const history = useHistory()
+  const history = useNavigate()
   const { data } = useSWR<{
     stats: {
       totalTries: number
@@ -69,7 +69,7 @@ const Page = () => {
             <TableCell>{v.onlineCount}</TableCell>
             <TableCell>
               <Button variant="outlined" color="primary" onClick={() => {
-                history.push(`/admin/${id}/wordcloud/${v._id.toString()}`)
+                history(`/admin/${id}/wordcloud/${v._id.toString()}`)
               }}>回答云图</Button>
             </TableCell>
           </TableRow>

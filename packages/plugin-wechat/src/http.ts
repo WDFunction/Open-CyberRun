@@ -1,6 +1,6 @@
 import { Adapter, App, Logger, Session } from "koishi";
 import { WechatBot } from './bot'
-import parser, { j2xParser } from 'fast-xml-parser'
+import {XMLParser, XMLBuilder} from 'fast-xml-parser'
 
 export interface WechatConfig {
 
@@ -15,9 +15,10 @@ interface IComing {
   MsgId: number
 }
 
-const j2x = new j2xParser({
-  cdataTagName: "_cdata"
+const builder = new XMLBuilder({
+  cdataPropName: "_cdata"
 })
+const parser = new XMLParser();
 
 const timeout = (prom, time, exception) => {
   let timer;
@@ -38,10 +39,10 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
   }
   async start() {
     const bot = this.bots[0]
-    this.app.router.get('/wechat', async (ctx) => {
+    this.ctx.router.get('/wechat', async (ctx) => {
       ctx.body = ctx.query.echostr
     })
-    this.app.router.post('/wechat', async (ctx) => {
+    this.ctx.router.post('/wechat', async (ctx) => {
       const data: IComing = parser.parse(ctx.request.body as string).xml
       this.logger.debug('webhook %o', data)
       const body: Partial<Session> = { selfId: "test" }
@@ -60,7 +61,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
           // @ts-ignore
           bot.app.once('wechat/response/' + data.ToUserName, (resp) => {
             if(new Date().valueOf() > valid) return;
-            const r = j2x.parse({
+            const r = builder.build({
               xml: {
                 ToUserName: data.FromUserName,
                 FromUserName: data.ToUserName,

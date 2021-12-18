@@ -8,4 +8,4 @@ declare module 'koishi' {
   }
 }
 
-export = Adapter.define('wechat', WechatBot, HttpServer)
+export default Adapter.define('wechat', WechatBot, HttpServer)

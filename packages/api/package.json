@@ -4,18 +4,18 @@
     "dependencies": {
         "@cyberrun/core": "^0.0.1-alpha.1",
         "@koa/cors": "^3.1.0",
-        "@koa/router": "^10.1.0",
+        "@koa/router": "^10.1.1",
         "email-validator": "^2.0.4",
-        "koa": "^2.13.1",
+        "koa": "^2.13.4",
         "koa-bodyparser": "^4.3.0",
-        "mongodb": "^4.0.1",
-        "source-map-support": "^0.5.19"
+        "mongodb": "^4.2.2",
+        "source-map-support": "^0.5.21"
     },
     "devDependencies": {
         "@types/koa": "^2.13.4",
-        "@types/koa-bodyparser": "^4.3.2",
-        "@types/koa__cors": "^3.0.3",
-        "@types/koa__router": "^8.0.7",
-        "typescript": "^4.3.5"
+        "@types/koa-bodyparser": "^4.3.4",
+        "@types/koa__cors": "^3.1.0",
+        "@types/koa__router": "^8.0.11",
+        "typescript": "^4.5.4"
     }
 }

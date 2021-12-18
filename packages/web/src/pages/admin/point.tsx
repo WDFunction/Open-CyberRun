@@ -2,7 +2,7 @@ import { TableHead, TableCell, TableBody, Table, TableRow, Button } from '@mater
 import React from 'react'
 import useSWR from 'swr';
 import AdminLayout from './layout'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import type { Point, User } from '@cyberrun/core'
 import instance from '../../components/instance';
 import {toast} from 'react-toastify'

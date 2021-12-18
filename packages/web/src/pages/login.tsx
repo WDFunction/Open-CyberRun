@@ -2,12 +2,12 @@ import { Box, Button, Container, TextField, Typography } from '@material-ui/core
 import React, { useState } from 'react'
 import instance from '../components/instance'
 import { toast } from 'react-toastify'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [pwd, setPwd] = useState('')
-  const history = useHistory()
+  const history = useNavigate()
 
   const submit = async () => {
     try {
@@ -25,7 +25,7 @@ const LoginPage = () => {
       }
       if (r.data?.data) {
         localStorage.setItem("token", r.data.data)
-        history.push('/')
+        history('/')
       }
     } catch (e) {
       

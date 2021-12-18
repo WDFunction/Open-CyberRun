@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Forum, ListStatus, Menu, Seal, FormatListBulleted as ListIcon, MapOutline } from 'mdi-material-ui'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
-import { useHistory, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import useLocalStorage from 'react-use-localstorage'
 
 const drawerWidth = 240;
@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const AdminLayout: React.FunctionComponent = ({ children }) => {
   const classes = useStyles();
-  const history = useHistory()
+  const history = useNavigate()
   const [selected, setSelected] = useLocalStorage('admin_editing_id', '')
   const { data } = useSWR<Game[]>('/games')
   const params = useParams()
@@ -44,7 +44,7 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
   const onChange = (e: any) => {
     setSelected(e.target.value as string)
     // @ts-ignore
-    history.push(history.location.pathname.split(params.id).join(e.target.value as string))
+    history(history.location.pathname.split(params.id).join(e.target.value as string))
   }
 
   return <div className={classes.root}>
@@ -80,7 +80,7 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
       </div>
       <Divider />
       <List>
-        <ListItem button onClick={() => history.push(`/admin/games`)}>
+        <ListItem button onClick={() => history(`/admin/games`)}>
           <ListItemIcon><ListIcon /></ListItemIcon>
           <ListItemText primary="比赛列表" />
         </ListItem>
@@ -88,19 +88,19 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
       <Divider />
       {selected && (
         <List>
-          <ListItem button onClick={() => history.push(`/admin/${selected}/map`)}>
+          <ListItem button onClick={() => history(`/admin/${selected}/map`)}>
             <ListItemIcon><MapOutline /></ListItemIcon>
             <ListItemText primary="关卡编排" />
           </ListItem>
-          <ListItem button onClick={() => history.push(`/admin/${selected}/log`)}>
+          <ListItem button onClick={() => history(`/admin/${selected}/log`)}>
             <ListItemIcon><ListStatus /></ListItemIcon>
             <ListItemText primary="回答记录" />
           </ListItem>
-          <ListItem button onClick={() => history.push(`/admin/${selected}/analyze`)}>
+          <ListItem button onClick={() => history(`/admin/${selected}/analyze`)}>
             <ListItemIcon><Seal /></ListItemIcon>
             <ListItemText primary="比赛统计" />
           </ListItem>
-          <ListItem button onClick={() => history.push(`/admin/${selected}/point`)}>
+          <ListItem button onClick={() => history(`/admin/${selected}/point`)}>
             <ListItemIcon><Seal /></ListItemIcon>
             <ListItemText primary="积分排行" />
           </ListItem>

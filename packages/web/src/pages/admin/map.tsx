@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import AdminLayout from './layout';
 import G6, { Graph, GraphData } from "@antv/g6";
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import ReactDOM from 'react-dom'
 import useSWR from 'swr';
 import type { Level, LevelMap, Game } from '@cyberrun/core'
@@ -81,7 +81,7 @@ const MapPage = () => {
   const { id } = useParams<{ id: string }>()
   const { data, isValidating, mutate } = useSWR<Resp>(`/admin/games/${id}/maps`)
   const dataRef = useRef<Resp>()
-  const history = useHistory()
+  const history = useNavigate()
   const { data: gameData } = useSWR<Game>(`/admin/games/${id}`)
   const gameDataRef = useRef<Game>(null)
   const graph = useRef<Graph | null>(null)
@@ -156,7 +156,7 @@ const MapPage = () => {
   }
 
   const editLevel = (levelId: string) => {
-    history.push(`/admin/${id}/levels/${levelId}`)
+    history(`/admin/${id}/levels/${levelId}`)
     setEditing('')
     editingRef.current = ''
   }
