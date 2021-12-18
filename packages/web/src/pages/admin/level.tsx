@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import AdminLayout from './layout'
 import { useParams } from 'react-router-dom'
 import useSWR from 'swr'
-import { Box, Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from '@material-ui/core'
+import { Box, Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from '@mui/material'
 import type { Level, Game } from '@cyberrun/core'
 import instance from '../../components/instance'
 import { toast } from 'react-toastify'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@mui/styles';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

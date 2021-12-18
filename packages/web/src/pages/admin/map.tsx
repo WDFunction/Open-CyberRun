@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom'
 import useSWR from 'swr';
 import type { Level, LevelMap, Game } from '@cyberrun/core'
 import instance from '../../components/instance';
-import { Box, Popover, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, TextField } from '@material-ui/core'
+import { Box, Popover, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, TextField } from '@mui/material'
 import { toast } from 'react-toastify';
 
 

@@ -1,4 +1,4 @@
-import { TableHead, TableCell, TableBody, Table, TableRow, Button } from '@material-ui/core';
+import { TableHead, TableCell, TableBody, Table, TableRow, Button } from '@mui/material';
 import React from 'react'
 import useSWR from 'swr';
 import AdminLayout from './layout'

@@ -1,5 +1,5 @@
-import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core'
-import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
+import { AppBar, IconButton, Theme, Toolbar, Typography } from '@mui/material'
+import { makeStyles, createStyles, useTheme } from '@mui/styles';
 import React from 'react'
 import { Account, Cog } from 'mdi-material-ui'
 import { useNavigate } from 'react-router-dom'
@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
     },
     menuButton: {
-      marginRight: theme.spacing(2),
+      marginRight: theme.spacing(2)
     },
     title: {
       flexGrow: 1,
@@ -45,7 +45,7 @@ const Layout: React.FunctionComponent = ({ children }) => {
         </IconButton> */}
       </Toolbar>
     </AppBar>
-    <main style={{paddingTop: theme.spacing(2)}}>
+    <main style={{paddingTop: 16}}>
       <Toolbar />
       {children}
     </main>

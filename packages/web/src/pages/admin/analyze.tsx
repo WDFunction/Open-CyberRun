@@ -1,4 +1,4 @@
-import { Button, Paper, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@material-ui/core'
+import { Button, Paper, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import React from 'react'
 import AdminLayout from './layout'
 import { useParams, useNavigate } from 'react-router-dom'

@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react'
 import useSWR from 'swr'
 import AdminLayout from './layout'
 import type { Game } from '@cyberrun/core'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 
-import { Paper, TableHead, TableCell, TableBody, Table, TableRow, Container, IconButton, Collapse, Typography, Box, Button, Grid, TextField, FormControl, FormControlLabel, Radio, FormLabel, RadioGroup, Switch } from '@material-ui/core'
+import { Paper, TableHead, TableCell, TableBody, Table, TableRow, Container, IconButton, Collapse, Typography, Box, Button, Grid, TextField, FormControl, FormControlLabel, Radio, FormLabel, RadioGroup, Switch, Theme } from '@mui/material'
 import { ChevronUp, ChevronDown } from 'mdi-material-ui'
 
-import { DateTimePicker } from "@material-ui/pickers";
+import { DateTimePicker } from "@mui/lab";
 import instance from '../../components/instance';
 import { toast } from 'react-toastify';
 const useStyles = makeStyles({
@@ -113,24 +113,20 @@ const Row: React.FunctionComponent<{
               <Grid container spacing={2} style={{ marginBottom: 16 }}>
                 <Grid item xs>
                   <DateTimePicker
-                    onChange={(d) => setStarted(d)}
+                    renderInput={(props) => <TextField {...props} />}
+                    onChange={(d) => setStarted(d as Date)}
                     value={started}
-                    autoOk
                     ampm={false}
                     label="开始时间"
-                    fullWidth
-                    inputVariant="outlined"
                   />
                 </Grid>
                 <Grid item xs>
                   <DateTimePicker
+                    renderInput={(props) => <TextField {...props} />}
                     onChange={(d) => setEnded(d)}
                     value={ended}
-                    autoOk
                     ampm={false}
                     label="结束时间"
-                    inputVariant="outlined"
-                    fullWidth
                   />
                 </Grid>
               </Grid>

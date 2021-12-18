@@ -1,4 +1,4 @@
-import { Box, Button, Container, TextField, Typography } from '@material-ui/core'
+import { Box, Button, Container, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import instance from '../components/instance'
 import { toast } from 'react-toastify'

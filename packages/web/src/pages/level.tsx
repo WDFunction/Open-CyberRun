@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import useSWR from 'swr';
 import type { Level } from '@cyberrun/core'
-import { Typography, TextField, Button, Paper, Box, Grid, Container, Toolbar, Link } from '@material-ui/core';
+import { Typography, TextField, Button, Paper, Box, Grid, Container, Toolbar, Link } from '@mui/material';
 import instance from '../components/instance';
 import { toast } from 'react-toastify';
 import markdownIt from 'markdown-it'

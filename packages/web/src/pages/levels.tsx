@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 import type { Level, Game } from '@cyberrun/core'
-import { Button, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Menu, Popover, Typography } from '@material-ui/core'
+import { Button, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Menu, Popover, Typography } from '@mui/material'
 import { Card, MapMarker } from 'mdi-material-ui'
 
 const LevelsPage = () => {

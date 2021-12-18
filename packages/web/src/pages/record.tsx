@@ -2,9 +2,8 @@ import React from 'react'
 import useSWR from 'swr'
 import Layout from '../components/layout'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Alert, AlertTitle } from '@material-ui/lab'
 import type { Game, Level, Log, Point } from '@cyberrun/core'
-import { Typography, Container, Box, Button } from '@material-ui/core'
+import { Typography, Container, Box, Button, Alert, AlertTitle } from '@mui/material'
 const Page = () => {
   const { id } = useParams<{ id: string }>()
   const history = useNavigate()

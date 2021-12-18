@@ -49,7 +49,7 @@ export default class LevelModule {
    * 前端 获取关卡
    */
   async getGameLevels(gameId: ObjectId, user?: User) {
-    const {_id: userId, admin} = user
+    const {_id: userId = null, admin = false} = user || {}
     let game = await this.core.game.get(gameId, admin)
     if (!game) {
       throw new Error("比赛不存在")

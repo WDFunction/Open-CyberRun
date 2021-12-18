@@ -1,12 +1,11 @@
-import { Button, Card, CardActions, CardContent, CardMedia, Grid, Typography, Container, Chip, Link, Box } from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, CardMedia, Grid, Typography, Container, Chip, Link, Box, Alert, Theme } from '@mui/material';
 import React, { useState } from 'react'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/layout';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import { AlertCircleOutline } from 'mdi-material-ui';
-import { Alert } from '@material-ui/lab';
 import useInterval from '../components/useInterval';
 import { intervalToDuration, formatDistance } from 'date-fns';
 import { zhCN } from 'date-fns/locale';

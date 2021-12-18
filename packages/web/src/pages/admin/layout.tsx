@@ -1,9 +1,10 @@
-import { AppBar, Box, createStyles, Divider, Drawer, FormControl, Icon, IconButton, InputLabel, List, ListItem, ListItemIcon, ListItemText, makeStyles, MenuItem, Select, SvgIcon, Theme, Toolbar, Typography } from '@material-ui/core'
+import { AppBar, Box, Divider, Drawer, FormControl, Icon, IconButton, InputLabel, List, ListItem, ListItemIcon, ListItemText,  MenuItem, Select, SvgIcon, Theme, Toolbar, Typography } from '@mui/material'
+import { makeStyles, createStyles, useTheme } from '@mui/styles';
 import React, { useState } from 'react'
 import { Forum, ListStatus, Menu, Seal, FormatListBulleted as ListIcon, MapOutline } from 'mdi-material-ui'
 import useSWR from 'swr';
 import type { Game } from '@cyberrun/core'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import useLocalStorage from 'react-use-localstorage'
 
 const drawerWidth = 240;
@@ -37,6 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const AdminLayout: React.FunctionComponent = ({ children }) => {
   const classes = useStyles();
   const history = useNavigate()
+  const location = useLocation();
   const [selected, setSelected] = useLocalStorage('admin_editing_id', '')
   const { data } = useSWR<Game[]>('/games')
   const params = useParams()
@@ -44,7 +46,7 @@ const AdminLayout: React.FunctionComponent = ({ children }) => {
   const onChange = (e: any) => {
     setSelected(e.target.value as string)
     // @ts-ignore
-    history(history.location.pathname.split(params.id).join(e.target.value as string))
+    history(location.pathname.split(params.id).join(e.target.value as string))
   }
 
   return <div className={classes.root}>

@@ -1,5 +1,5 @@
 import type { User } from '@cyberrun/core'
-import { Button, Card, CardActions, CardContent, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Typography } from '@material-ui/core'
+import { Button, Card, CardActions, CardContent, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Typography } from '@mui/material'
 import React, { useState, useEffect } from 'react'
 import useSWR from 'swr'
 import Layout from '../components/layout'
@@ -19,9 +19,6 @@ const Page = () => {
       data: { token, selected }
     })
   }
-  useEffect(() => {
-
-  }, [])
 
   if (error || !data) {
     return <Layout>

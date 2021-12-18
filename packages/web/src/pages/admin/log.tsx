@@ -2,9 +2,8 @@ import React, { useState } from 'react'
 import AdminLayout from './layout'
 import { useParams } from 'react-router-dom'
 import useSWR from 'swr';
-import { Avatar, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
+import { Avatar, Table, TableBody, TableCell, TableHead, TableRow, Typography, Pagination } from '@mui/material';
 import type { Log, User, Level } from '@cyberrun/core'
-import { Pagination } from '@material-ui/lab'
 import { ChevronDoubleRight, Close, Check } from 'mdi-material-ui'
 import md5 from '../../components/md5'
 
