@@ -11,7 +11,12 @@ export async function apply(ctx: Context, options: {
   ctx.command('levels', '查看关卡列表')
     .userFields(['inGameId'])
     .action(async ({ session }) => {
-      return await cbr.platform.getGameLevels(session.userId, session.user.inGameId)
+      let [str, levels] = await cbr.platform.getGameLevels(session.userId, session.user.inGameId)
+      // if(levels.length === 1){
+      //  await session.execute(`level ${levels[0]._id.toString()}`)
+      //}else{
+      return str;
+      //}
     })
 
   ctx

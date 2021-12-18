@@ -1,6 +1,6 @@
 import { Adapter, App, Logger, Session } from "koishi";
 import { WechatBot } from './bot'
-import {XMLParser, XMLBuilder} from 'fast-xml-parser'
+import { XMLParser, XMLBuilder } from 'fast-xml-parser'
 
 export interface WechatConfig {
 
@@ -49,7 +49,7 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
       body.messageId = data.MsgId.toString()
       body.type = "message"
       body.timestamp = data.CreateTime
-      body.content = data.Content
+      body.content = data.Content.toString()
       body.userId = data.FromUserName
       body.channelId = data.ToUserName
       body.subtype === "private"
@@ -57,22 +57,19 @@ export default class HttpServer extends Adapter<WechatBot.Config, WechatConfig> 
       this.dispatch(session)
       try {
         let valid = new Date().valueOf() + 4500
-        await timeout(new Promise((resolve) => {
+        await timeout(new Promise((resolve, reject) => {
           // @ts-ignore
           bot.app.once('wechat/response/' + data.ToUserName, (resp) => {
-            if(new Date().valueOf() > valid) return;
+            if (new Date().valueOf() > valid) reject("timeout");
             const r = builder.build({
               xml: {
                 ToUserName: data.FromUserName,
                 FromUserName: data.ToUserName,
                 CreateTime: Math.floor(new Date().valueOf() / 1000),
                 MsgType: "text",
-                Content: {
-                  _cdata: resp.content
-                }
+                Content: resp.content
               }
             })
-
             this.logger.debug('receive message response from app: %o', resp)
             ctx.body = r
             resolve(1)

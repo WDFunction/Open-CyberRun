@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { Game } from "./game";
 import { CyberRun } from "../app";
 import { Logger } from '../logger'
-
+import { Level } from "./level";
 export default class PlatformModule {
   core: CyberRun
   logger = new Logger('platform')
@@ -31,13 +31,13 @@ export default class PlatformModule {
 
   async games() {
     let list = await this.core.game.list()
-    return list.map(v => `[${v.alias ?? v._id.toString()}] ${v.name}`).join("\n")
+    return list.map(v => `[${v.alias || v._id.toString()}] ${v.name}`).join("\n")
   }
 
-  async getGameLevels(wxUserId: string, gameId: string) {
+  async getGameLevels(wxUserId: string, gameId: string): Promise<[string, Partial<Level>[]]> {
     let user = await this.ensureUser(wxUserId)
     let levels = await this.core.level.getGameLevels(new ObjectId(gameId), user)
-    return levels.map(v => `[${v.alias ?? v._id.toString()}] ${v.title}`).join("\n")
+    return [levels.map(v => `[${v.alias || v._id.toString()}] ${v.title}`).join("\n"), levels]
   }
 
   async joinGame(wxUserId: string, gameId: string) {
