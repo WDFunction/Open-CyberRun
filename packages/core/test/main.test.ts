@@ -48,7 +48,7 @@ describe('test', () => {
     test('patch game', async () => {
       const date = new Date()
       let r = await cbr.game.adminUpdate(gameId, {
-        startedAt: date.toISOString(), endedAt: date.toISOString(), map: "", cover: "", type: "meta"
+        startedAt: date.toISOString(), endedAt: date.toISOString(), map: "", cover: "", type: "meta", hidden: false
       })
       expect(r).toBeDefined()
     })
@@ -63,10 +63,10 @@ describe('test', () => {
     })
 
     test('create maps', async () => {
-      await cbr.level.adminAddMap({ fromLevelId: levels.a, toLevelId: levels.b })
-      await cbr.level.adminAddMap({ fromLevelId: levels.b, toLevelId: levels.meta })
-      await cbr.level.adminAddMap({ fromLevelId: levels.c, toLevelId: levels.meta })
-      await cbr.level.adminAddMap({ fromLevelId: levels.meta, toLevelId: levels.end })
+      await cbr.level.adminAddMap({ gameId, fromLevelId: levels.a, toLevelId: levels.b })
+      await cbr.level.adminAddMap({ gameId, fromLevelId: levels.b, toLevelId: levels.meta })
+      await cbr.level.adminAddMap({ gameId, fromLevelId: levels.c, toLevelId: levels.meta })
+      await cbr.level.adminAddMap({ gameId, fromLevelId: levels.meta, toLevelId: levels.end })
     })
 
     test('access levels', async () => {

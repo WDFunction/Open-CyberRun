@@ -1,4 +1,4 @@
-import { Collection, ObjectId, Document, Timestamp } from "mongodb";
+import { Collection, ObjectId, Document, Timestamp, WithId } from "mongodb";
 import { CyberRun } from "../app";
 import { Level, LevelMap } from "./level";
 import { User } from "./user";
@@ -567,10 +567,10 @@ export default class GameModule {
    */
   async adminStats(gameId: ObjectId) {
     let game = await this.get(gameId, true)
-    let levels: NewLevel[] = await this.core.level.levelCol.find({
+    let levels = await this.core.level.levelCol.find({
       gameId: game._id
-    }).toArray()
-    type NewLevel = Level & {
+    }).toArray() as NewLevel[]
+    type NewLevel = WithId<Level> & {
       avgSubmit: number;
       onlineCount: number;
     }

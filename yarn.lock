@@ -5621,6 +5621,16 @@ responselike@^1.0.2:
   dependencies:
     lowercase-keys "^1.0.0"
 
+rete-react-render-plugin@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/rete-react-render-plugin/-/rete-react-render-plugin-0.2.1.tgz#71a6d73f18f850b85262563f678b40080a7b0e32"
+  integrity sha512-2ZMXUP0v+EiejHVMqdrOmUwyDBHC2UDOJ/pFkElaZL1Kn/E40JZA5yzdBXi6ajYZI2DCzoW5ZBcA2Ihjtur8MQ==
+
+rete@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/rete/-/rete-1.4.5.tgz#57d83ad34694d9ffb5a287fc4a226e97307b9fbe"
+  integrity sha512-Y+Y9tszG//jU1GK2HIVlV+T9JFcLjY95y5K3oPBWLWPtD3puOn949BicC5AYrI0S3VFn3+zu9xTYpeidPI5xqw==
+
 rifm@^0.12.1:
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/rifm/-/rifm-0.12.1.tgz#8fa77f45b7f1cda2a0068787ac821f0593967ac4"
